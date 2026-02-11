@@ -9,7 +9,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  // GitHub Pages configuration for user page (syed-913.github.io)
-  // User pages deploy to root, so base is '/'
-  base: '/',
+  // GitHub Pages configuration
+  // Repository name is 'syed-portfolio.github.io', so it's a project page
+  // Project pages deploy to: https://username.github.io/repo-name/
+  base: '/syed-portfolio.github.io/',
 })
