@@ -12,7 +12,7 @@ import NotFound from './pages/NotFound';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/syed-portfolio.github.io">
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
