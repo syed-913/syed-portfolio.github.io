@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-background-dark text-white font-display min-h-screen flex flex-col selection:bg-primary selection:text-black overflow-x-hidden;
+  }
+}
+
+@layer utilities {
+  .bg-grid {
+    background-size: 40px 40px;
+  }
+
+  .code-block {
+    font-variant-ligatures: none;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111417;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d3640;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00a89a;
+}
