@@ -17,7 +17,7 @@ import { AnalyticsTracker } from './components/features/AnalyticsTracker';
 
 function App() {
   return (
-    <Router basename="/syed-portfolio.github.io">
+    <Router basename="/">
       <AnalyticsTracker />
       <Routes>
         {/* ... routes ... */}
