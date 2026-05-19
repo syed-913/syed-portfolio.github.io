@@ -5,10 +5,8 @@
     <meta charset="utf-8">
     <title>Redirecting...</title>
     <script>
-        // GitHub Pages SPA redirect for project pages
-        // This handles client-side routing by redirecting all 404s to index.html
 
-        var pathSegmentsToKeep = 1; // Keep '/syed-portfolio.github.io' segment
+        var pathSegmentsToKeep = 0;
 
         var l = window.location;
         var path = l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/';
