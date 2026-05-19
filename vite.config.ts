@@ -12,7 +12,7 @@ export default defineConfig({
   // GitHub Pages configuration
   // Repository name is 'syed-portfolio.github.io', so it's a project page
   // Project pages deploy to: https://username.github.io/repo-name/
-  base: '/syed-portfolio.github.io/',
+  base: '/',
   build: {
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
