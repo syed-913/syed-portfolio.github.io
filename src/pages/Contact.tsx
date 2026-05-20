@@ -60,12 +60,16 @@ const Contact: React.FC = () => {
                 ]);
                 setStatus('ERROR');
             } else if (response.ok) {
-                // Also save to Firebase
-                await addItem('messages', {
-                    ...formData,
-                    createdAt: new Date().toISOString(),
-                    read: false
-                });
+                // Also save to Firebase, but don't fail if permissions are missing
+                try {
+                    await addItem('messages', {
+                        ...formData,
+                        createdAt: new Date().toISOString(),
+                        read: false
+                    });
+                } catch (dbError) {
+                    console.warn("Failed to save to database (insufficient permissions), but message was sent via webhook:", dbError);
+                }
 
                 setLogs(prev => [...prev, 'ACK received.', 'Message delivered successfully.', 'Closing connection...']);
                 setStatus('SUCCESS');
