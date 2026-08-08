@@ -18,6 +18,14 @@ export interface Certificate {
   issuerLogo?: string;
   date: string;
   imageUrl?: string;
+  /** ImageKit file ID for dashboard-side deletion/replacement of uploaded credentials. */
+  mediaFileId?: string;
+  mediaProvider?: 'imagekit';
+  /** @deprecated Legacy Firebase Storage field retained for older documents only. */
+  storagePath?: string;
+  credentialUrl?: string;
+  image?: string;
+  url?: string;
   category?: 'Hard' | 'Challenging' | 'Easy';
   details?: string;
   credentialId?: string;
@@ -30,6 +38,8 @@ export interface Experience {
   role: string;
   company: string;
   duration: string;
+  startDate?: string;
+  endDate?: string;
   description: string[];
   techStack: string[];
   visible: boolean;

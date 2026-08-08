@@ -14,8 +14,9 @@ const Contact = () => {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setStatus('sending'); setError('');
-    const webhookUrl = import.meta.env.VITE_WEBHOOK_PROXY_URL || import.meta.env.VITE_DISCORD_WEBHOOK_URL || 'https://discord-webhook-proxy.syedammar06.workers.dev/';
+    const webhookUrl = import.meta.env.VITE_WEBHOOK_PROXY_URL || import.meta.env.VITE_DISCORD_WEBHOOK_URL;
     try {
+      if (!webhookUrl) throw new Error('The contact channel is temporarily unavailable.');
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

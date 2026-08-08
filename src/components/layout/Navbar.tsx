@@ -12,8 +12,8 @@ export const Navbar = () => {
     { to: '/about', label: settings.ui.navProfile },
     { to: '/projects', label: settings.ui.navWork },
     { to: '/experience', label: settings.ui.navExperience },
-    { to: '/achievements', label: settings.ui.navCredentials },
-    { to: '/journals', label: settings.ui.navWriting },
+    { to: '/credentials', label: settings.ui.navCredentials },
+    { to: '/writing', label: settings.ui.navWriting },
   ];
 
   useEffect(() => setOpen(false), [location.pathname]);

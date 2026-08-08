@@ -1,11 +1,24 @@
+import { useEffect, useState } from 'react';
 import { ArrowUpRight, Cpu, FlaskConical, Network, Wrench } from 'lucide-react';
 import { SEO } from '../components/features/SEO';
 import { PageIntro } from '../components/ui/PageIntro';
 import { Reveal } from '../components/ui/Reveal';
 import { useSiteSettings } from '../hooks/useSiteSettings';
+import { getPublicExperience } from '../services/db';
+import { formatProfessionalExperience } from '../lib/experience';
+import type { Experience } from '../types/database';
 
 const About = () => {
   const { settings } = useSiteSettings();
+  const [experience, setExperience] = useState<Experience[]>([]);
+  const [experienceLoading, setExperienceLoading] = useState(true);
+
+  useEffect(() => {
+    getPublicExperience().then(setExperience).catch(() => setExperience([])).finally(() => setExperienceLoading(false));
+  }, []);
+
+  const professionalExperience = experienceLoading ? 'Calculating…' : formatProfessionalExperience(experience);
+
   return (
     <>
       <SEO title={`Profile — ${settings.shortName}`} description={settings.aboutBody} path="/about" />
@@ -19,7 +32,7 @@ const About = () => {
         </Reveal>
         <Reveal className="profile-facts" delay={0.08}>
           <div><span>Based in</span><strong>{settings.location}</strong></div>
-          <div><span>Professional experience</span><strong>{settings.ui.aboutFactExperience}</strong></div>
+          <div><span>Professional experience</span><strong className={experienceLoading ? 'soft-loading-text' : ''}>{professionalExperience}</strong></div>
           <div><span>Learning style</span><strong>{settings.ui.aboutFactLearning}</strong></div>
           <div><span>Direction</span><strong>{settings.ui.aboutFactDirection}</strong></div>
         </Reveal>
@@ -33,10 +46,10 @@ const About = () => {
           </div>
         </Reveal>
         <div className="interest-grid">
-          <Reveal className="interest-card"><Cpu /><h3>{settings.ui.interestSystemsTitle}</h3><p>{settings.ui.interestSystemsBody}</p></Reveal>
-          <Reveal className="interest-card" delay={0.05}><Network /><h3>{settings.ui.interestInfrastructureTitle}</h3><p>{settings.ui.interestInfrastructureBody}</p></Reveal>
-          <Reveal className="interest-card" delay={0.1}><Wrench /><h3>{settings.ui.interestAutomationTitle}</h3><p>{settings.ui.interestAutomationBody}</p></Reveal>
-          <Reveal className="interest-card" delay={0.15}><FlaskConical /><h3>{settings.ui.interestHomelabTitle}</h3><p>{settings.ui.interestHomelabBody}</p></Reveal>
+          <Reveal className="interest-card"><span className="card-signal"><Cpu /></span><h3>{settings.ui.interestSystemsTitle}</h3><p>{settings.ui.interestSystemsBody}</p></Reveal>
+          <Reveal className="interest-card" delay={0.05}><span className="card-signal"><Network /></span><h3>{settings.ui.interestInfrastructureTitle}</h3><p>{settings.ui.interestInfrastructureBody}</p></Reveal>
+          <Reveal className="interest-card" delay={0.1}><span className="card-signal"><Wrench /></span><h3>{settings.ui.interestAutomationTitle}</h3><p>{settings.ui.interestAutomationBody}</p></Reveal>
+          <Reveal className="interest-card" delay={0.15}><span className="card-signal"><FlaskConical /></span><h3>{settings.ui.interestHomelabTitle}</h3><p>{settings.ui.interestHomelabBody}</p></Reveal>
         </div>
       </section>
 
