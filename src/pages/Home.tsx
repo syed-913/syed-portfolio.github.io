@@ -7,7 +7,7 @@ import { DataLoading } from '../components/ui/DataState';
 import { SEO } from '../components/features/SEO';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { getPublicCertificates, getPublicExperience, getPublicPosts, getPublicProjects } from '../services/db';
-import { displayExperienceDuration } from '../lib/experience';
+import { displayExperienceDuration, formatProfessionalExperience } from '../lib/experience';
 import type { BlogPost, Certificate, Experience, Project } from '../types/database';
 
 const icons = [Server, Cloud, Container, Gauge];
@@ -85,6 +85,35 @@ const Home = () => {
         <p>{settings.ui.homeManifestoB}</p>
       </section>
 
+      <section className="snapshot-section" aria-label="Professional snapshot">
+        <Reveal className="snapshot-heading">
+          <p className="eyebrow">{settings.ui.snapshotEyebrow}</p>
+          <h2>{settings.ui.snapshotTitle}</h2>
+        </Reveal>
+        <div className="snapshot-grid">
+          <Reveal className="snapshot-cell" delay={0.02}>
+            <span>01</span>
+            <strong>{loading ? '—' : formatProfessionalExperience(experience)}</strong>
+            <small>{settings.ui.snapshotExperience}</small>
+          </Reveal>
+          <Reveal className="snapshot-cell" delay={0.05}>
+            <span>02</span>
+            <strong>{loading ? '—' : projects.length}</strong>
+            <small>{settings.ui.snapshotProjects}</small>
+          </Reveal>
+          <Reveal className="snapshot-cell" delay={0.08}>
+            <span>03</span>
+            <strong>{loading ? '—' : certificates.length}</strong>
+            <small>{settings.ui.snapshotCredentials}</small>
+          </Reveal>
+          <Reveal className="snapshot-cell snapshot-direction" delay={0.11}>
+            <span>04</span>
+            <strong>{settings.heroKicker}</strong>
+            <small>{settings.ui.snapshotDirection}</small>
+          </Reveal>
+        </div>
+      </section>
+
       <section className="content-section">
         <Reveal>
           <div className="section-heading-row">
@@ -126,7 +155,16 @@ const Home = () => {
               <div className="project-preview-copy">
                 <h3>{project.name}</h3>
                 <p>{project.description}</p>
-                <a href={project.url} target="_blank" rel="noreferrer" className="text-link">{settings.ui.projectInspectCta} <ArrowDownRight size={15} /></a>
+                {(project.outcome || project.stack?.length) && (
+                  <div className="project-preview-evidence">
+                    {project.outcome && <div><span>{settings.ui.projectOutcomeLabel}</span><strong>{project.outcome}</strong></div>}
+                    {!!project.stack?.length && <div className="project-stack-row">{project.stack.slice(0, 4).map((tool) => <span key={tool}>{tool}</span>)}</div>}
+                  </div>
+                )}
+                <div className="project-preview-actions">
+                  <Link to="/projects" className="text-link">{settings.ui.projectStoryCta} <ArrowRight size={15} /></Link>
+                  {project.url && <a href={project.url} target="_blank" rel="noreferrer" className="project-external-link" aria-label={`Open ${project.name} externally`}>↗</a>}
+                </div>
               </div>
             </Reveal>
           ))}

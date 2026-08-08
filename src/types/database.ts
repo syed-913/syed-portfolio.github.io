@@ -4,6 +4,13 @@ export interface Project {
   repoPath?: string;
   command: string;
   description: string;
+  /** Optional case-study context. Existing project documents remain valid without these fields. */
+  problem?: string;
+  built?: string;
+  decisions?: string[];
+  outcome?: string;
+  learnings?: string;
+  stack?: string[];
   url: string;
   output: string;
   visible: boolean;
@@ -51,7 +58,8 @@ export interface BlogPost {
   title: string;
   slug: string;
   date: string;
-  readTime: string;
+  /** @deprecated v9 derives reading time from content automatically. Existing values are still accepted as fallback metadata. */
+  readTime?: string;
   tags: string[];
   content: string;
   visible: boolean;
@@ -104,8 +112,22 @@ export interface InterfaceCopy {
   signalsCredentials: string;
   signalsWriting: string;
   signalsNote: string;
+  snapshotEyebrow: string;
+  snapshotTitle: string;
+  snapshotExperience: string;
+  snapshotProjects: string;
+  snapshotCredentials: string;
+  snapshotDirection: string;
+  projectStoryCta: string;
+  projectProblemLabel: string;
+  projectBuiltLabel: string;
+  projectDecisionsLabel: string;
+  projectOutcomeLabel: string;
+  projectLearningsLabel: string;
   writingEyebrow: string;
   writingAllCta: string;
+  writingPrevious: string;
+  writingNext: string;
   connectEyebrow: string;
   connectCta: string;
   aboutIntroEyebrow: string;
