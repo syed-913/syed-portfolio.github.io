@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDownRight, ArrowRight, Cloud, Container, Gauge, Network, Server, Sparkles } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, Cloud, Container, Gauge, GraduationCap, Network, Server, Sparkles } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Reveal } from '../components/ui/Reveal';
 import { DataLoading } from '../components/ui/DataState';
@@ -8,7 +8,7 @@ import { SEO } from '../components/features/SEO';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { getPublicCertificates, getPublicExperience, getPublicPosts, getPublicProjects } from '../services/db';
 import { displayExperienceDuration, formatProfessionalExperience } from '../lib/experience';
-import type { BlogPost, Certificate, Experience, Project } from '../types/database';
+import { learningEntryType, type BlogPost, type Certificate, type Experience, type Project } from '../types/database';
 
 const icons = [Server, Cloud, Container, Gauge];
 
@@ -34,6 +34,10 @@ const Home = () => {
       setCertificates(certificateData);
     }).finally(() => setLoading(false));
   }, []);
+
+  const certificationItems = certificates.filter((item) => learningEntryType(item) === 'certificate');
+  const educationItems = certificates.filter((item) => learningEntryType(item) === 'education');
+  const activeEducation = educationItems.find((item) => item.educationStatus === 'in_progress');
 
   return (
     <>
@@ -103,8 +107,8 @@ const Home = () => {
           </Reveal>
           <Reveal className="snapshot-cell" delay={0.08}>
             <span>03</span>
-            <strong>{loading ? '—' : certificates.length}</strong>
-            <small>{settings.ui.snapshotCredentials}</small>
+            <strong>{loading ? '—' : `${certificationItems.length} / ${educationItems.length}`}</strong>
+            <small>{settings.ui.snapshotCredentials} / {settings.ui.snapshotEducation}</small>
           </Reveal>
           <Reveal className="snapshot-cell snapshot-direction" delay={0.11}>
             <span>04</span>
@@ -112,6 +116,13 @@ const Home = () => {
             <small>{settings.ui.snapshotDirection}</small>
           </Reveal>
         </div>
+        {!loading && activeEducation && (
+          <Reveal className="snapshot-learning" delay={0.14}>
+            <span className="snapshot-learning-icon"><GraduationCap size={17} /></span>
+            <div><small>{settings.ui.snapshotCurrentlyStudying}</small><strong>{activeEducation.name}</strong><span>{activeEducation.institution || activeEducation.issuer || 'Academic program'}{activeEducation.endDate ? ` · expected ${activeEducation.endDate}` : ''}</span></div>
+            <Link to="/credentials" className="text-link">{settings.ui.snapshotLearningCta} <ArrowRight size={14} /></Link>
+          </Reveal>
+        )}
       </section>
 
       <section className="content-section">
@@ -192,7 +203,8 @@ const Home = () => {
         <Reveal className="numbers-panel" delay={0.08}>
           <p className="eyebrow">{settings.ui.signalsEyebrow}</p>
           <div className="big-number"><strong>{loading ? '—' : projects.length}</strong><span>{settings.ui.signalsProjects}</span></div>
-          <div className="big-number"><strong>{loading ? '—' : certificates.length}</strong><span>{settings.ui.signalsCredentials}</span></div>
+          <div className="big-number"><strong>{loading ? '—' : certificationItems.length}</strong><span>{settings.ui.signalsCredentials}</span></div>
+          <div className="big-number"><strong>{loading ? '—' : educationItems.length}</strong><span>{settings.ui.signalsEducation}</span></div>
           <div className="big-number"><strong>{loading ? '—' : posts.length}</strong><span>{settings.ui.signalsWriting}</span></div>
           <p className="numbers-note">{settings.ui.signalsNote}</p>
         </Reveal>

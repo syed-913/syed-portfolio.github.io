@@ -17,13 +17,23 @@ export interface Project {
   order: number;
 }
 
+export type LearningEntryType = 'certificate' | 'education';
+export type EducationStatus = 'completed' | 'in_progress';
+
+/**
+ * A single learning record. Existing Firestore documents without `entryType`
+ * are treated as certificates, so v10 requires no data migration.
+ */
 export interface Certificate {
   id?: string;
   name: string;
-  issuer: string;
-  /** @deprecated Legacy field retained for existing Firestore documents. The UI now derives issuer identity from `issuer`. */
+  entryType?: LearningEntryType;
+
+  // Certification fields
+  issuer?: string;
+  /** @deprecated Legacy field retained for existing Firestore documents. The UI derives issuer identity automatically. */
   issuerLogo?: string;
-  date: string;
+  date?: string;
   imageUrl?: string;
   /** ImageKit file ID for dashboard-side deletion/replacement of uploaded credentials. */
   mediaFileId?: string;
@@ -34,11 +44,21 @@ export interface Certificate {
   image?: string;
   url?: string;
   category?: 'Hard' | 'Challenging' | 'Easy';
-  details?: string;
   credentialId?: string;
+
+  // Education / academic learning fields
+  institution?: string;
+  field?: string;
+  startDate?: string;
+  endDate?: string;
+  educationStatus?: EducationStatus;
+
+  details?: string;
   visible: boolean;
   order: number;
 }
+
+export const learningEntryType = (entry: Certificate): LearningEntryType => entry.entryType === 'education' ? 'education' : 'certificate';
 
 export interface Experience {
   id?: string;
@@ -110,6 +130,7 @@ export interface InterfaceCopy {
   signalsEyebrow: string;
   signalsProjects: string;
   signalsCredentials: string;
+  signalsEducation: string;
   signalsWriting: string;
   signalsNote: string;
   snapshotEyebrow: string;
@@ -117,6 +138,9 @@ export interface InterfaceCopy {
   snapshotExperience: string;
   snapshotProjects: string;
   snapshotCredentials: string;
+  snapshotEducation: string;
+  snapshotCurrentlyStudying: string;
+  snapshotLearningCta: string;
   snapshotDirection: string;
   projectStoryCta: string;
   projectProblemLabel: string;
@@ -158,6 +182,21 @@ export interface InterfaceCopy {
   experienceEmptyTitle: string;
   experienceEmptyBody: string;
   credentialsIntroEyebrow: string;
+  credentialsCertificatesEyebrow: string;
+  credentialsCertificatesTitle: string;
+  credentialsCertificatesIntro: string;
+  credentialsEducationEyebrow: string;
+  credentialsEducationTitle: string;
+  credentialsEducationIntro: string;
+  educationInProgress: string;
+  educationCompleted: string;
+  educationFieldLabel: string;
+  educationPeriodLabel: string;
+  certificateEmptyTitle: string;
+  certificateEmptyBody: string;
+  educationEmptyTitle: string;
+  educationEmptyBody: string;
+  credentialUnavailable: string;
   credentialViewCta: string;
   writingIntroEyebrow: string;
   contactIntroEyebrow: string;
