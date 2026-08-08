@@ -1,83 +1,62 @@
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
+import { ThemeToggle } from '../ui/ThemeToggle';
+import { useSiteSettings } from '../../hooks/useSiteSettings';
 
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Terminal } from 'lucide-react';
-import { cn } from '../../lib/utils';
+export const Navbar = () => {
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const { settings } = useSiteSettings();
+  const links = [
+    { to: '/about', label: settings.ui.navProfile },
+    { to: '/projects', label: settings.ui.navWork },
+    { to: '/experience', label: settings.ui.navExperience },
+    { to: '/achievements', label: settings.ui.navCredentials },
+    { to: '/journals', label: settings.ui.navWriting },
+  ];
 
-const navItems = [
-    { name: './home', path: '/' },
-    { name: './about', path: '/about' },
-    { name: './experience', path: '/experience' },
-    { name: './projects', path: '/projects' },
-    { name: './achievements', path: '/achievements' },
-    { name: './journals', path: '/journals' },
-    { name: './contact', path: '/contact' },
-];
+  useEffect(() => setOpen(false), [location.pathname]);
 
-export const Navbar: React.FC = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const location = useLocation();
+  return (
+    <header className="site-nav-wrap">
+      <nav className="site-nav" aria-label="Primary navigation">
+        <Link to="/" className="brand" aria-label={`${settings.shortName} home`}>
+          <span className="brand-mark"><img src="/profile-avatar.webp" alt="" aria-hidden="true" /></span>
+          <span className="brand-copy">
+            <strong>{settings.shortName}</strong>
+            <small>{settings.ui.navTagline}</small>
+          </span>
+        </Link>
 
-    return (
-        <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-background-dark/80 backdrop-blur-md">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 items-center justify-between">
-                    <div className="flex items-center">
-                        <Link
-                            to="/"
-                            className="font-mono text-sm md:text-base font-bold tracking-tight text-white hover:text-primary transition-colors duration-200 flex items-center gap-2"
-                        >
-                            <Terminal size={18} className="text-primary" />
-                            <span className="text-primary">[syed-ammar@portfolio ~]#</span>
-                        </Link>
-                    </div>
+        <div className="desktop-nav">
+          {links.map((link) => (
+            <NavLink key={link.to} to={link.to} className={({ isActive }) => `nav-link ${isActive ? 'is-active' : ''}`}>
+              {link.label}
+            </NavLink>
+          ))}
+          <ThemeToggle className="nav-theme-toggle" />
+          <Link to="/contact" className="nav-cta">{settings.ui.navConnect} <span aria-hidden="true">↗</span></Link>
+        </div>
 
-                    <nav className="hidden md:flex gap-6 lg:gap-8">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={cn(
-                                    "font-mono text-sm transition-colors hover:text-white",
-                                    location.pathname === item.path ? "text-primary" : "text-gray-400"
-                                )}
-                            >
-                                {item.name}
-                            </Link>
-                        ))}
-                    </nav>
+        <div className="nav-controls">
+          <ThemeToggle className="mobile-theme-toggle" />
+          <button className="menu-button" onClick={() => setOpen((value) => !value)} aria-label="Toggle menu" aria-expanded={open}>
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </nav>
 
-                    <div className="md:hidden">
-                        <button
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="text-gray-400 hover:text-white transition-colors"
-                        >
-                            {isOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Mobile Menu */}
-            {isOpen && (
-                <div className="md:hidden border-t border-white/5 bg-background-dark">
-                    <div className="space-y-1 px-4 py-3">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                onClick={() => setIsOpen(false)}
-                                className={cn(
-                                    "block py-2 font-mono text-sm hover:text-white transition-colors",
-                                    location.pathname === item.path ? "text-primary" : "text-gray-400"
-                                )}
-                            >
-                                {item.name}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </header>
-    );
+      {open && (
+        <div className="mobile-panel">
+          {links.map((link, index) => (
+            <NavLink key={link.to} to={link.to} className="mobile-link">
+              <span>0{index + 1}</span>{link.label}
+            </NavLink>
+          ))}
+          <Link to="/contact" className="mobile-link"><span>06</span>{settings.ui.navConnect}</Link>
+        </div>
+      )}
+    </header>
+  );
 };

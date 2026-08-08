@@ -1,98 +1,68 @@
+import { ArrowUpRight, Cpu, FlaskConical, Network, Wrench } from 'lucide-react';
+import { SEO } from '../components/features/SEO';
+import { PageIntro } from '../components/ui/PageIntro';
+import { Reveal } from '../components/ui/Reveal';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
-import React from 'react';
-import { TerminalWindow } from '../components/ui/TerminalWindow';
+const About = () => {
+  const { settings } = useSiteSettings();
+  return (
+    <>
+      <SEO title={`Profile — ${settings.shortName}`} description={settings.aboutBody} path="/about" />
+      <PageIntro eyebrow={settings.ui.aboutIntroEyebrow} title={settings.aboutTitle} intro={settings.aboutBody} />
 
-const About: React.FC = () => {
-    return (
-        <div className="flex flex-col items-center min-h-[calc(100vh-8rem)] w-full">
+      <section className="content-section profile-layout">
+        <Reveal className="profile-statement">
+          <p className="eyebrow">{settings.ui.aboutPhilosophyEyebrow}</p>
+          <blockquote>“{settings.ui.aboutQuote}”</blockquote>
+          <p>{settings.aboutNote}</p>
+        </Reveal>
+        <Reveal className="profile-facts" delay={0.08}>
+          <div><span>Based in</span><strong>{settings.location}</strong></div>
+          <div><span>Professional experience</span><strong>{settings.ui.aboutFactExperience}</strong></div>
+          <div><span>Learning style</span><strong>{settings.ui.aboutFactLearning}</strong></div>
+          <div><span>Direction</span><strong>{settings.ui.aboutFactDirection}</strong></div>
+        </Reveal>
+      </section>
 
-            {/* Page Header */}
-            <div className="w-full mb-12 animate-fade-in-up">
-                <h1 className="font-mono text-xl md:text-3xl font-bold text-white tracking-tight mb-2">
-                    <span className="text-primary mr-2">$</span>
-                    <span className="typing-effect">cat /etc/sysadmin/bio</span>
-                </h1>
-                <p className="font-mono text-gray-500 text-sm md:text-base border-l-2 border-primary/30 pl-4 mt-4">
-                    Reading system profile configuration... Done.<br />
-                    Displaying administrator details and installed kernel modules.
-                </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-
-                {/* Left Column: Profile Config */}
-                <div className="h-full animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-                    <TerminalWindow header="/etc/sysadmin/profile.conf" className="h-full">
-                        <div className="flex gap-2 mb-4">
-                            <span className="text-primary">root@portfolio:~/etc$</span>
-                            <span className="text-white">cat profile.conf</span>
-                        </div>
-
-                        <div className="mb-6 pl-2 text-gray-300 leading-relaxed whitespace-pre overflow-x-auto font-mono text-xs md:text-sm">
-                            <span className="text-gray-500"># System Identity Configuration</span><br />
-                            <span className="text-blue-400">NAME</span>="<span className="text-green-400">Syed Ammar Hussain</span>"<br />
-                            <span className="text-blue-400">ROLE</span>="<span className="text-green-400">SysAdmin & Engineer</span>"<br />
-                            <span className="text-blue-400">LOCATION</span>="<span className="text-green-400">Karachi</span>"<br />
-                            <span className="text-blue-400">SHELL</span>="<span className="text-green-400">/bin/zsh</span>"<br />
-                            <br />
-                            <span className="text-gray-500"># Metrics & Status</span><br />
-                            <span className="text-blue-400">UPTIME</span>="<span className="text-green-400">1 Years of Experience</span>"<br />
-                            <span className="text-blue-400">CAFFEINE_LEVEL</span>="<span className="text-green-400">Critical</span>"<br />
-                            <span className="text-blue-400">SLEEP_SCHEDULE</span>="<span className="text-green-400">Daemonized</span>"
-                        </div>
-
-                        <div className="mb-2 text-gray-400 text-xs md:text-sm border-l-2 border-surface-border pl-4">
-                            <h3 className="text-white font-bold mb-1">Status Report</h3>
-                            <p>I engineer automated Linux (RHEL) and AWS cloud environments using Python to build scalable, resilient infrastructure. By integrating AI-driven insights with ISO 27001 and NIST security standards, I bridge the gap between system administration and proactive, compliant operations.</p>
-                        </div>
-                    </TerminalWindow>
-                </div>
-
-                {/* Right Column: Skills / APT List */}
-                <div className="h-full animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                    <TerminalWindow header="root@portfolio: ~" className="h-full">
-                        <div className="flex gap-2 mb-4">
-                            <span className="text-primary">root@portfolio:~#</span>
-                            <span className="text-white">apt list --installed | grep "essential"</span>
-                        </div>
-
-                        <div className="mb-6 text-gray-300 leading-tight whitespace-pre overflow-x-auto code-block font-mono text-xs md:text-sm">
-                            <span className="text-gray-500">Listing... Done</span><br />
-                            <span className="text-gray-500"># Containerization & Orchestration</span><br />
-                            <span className="text-green-400">docker-ce</span>/stable 5:24.0.5 <span className="text-gray-500">[installed]</span><br />
-                            <span className="text-green-400">kubernetes-cli</span>/stable 1.28.2 <span className="text-gray-500">[installed]</span><br />
-                            <span className="text-green-400">helm</span>/stable 3.12.0 <span className="text-gray-500">[installed]</span><br />
-                            <br />
-                            <span className="text-gray-500"># Infrastructure as Code</span><br />
-                            <span className="text-green-400">ansible</span>/ppa 8.4.0 <span className="text-gray-500">[installed]</span><br />
-                            <span className="text-green-400">terraform</span>/stable 1.5.7 <span className="text-gray-500">[installed]</span><br />
-                            <br />
-                            <span className="text-gray-500"># Web Servers & Load Balancers</span><br />
-                            <span className="text-green-400">nginx</span>/stable 1.18.0 <span className="text-gray-500">[installed]</span><br />
-                            <span className="text-green-400">traefik</span>/v2 2.10.4 <span className="text-gray-500">[installed]</span><br />
-                            <br />
-                            <span className="text-gray-500"># Monitoring & Observability</span><br />
-                            <span className="text-green-400">grafana</span>/stable 10.1.5 <span className="text-gray-500">[installed]</span><br />
-                            <span className="text-green-400">prometheus</span>/stable 2.47.0 <span className="text-gray-500">[installed]</span><br />
-                            <span className="text-green-400">node-exporter</span>/stable 1.6.1 <span className="text-gray-500">[installed]</span><br />
-                            <br />
-                            <span className="text-gray-500"># Scripting</span><br />
-                            <span className="text-green-400">python3</span>/focal 3.8.10 <span className="text-gray-500">[installed]</span><br />
-                            <span className="text-green-400">bash</span>/focal 5.0.17 <span className="text-gray-500">[installed]</span>
-                        </div>
-
-                        <div className="mt-auto pt-4 border-t border-white/5">
-                            <div className="flex items-center gap-2 text-xs md:text-sm">
-                                <span className="text-green-400 font-bold">➜</span>
-                                <span className="text-gray-400">45 packages listed. System is ready for deployment.</span>
-                            </div>
-                        </div>
-                    </TerminalWindow>
-                </div>
-
-            </div>
+      <section className="content-section">
+        <Reveal>
+          <div className="section-heading-row">
+            <div><p className="eyebrow">{settings.ui.interestsEyebrow}</p><h2>{settings.ui.interestsTitle}</h2></div>
+            <p className="section-copy">{settings.ui.interestsIntro}</p>
+          </div>
+        </Reveal>
+        <div className="interest-grid">
+          <Reveal className="interest-card"><Cpu /><h3>{settings.ui.interestSystemsTitle}</h3><p>{settings.ui.interestSystemsBody}</p></Reveal>
+          <Reveal className="interest-card" delay={0.05}><Network /><h3>{settings.ui.interestInfrastructureTitle}</h3><p>{settings.ui.interestInfrastructureBody}</p></Reveal>
+          <Reveal className="interest-card" delay={0.1}><Wrench /><h3>{settings.ui.interestAutomationTitle}</h3><p>{settings.ui.interestAutomationBody}</p></Reveal>
+          <Reveal className="interest-card" delay={0.15}><FlaskConical /><h3>{settings.ui.interestHomelabTitle}</h3><p>{settings.ui.interestHomelabBody}</p></Reveal>
         </div>
-    );
+      </section>
+
+      <section className="content-section">
+        <Reveal>
+          <p className="eyebrow">{settings.ui.workingSetEyebrow}</p>
+          <h2 className="medium-heading">{settings.ui.workingSetTitle}</h2>
+        </Reveal>
+        <div className="tool-marquee" aria-label="Current tools">
+          {settings.capabilities.flatMap((item) => item.tools).filter((tool, index, array) => array.indexOf(tool) === index).map((tool) => <span key={tool}>{tool}</span>)}
+        </div>
+      </section>
+
+      <section className="content-section social-panel">
+        <Reveal>
+          <p className="eyebrow">{settings.ui.elsewhereEyebrow}</p><h2>{settings.ui.elsewhereTitle}</h2>
+          <div className="social-grid">
+            <a href={settings.socials.github} target="_blank" rel="noreferrer">GitHub <ArrowUpRight /></a>
+            <a href={settings.socials.linkedin} target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight /></a>
+            <a href={settings.socials.credly} target="_blank" rel="noreferrer">Credly <ArrowUpRight /></a>
+            <a href={settings.socials.discord} target="_blank" rel="noreferrer">Discord <ArrowUpRight /></a>
+          </div>
+        </Reveal>
+      </section>
+    </>
+  );
 };
 
 export default About;

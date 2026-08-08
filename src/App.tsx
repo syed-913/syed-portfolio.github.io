@@ -1,5 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Layout } from './components/layout/Layout';
+import { AnalyticsTracker } from './components/features/AnalyticsTracker';
+import { AdminGate } from './components/auth/AdminGate';
 import Home from './pages/Home';
 import About from './pages/About';
 import Experience from './pages/Experience';
@@ -8,30 +11,22 @@ import Achievements from './pages/Achievements';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Contact from './pages/Contact';
+import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 
-import Dashboard from './pages/Dashboard';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
+const ScrollToTop = () => {
+  const location = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
+  return null;
+};
 
-import { AnalyticsTracker } from './components/features/AnalyticsTracker';
-
-function App() {
+function AppRoutes() {
   return (
-    <Router basename="/">
+    <>
       <AnalyticsTracker />
+      <ScrollToTop />
       <Routes>
-        {/* ... routes ... */}
-        {/* Protected Admin Route */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Public Routes with Standard Layout */}
+        <Route path="/dashboard" element={<AdminGate><Dashboard /></AdminGate>} />
         <Route path="/*" element={
           <Layout>
             <Routes>
@@ -48,8 +43,10 @@ function App() {
           </Layout>
         } />
       </Routes>
-    </Router>
+    </>
   );
 }
 
-export default App;
+export default function App() {
+  return <BrowserRouter><AppRoutes /></BrowserRouter>;
+}

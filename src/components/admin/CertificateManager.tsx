@@ -1,226 +1,37 @@
-
-import React, { useState, useEffect } from 'react';
-import { getCertificates, addItem, updateItem, deleteItem } from '../../services/db';
+import { useEffect, useState } from 'react';
+import { Edit3, Plus, Save, Trash2, X } from 'lucide-react';
+import { addItem, deleteItem, getCertificates, updateItem } from '../../services/db';
 import type { Certificate } from '../../types/database';
-import { Plus, Edit, Trash2, Save } from 'lucide-react';
+import { IssuerBadge } from '../ui/IssuerBadge';
+import { AdminField, AdminInput, AdminSection, AdminSelect, AdminTextarea } from './AdminUI';
 
-const certFiles = import.meta.glob('/public/certifications/*.{png,jpg,jpeg,webp}', { query: '?url', import: 'default', eager: true });
-const availableCertImages = Object.keys(certFiles);
+const certificateAssets = Object.keys(import.meta.glob('/public/certifications/*.{png,jpg,jpeg,webp,avif,pdf}', { eager: true, query: '?url', import: 'default' })).map(path => path.replace('/public', ''));
 
-const logoFiles = import.meta.glob('/public/logo/*.{png,jpg,jpeg,webp,svg}', { query: '?url', import: 'default', eager: true });
-const availableLogoImages = Object.keys(logoFiles);
+const empty: Partial<Certificate> = { name:'', issuer:'', date:'', credentialId:'', imageUrl:'', category:undefined, details:'', visible:true, order:1 };
 
-export const CertificateManager: React.FC = () => {
-    const [certificates, setCertificates] = useState<Certificate[]>([]);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<Partial<Certificate>>({});
-    const [loading, setLoading] = useState(false);
+const publicPayload = (form: Partial<Certificate>) => {
+  // issuerLogo is a legacy field. Ignore it on new writes without requiring a Firestore migration.
+  const { issuerLogo, ...payload } = form;
+  void issuerLogo;
+  return payload;
+};
 
-    useEffect(() => {
-        fetchCertificates();
-    }, []);
-
-    const fetchCertificates = async () => {
-        const data = await getCertificates();
-        setCertificates(data);
-    };
-
-    const handleEdit = (cert: Certificate) => {
-        setEditingId(cert.id!);
-        setFormData(cert);
-    };
-
-    const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to delete this certificate?')) {
-            await deleteItem('certificates', id);
-            fetchCertificates();
-        }
-    };
-
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            if (editingId) {
-                await updateItem('certificates', editingId, formData);
-            } else {
-                await addItem('certificates', { ...formData, visible: true, order: certificates.length + 1 });
-            }
-            setEditingId(null);
-            setFormData({});
-            fetchCertificates();
-        } catch (error) {
-            console.error("Error saving certificate:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'number' ? Number(value) : value
-        }));
-    };
-
-    return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold text-white">Certificate List</h3>
-                <button
-                    onClick={() => { setEditingId(null); setFormData({}); }}
-                    className="flex items-center gap-2 bg-primary/20 text-primary px-3 py-1.5 rounded hover:bg-primary/30 transition-colors text-sm"
-                >
-                    <Plus size={16} /> New Certificate
-                </button>
-            </div>
-
-            {/* Form */}
-            <div className="bg-[#0d1117] p-6 rounded border border-white/10">
-                <form onSubmit={handleSave} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input
-                            name="name"
-                            placeholder="Certificate Name"
-                            value={formData.name || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            required
-                        />
-                        <input
-                            name="issuer"
-                            placeholder="Issuer (e.g. Red Hat)"
-                            value={formData.issuer || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            required
-                        />
-                        <input
-                            name="date"
-                            placeholder="Date (e.g. 2024)"
-                            value={formData.date || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            required
-                        />
-                        <input
-                            name="credentialId"
-                            placeholder="Credential ID (Optional)"
-                            value={formData.credentialId || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                        />
-                        <div className="flex flex-col gap-2">
-                            <select
-                                name="imageUrl"
-                                value={formData.imageUrl || ''}
-                                onChange={(e) => setFormData(p => ({ ...p, imageUrl: e.target.value }))}
-                                className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            >
-                                <option value="">-- Select Cert Image --</option>
-                                {availableCertImages.map(img => (
-                                    <option key={img} value={img}>{img.split('/').pop()}</option>
-                                ))}
-                            </select>
-                            <input
-                                name="imageUrl"
-                                placeholder="Or enter custom URL"
-                                value={formData.imageUrl || ''}
-                                onChange={handleChange}
-                                className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none text-sm"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <select
-                                name="issuerLogo"
-                                value={formData.issuerLogo || ''}
-                                onChange={(e) => setFormData(p => ({ ...p, issuerLogo: e.target.value }))}
-                                className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            >
-                                <option value="">-- Select Logo Image --</option>
-                                {availableLogoImages.map(img => (
-                                    <option key={img} value={img}>{img.split('/').pop()}</option>
-                                ))}
-                            </select>
-                            <input
-                                name="issuerLogo"
-                                placeholder="Or enter custom Logo URL"
-                                value={formData.issuerLogo || ''}
-                                onChange={handleChange}
-                                className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none text-sm"
-                            />
-                        </div>
-                        <select
-                            name="category"
-                            value={formData.category || ''}
-                            onChange={(e) => setFormData(p => ({ ...p, category: e.target.value as any }))}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                        >
-                            <option value="">-- Select Category (Optional) --</option>
-                            <option value="Easy">Easy</option>
-                            <option value="Challenging">Challenging</option>
-                            <option value="Hard">Hard</option>
-                        </select>
-                        <input
-                            name="order"
-                            type="number"
-                            placeholder="Order of display"
-                            value={formData.order || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none placeholder:text-gray-600"
-                        />
-                    </div>
-
-                    <textarea
-                        name="details"
-                        placeholder='Certificate Metadata (JSON format) e.g. {"valid": true, "score": "95%"}'
-                        value={formData.details || ''}
-                        onChange={(e) => setFormData(p => ({ ...p, details: e.target.value }))}
-                        className="w-full bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none font-mono text-xs h-24"
-                    />
-
-                    <div className="flex justify-end gap-3">
-                        {editingId && (
-                            <button
-                                type="button"
-                                onClick={() => { setEditingId(null); setFormData({}); }}
-                                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        )}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors disabled:opacity-50"
-                        >
-                            {loading ? 'Saving...' : <><Save size={16} /> {editingId ? 'Update' : 'Create'}</>}
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            {/* List */}
-            <div className="space-y-3">
-                {certificates.map((cert) => (
-                    <div key={cert.id} className="flex items-center justify-between p-4 bg-[#161b22] border border-white/5 rounded group hover:border-white/10 transition-colors">
-                        <div>
-                            <h4 className="font-bold text-white">{cert.name}</h4>
-                            <p className="text-xs text-gray-500">{cert.issuer} | {cert.date}</p>
-                        </div>
-                        <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => handleEdit(cert)} className="text-blue-400 hover:text-blue-300">
-                                <Edit size={16} />
-                            </button>
-                            <button onClick={() => handleDelete(cert.id!)} className="text-red-400 hover:text-red-300">
-                                <Trash2 size={16} />
-                            </button>
-                        </div>
-                    </div>
-                ))}
-                {certificates.length === 0 && <p className="text-center text-gray-500 py-4">No certificates found.</p>}
-            </div>
-        </div>
-    );
+export const CertificateManager=()=>{
+ const [items,setItems]=useState<Certificate[]>([]);const[form,setForm]=useState<Partial<Certificate>>(empty);const[editing,setEditing]=useState<string|null>(null);const[saving,setSaving]=useState(false);
+ const refresh=()=>getCertificates().then(setItems);useEffect(()=>{refresh();},[]);
+ const set=(key:keyof Certificate,value:any)=>setForm(p=>({...p,[key]:value}));
+ const save=async(e:React.FormEvent)=>{e.preventDefault();setSaving(true);try{const payload=publicPayload(form);editing?await updateItem('certificates',editing,payload):await addItem('certificates',{...payload,order:form.order??items.length+1,visible:form.visible??true});setEditing(null);setForm({...empty,order:items.length+2});await refresh();}finally{setSaving(false);}};
+ const remove=async(id:string)=>{if(confirm('Delete this credential?')){await deleteItem('certificates',id);refresh();}};
+ return <AdminSection title="Credentials" description="Add the issuer name once. The portfolio normalizes its identity automatically — no logo files or image sizing required." action={<button className="admin-secondary" onClick={()=>{setEditing(null);setForm({...empty,order:items.length+1});}}><Plus size={15}/> New</button>}>
+  <form onSubmit={save} className="admin-editor-card"><div className="admin-form-grid">
+   <AdminField label="Name"><AdminInput required value={form.name??''} onChange={e=>set('name',e.target.value)}/></AdminField>
+   <AdminField label="Issuer"><div className="admin-issuer-field"><AdminInput required placeholder="e.g. Amazon Web Services" value={form.issuer??''} onChange={e=>set('issuer',e.target.value)}/>{form.issuer?.trim()&&<IssuerBadge issuer={form.issuer} compact withLabel/>}</div></AdminField>
+   <AdminField label="Date"><AdminInput required value={form.date??''} onChange={e=>set('date',e.target.value)}/></AdminField>
+   <AdminField label="Credential ID"><AdminInput value={form.credentialId??''} onChange={e=>set('credentialId',e.target.value)}/></AdminField>
+   <AdminField label="Credential image path / URL"><AdminInput list="credential-assets" placeholder="/certifications/example.png" value={form.imageUrl??''} onChange={e=>set('imageUrl',e.target.value)}/><datalist id="credential-assets">{certificateAssets.map(path=><option key={path} value={path}/>)}</datalist></AdminField>
+   <AdminField label="Category"><AdminSelect value={form.category??''} onChange={e=>set('category',e.target.value||undefined)}><option value="">Uncategorized</option><option>Easy</option><option>Challenging</option><option>Hard</option></AdminSelect></AdminField>
+   <AdminField label="Order"><AdminInput type="number" value={form.order??1} onChange={e=>set('order',Number(e.target.value))}/></AdminField>
+  </div><AdminField label="Optional metadata (JSON)"><AdminTextarea rows={5} value={form.details??''} onChange={e=>set('details',e.target.value)}/></AdminField><label className="admin-toggle"><input type="checkbox" checked={form.visible??true} onChange={e=>set('visible',e.target.checked)}/><span>Visible publicly</span></label><div className="admin-save-row">{editing&&<button type="button" className="admin-secondary" onClick={()=>{setEditing(null);setForm(empty);}}><X size={15}/>Cancel</button>}<button className="admin-primary" disabled={saving}><Save size={15}/>{saving?'Saving…':editing?'Update credential':'Create credential'}</button></div></form>
+  <div className="admin-list">{items.map(item=><div className="admin-list-row credential-admin-row" key={item.id}><IssuerBadge issuer={item.issuer} compact/><div><strong>{item.name}</strong><span>{item.issuer} · {item.date}</span></div><div className="admin-row-meta"><span>{item.visible?'Public':'Hidden'}</span><button onClick={()=>{setEditing(item.id!);setForm(item);}}><Edit3 size={16}/></button><button className="danger" onClick={()=>remove(item.id!)}><Trash2 size={16}/></button></div></div>)}</div>
+ </AdminSection>;
 };
