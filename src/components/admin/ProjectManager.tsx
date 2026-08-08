@@ -1,169 +1,27 @@
-
-import React, { useState, useEffect } from 'react';
-import { getProjects, addItem, updateItem, deleteItem } from '../../services/db';
+import { useEffect, useState } from 'react';
+import { Edit3, Plus, Save, Trash2, X } from 'lucide-react';
+import { addItem, deleteItem, getProjects, updateItem } from '../../services/db';
 import type { Project } from '../../types/database';
-import { Plus, Edit, Trash2, Save } from 'lucide-react';
+import { AdminField, AdminInput, AdminSection, AdminTextarea } from './AdminUI';
 
-export const ProjectManager: React.FC = () => {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<Partial<Project>>({});
-    const [loading, setLoading] = useState(false);
+const empty: Partial<Project> = { name: '', command: '', description: '', url: '', output: '', visible: true, order: 1 };
 
-    useEffect(() => {
-        fetchProjects();
-    }, []);
+export const ProjectManager = () => {
+  const [items, setItems] = useState<Project[]>([]); const [form, setForm] = useState<Partial<Project>>(empty); const [editing, setEditing] = useState<string | null>(null); const [saving, setSaving] = useState(false);
+  const refresh = () => getProjects().then(setItems); useEffect(() => { refresh(); }, []);
+  const change = (key: keyof Project, value: any) => setForm((p) => ({ ...p, [key]: value }));
+  const save = async (e: React.FormEvent) => { e.preventDefault(); setSaving(true); try { editing ? await updateItem('projects', editing, form) : await addItem('projects', { ...form, order: form.order ?? items.length + 1, visible: form.visible ?? true }); setEditing(null); setForm({ ...empty, order: items.length + 2 }); await refresh(); } finally { setSaving(false); } };
+  const edit = (item: Project) => { setEditing(item.id!); setForm(item); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const remove = async (id: string) => { if (confirm('Delete this project?')) { await deleteItem('projects', id); refresh(); } };
 
-    const fetchProjects = async () => {
-        const data = await getProjects();
-        setProjects(data);
-    };
-
-    const handleEdit = (project: Project) => {
-        setEditingId(project.id!);
-        setFormData(project);
-    };
-
-    const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to delete this project?')) {
-            await deleteItem('projects', id);
-            fetchProjects();
-        }
-    };
-
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            if (editingId) {
-                await updateItem('projects', editingId, formData);
-            } else {
-                await addItem('projects', { ...formData, visible: true, order: projects.length + 1 });
-            }
-            setEditingId(null);
-            setFormData({});
-            fetchProjects();
-        } catch (error) {
-            console.error("Error saving project:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'number' ? Number(value) : value
-        }));
-    };
-
-    return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold text-white">Project List</h3>
-                <button
-                    onClick={() => { setEditingId(null); setFormData({}); }}
-                    className="flex items-center gap-2 bg-primary/20 text-primary px-3 py-1.5 rounded hover:bg-primary/30 transition-colors text-sm"
-                >
-                    <Plus size={16} /> New Project
-                </button>
-            </div>
-
-            {/* Form */}
-            <div className="bg-[#0d1117] p-6 rounded border border-white/10">
-                <form onSubmit={handleSave} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input
-                            name="name"
-                            placeholder="Project Name (slug)"
-                            value={formData.name || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            required
-                        />
-                        <input
-                            name="command"
-                            placeholder="Command (e.g. tree .)"
-                            value={formData.command || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            required
-                        />
-                        <input
-                            name="url"
-                            placeholder="GitHub URL"
-                            value={formData.url || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none"
-                            required
-                        />
-                        <input
-                            name="order"
-                            type="number"
-                            placeholder="Order of display"
-                            value={formData.order || ''}
-                            onChange={handleChange}
-                            className="bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none placeholder:text-gray-600"
-                        />
-                    </div>
-                    <textarea
-                        name="description"
-                        placeholder="Description"
-                        value={formData.description || ''}
-                        onChange={handleChange}
-                        className="w-full bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none h-20"
-                        required
-                    />
-                    <textarea
-                        name="output"
-                        placeholder="HTML Output (Terminal visual)"
-                        value={formData.output || ''}
-                        onChange={handleChange}
-                        className="w-full bg-[#161b22] border border-white/10 rounded px-3 py-2 text-white focus:border-primary focus:outline-none h-32 font-mono text-xs"
-                    />
-
-                    <div className="flex justify-end gap-3">
-                        {editingId && (
-                            <button
-                                type="button"
-                                onClick={() => { setEditingId(null); setFormData({}); }}
-                                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        )}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors disabled:opacity-50"
-                        >
-                            {loading ? 'Saving...' : <><Save size={16} /> {editingId ? 'Update' : 'Create'}</>}
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            {/* List */}
-            <div className="space-y-3">
-                {projects.map((project) => (
-                    <div key={project.id} className="flex items-center justify-between p-4 bg-[#161b22] border border-white/5 rounded group hover:border-white/10 transition-colors">
-                        <div>
-                            <h4 className="font-bold text-white">{project.name}</h4>
-                            <p className="text-xs text-gray-500">{project.url}</p>
-                        </div>
-                        <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => handleEdit(project)} className="text-blue-400 hover:text-blue-300">
-                                <Edit size={16} />
-                            </button>
-                            <button onClick={() => handleDelete(project.id!)} className="text-red-400 hover:text-red-300">
-                                <Trash2 size={16} />
-                            </button>
-                        </div>
-                    </div>
-                ))}
-                {projects.length === 0 && <p className="text-center text-gray-500 py-4">No projects found.</p>}
-            </div>
-        </div>
-    );
+  return <AdminSection title="Projects" description="Manage project stories. Existing Firebase collection and field names are preserved." action={<button className="admin-secondary" onClick={() => { setEditing(null); setForm({ ...empty, order: items.length + 1 }); }}><Plus size={15}/> New</button>}>
+    <form onSubmit={save} className="admin-editor-card">
+      <div className="admin-form-grid"><AdminField label="Project name"><AdminInput required value={form.name ?? ''} onChange={(e) => change('name', e.target.value)} /></AdminField><AdminField label="Technical label / command"><AdminInput value={form.command ?? ''} onChange={(e) => change('command', e.target.value)} /></AdminField><AdminField label="Project URL"><AdminInput required value={form.url ?? ''} onChange={(e) => change('url', e.target.value)} /></AdminField><AdminField label="Order"><AdminInput type="number" value={form.order ?? 1} onChange={(e) => change('order', Number(e.target.value))} /></AdminField></div>
+      <AdminField label="Description"><AdminTextarea required rows={4} value={form.description ?? ''} onChange={(e) => change('description', e.target.value)} /></AdminField>
+      <AdminField label="Optional technical detail (HTML)" hint="Still supported for your existing project records; shown only when a visitor expands technical detail."><AdminTextarea rows={7} value={form.output ?? ''} onChange={(e) => change('output', e.target.value)} /></AdminField>
+      <label className="admin-toggle"><input type="checkbox" checked={form.visible ?? true} onChange={(e) => change('visible', e.target.checked)} /><span>Visible publicly</span></label>
+      <div className="admin-save-row">{editing && <button type="button" className="admin-secondary" onClick={() => { setEditing(null); setForm(empty); }}><X size={15}/> Cancel</button>}<button className="admin-primary" disabled={saving}><Save size={15}/>{saving ? 'Saving…' : editing ? 'Update project' : 'Create project'}</button></div>
+    </form>
+    <div className="admin-list">{items.map((item) => <div className="admin-list-row" key={item.id}><div><strong>{item.name}</strong><span>{item.description}</span></div><div className="admin-row-meta"><span>{item.visible ? 'Public' : 'Hidden'}</span><button onClick={() => edit(item)}><Edit3 size={16}/></button><button onClick={() => remove(item.id!)} className="danger"><Trash2 size={16}/></button></div></div>)}</div>
+  </AdminSection>;
 };

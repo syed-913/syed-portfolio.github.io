@@ -1,68 +1,51 @@
-
-import React, { useEffect, useState } from 'react';
-import { ProjectCard } from '../components/ui/ProjectCard';
+import { useEffect, useState } from 'react';
+import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { SEO } from '../components/features/SEO';
+import { PageIntro } from '../components/ui/PageIntro';
+import { Reveal } from '../components/ui/Reveal';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import { getPublicProjects } from '../services/db';
 import type { Project } from '../types/database';
 
-const Projects: React.FC = () => {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
+const Projects = () => {
+  const { settings } = useSiteSettings();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => { getPublicProjects().then(setProjects).catch(() => setProjects([])); }, []);
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const data = await getPublicProjects();
-                setProjects(data);
-            } catch (error) {
-                console.error("Failed to fetch projects:", error);
-            } finally {
-                startLoadingSequence();
-            }
-        };
-
-        fetchProjects();
-    }, []);
-
-    const startLoadingSequence = () => {
-        // Minimum loading time for the "terminal feel"
-        setTimeout(() => setLoading(false), 800);
-    };
-
-    return (
-        <div className="flex flex-col items-center min-h-[calc(100vh-8rem)] w-full">
-            {/* Page Header */}
-            <div className="w-full mb-12 animate-fade-in-up">
-                <h1 className="font-mono text-2xl md:text-4xl font-bold text-white tracking-tight mb-2">
-                    <span className="text-primary mr-2">$</span>
-                    <span className="typing-effect">./view_projects.sh</span>
-                </h1>
-                <p className="font-mono text-gray-500 text-sm md:text-base border-l-2 border-primary/30 pl-4 mt-4">
-                    {loading ? (
-                        <span className="animate-pulse">Connecting to repository...</span>
-                    ) : (
-                        <>
-                            Loading project data... Done.<br />
-                            Found {projects.length} active projects.
-                        </>
-                    )}
-                </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full pb-20">
-                {projects.map((project, index) => (
-                    <ProjectCard
-                        key={project.id || index}
-                        name={project.name}
-                        command={project.command}
-                        description={project.description}
-                        url={project.url}
-                        output={<div dangerouslySetInnerHTML={{ __html: project.output }} />}
-                        delay={100 * (index + 1)}
-                    />
-                ))}
-            </div>
-        </div>
-    );
+  return (
+    <>
+      <SEO title={`Work — ${settings.shortName}`} description={settings.workIntro} path="/projects" />
+      <PageIntro eyebrow={settings.ui.projectsIntroEyebrow} title={settings.workTitle} intro={settings.workIntro} />
+      <section className="content-section project-index">
+        {projects.map((project, index) => {
+          const key = project.id ?? project.name;
+          const expanded = open === key;
+          return (
+            <Reveal key={key} delay={index * 0.05}>
+              <article className="project-index-item">
+                <div className="project-index-top">
+                  <span className="project-index-number">0{index + 1}</span>
+                  <div className="project-index-main">
+                    <p className="micro-label">{project.command || 'project'}</p>
+                    <h2>{project.name}</h2>
+                    <p>{project.description}</p>
+                  </div>
+                  <div className="project-index-actions">
+                    <a href={project.url} target="_blank" rel="noreferrer" aria-label={`Open ${project.name}`}><ArrowUpRight size={20} /></a>
+                    {project.output && <button onClick={() => setOpen(expanded ? null : key)} aria-label="Toggle technical detail">{expanded ? <ChevronUp /> : <ChevronDown />}</button>}
+                  </div>
+                </div>
+                {expanded && project.output && (
+                  <div className="project-detail" dangerouslySetInnerHTML={{ __html: project.output }} />
+                )}
+              </article>
+            </Reveal>
+          );
+        })}
+        {!projects.length && <div className="empty-state-card"><h3>{settings.ui.projectsEmptyTitle}</h3><p>{settings.ui.projectsEmptyBody}</p></div>}
+      </section>
+    </>
+  );
 };
-
 export default Projects;
