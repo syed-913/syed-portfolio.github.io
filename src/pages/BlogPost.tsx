@@ -1,22 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Heart } from 'lucide-react';
+import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
+import { ArrowLeft, ArrowRight, ArrowUp, Heart } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { SEO } from '../components/features/SEO';
 import { DataLoading } from '../components/ui/DataState';
-import { getPostBySlug, incrementUpvote } from '../services/db';
+import { getPostBySlug, getPublicPosts, incrementUpvote } from '../services/db';
 import type { BlogPost as BlogPostType } from '../types/database';
 import { useSiteSettings } from '../hooks/useSiteSettings';
+import { displayReadTime } from '../lib/writing';
 
 const BlogPost = () => {
   const { slug = '' } = useParams();
   const { settings } = useSiteSettings();
   const reduce = useReducedMotion();
+  const articleRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: articleRef, offset: ['start start', 'end end'] });
+  const readingProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 26, mass: 0.28 });
   const [post, setPost] = useState<BlogPostType | null>(null);
+  const [previousPost, setPreviousPost] = useState<BlogPostType | null>(null);
+  const [nextPost, setNextPost] = useState<BlogPostType | null>(null);
   const [loading, setLoading] = useState(true);
   const [upvotes, setUpvotes] = useState(0);
   const [voted, setVoted] = useState(false);
@@ -25,9 +31,12 @@ const BlogPost = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     setLoading(true);
-    getPostBySlug(slug).then((data) => {
+    Promise.all([getPostBySlug(slug), getPublicPosts()]).then(([data, allPosts]) => {
       setPost(data);
       setUpvotes(data?.upvotes ?? 0);
+      const index = allPosts.findIndex((item) => item.slug === slug);
+      setPreviousPost(index >= 0 && index < allPosts.length - 1 ? allPosts[index + 1] : null);
+      setNextPost(index > 0 ? allPosts[index - 1] : null);
       const stored = JSON.parse(localStorage.getItem('upvoted_posts') || '[]') as string[];
       setVoted(stored.includes(slug));
     }).finally(() => setLoading(false));
@@ -49,11 +58,12 @@ const BlogPost = () => {
   return (
     <>
       <SEO title={`${post.title} — ${settings.shortName}`} description={post.content.replace(/[#*_`>\-]/g, '').slice(0, 155)} path={`/writing/${post.slug}`} type="article" />
-      <article className="article-page">
+      <motion.div className="article-reading-progress" aria-hidden="true" style={{ scaleX: reduce ? scrollYProgress : readingProgress }} />
+      <article ref={articleRef} className="article-page">
         <Link to="/writing" className="article-back"><ArrowLeft size={16} /> All field notes</Link>
         <div className="article-canvas">
           <header className="article-header">
-            <div className="article-kicker"><span>{post.date}</span><span>{post.readTime}</span></div>
+            <div className="article-kicker"><span>{post.date}</span><span>{displayReadTime(post)}</span></div>
             <h1>{post.title}</h1>
             <div className="tag-row">{post.tags?.map((tag) => <span key={tag}>{tag}</span>)}</div>
           </header>
@@ -91,9 +101,29 @@ const BlogPost = () => {
             </motion.button>
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Top <ArrowUp size={16} /></button>
           </footer>
+
+          {(previousPost || nextPost) && (
+            <nav className="article-neighbors" aria-label="More field notes">
+              {previousPost ? (
+                <Link to={`/writing/${previousPost.slug}`} className="article-neighbor article-neighbor-previous">
+                  <span><ArrowLeft size={15} /> {settings.ui.writingPrevious}</span>
+                  <strong>{previousPost.title}</strong>
+                  <small>{displayReadTime(previousPost)}</small>
+                </Link>
+              ) : <span />}
+              {nextPost && (
+                <Link to={`/writing/${nextPost.slug}`} className="article-neighbor article-neighbor-next">
+                  <span>{settings.ui.writingNext} <ArrowRight size={15} /></span>
+                  <strong>{nextPost.title}</strong>
+                  <small>{displayReadTime(nextPost)}</small>
+                </Link>
+              )}
+            </nav>
+          )}
         </div>
       </article>
     </>
   );
 };
+
 export default BlogPost;

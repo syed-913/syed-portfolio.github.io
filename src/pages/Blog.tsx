@@ -8,6 +8,7 @@ import { DataEmpty, DataLoading } from '../components/ui/DataState';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { getPublicPosts } from '../services/db';
 import type { BlogPost } from '../types/database';
+import { displayReadTime } from '../lib/writing';
 
 const Blog = () => {
   const { settings } = useSiteSettings();
@@ -23,7 +24,7 @@ const Blog = () => {
         {loading ? <DataLoading label="Loading field notes…" variant="cards" /> : posts.map((post, index) => (
           <Reveal key={post.id ?? post.slug} delay={index * 0.05}>
             <Link to={`/writing/${post.slug}`} className="journal-card">
-              <div className="journal-meta"><span>{post.date}</span><span>{post.readTime}</span></div>
+              <div className="journal-meta"><span>{post.date}</span><span>{displayReadTime(post)}</span></div>
               <div className="journal-signal" aria-hidden="true"><i/><i/><i/></div>
               <h2>{post.title}</h2>
               <p>{post.content.replace(/[#*_`>\-]/g, '').slice(0, 180)}{post.content.length > 180 ? '…' : ''}</p>
