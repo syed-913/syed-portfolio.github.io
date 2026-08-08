@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { ArrowDownRight, ArrowRight, Cloud, Container, Gauge, Network, Server, Sparkles } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Reveal } from '../components/ui/Reveal';
+import { DataLoading } from '../components/ui/DataState';
 import { SEO } from '../components/features/SEO';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { getPublicCertificates, getPublicExperience, getPublicPosts, getPublicProjects } from '../services/db';
+import { displayExperienceDuration } from '../lib/experience';
 import type { BlogPost, Certificate, Experience, Project } from '../types/database';
 
 const icons = [Server, Cloud, Container, Gauge];
@@ -17,6 +19,7 @@ const Home = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [experience, setExperience] = useState<Experience[]>([]);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -29,7 +32,7 @@ const Home = () => {
       setPosts(postData);
       setExperience(experienceData);
       setCertificates(certificateData);
-    });
+    }).finally(() => setLoading(false));
   }, []);
 
   return (
@@ -94,8 +97,8 @@ const Home = () => {
             const Icon = icons[index % icons.length];
             return (
               <Reveal key={capability.title} delay={index * 0.07} className="capability-card">
-                <div className="capability-index">0{index + 1}</div>
-                <Icon size={22} />
+                <div className="capability-top"><span className="capability-index">0{index + 1}</span><span className="capability-icon"><Icon size={21} /></span></div>
+                <div className="capability-schematic" aria-hidden="true"><i/><i/><i/><b/></div>
                 <h3>{capability.title}</h3>
                 <p>{capability.description}</p>
                 <div className="tag-row">{capability.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
@@ -113,7 +116,7 @@ const Home = () => {
           </div>
         </Reveal>
         <div className="project-preview-grid">
-          {projects.slice(0, 3).map((project, index) => (
+          {loading ? <DataLoading label="Loading selected work…" variant="cards" /> : projects.slice(0, 3).map((project, index) => (
             <Reveal key={project.id ?? project.name} delay={index * 0.08} className="project-preview-card">
               <div className="project-visual">
                 <div className="project-visual-grid" />
@@ -127,7 +130,7 @@ const Home = () => {
               </div>
             </Reveal>
           ))}
-          {!projects.length && (
+          {!loading && !projects.length && (
             <Reveal className="empty-state-card">
               <Sparkles size={22} /><h3>{settings.ui.projectEmptyTitle}</h3><p>{settings.ui.projectEmptyBody}</p>
             </Reveal>
@@ -140,9 +143,9 @@ const Home = () => {
           <p className="eyebrow">{settings.ui.experienceEyebrow}</p>
           <h2>{settings.experienceTitle}</h2>
           <p>{settings.experienceIntro}</p>
-          {experience.slice(0, 2).map((item) => (
+          {loading ? <div className="teaser-loading"><span/><span/></div> : experience.slice(0, 2).map((item) => (
             <div className="teaser-row" key={item.id ?? item.company}>
-              <div><strong>{item.role}</strong><span>{item.company}</span></div><time>{item.duration}</time>
+              <div><strong>{item.role}</strong><span>{item.company}</span></div><time>{displayExperienceDuration(item)}</time>
             </div>
           ))}
           <Link to="/experience" className="button button-ghost">{settings.ui.experienceTimelineCta} <ArrowRight size={16} /></Link>
@@ -150,9 +153,9 @@ const Home = () => {
 
         <Reveal className="numbers-panel" delay={0.08}>
           <p className="eyebrow">{settings.ui.signalsEyebrow}</p>
-          <div className="big-number"><strong>{projects.length}</strong><span>{settings.ui.signalsProjects}</span></div>
-          <div className="big-number"><strong>{certificates.length}</strong><span>{settings.ui.signalsCredentials}</span></div>
-          <div className="big-number"><strong>{posts.length}</strong><span>{settings.ui.signalsWriting}</span></div>
+          <div className="big-number"><strong>{loading ? '—' : projects.length}</strong><span>{settings.ui.signalsProjects}</span></div>
+          <div className="big-number"><strong>{loading ? '—' : certificates.length}</strong><span>{settings.ui.signalsCredentials}</span></div>
+          <div className="big-number"><strong>{loading ? '—' : posts.length}</strong><span>{settings.ui.signalsWriting}</span></div>
           <p className="numbers-note">{settings.ui.signalsNote}</p>
         </Reveal>
       </section>
@@ -161,13 +164,13 @@ const Home = () => {
         <Reveal>
           <div className="section-heading-row">
             <div><p className="eyebrow">{settings.ui.writingEyebrow}</p><h2>{settings.writingTitle}</h2></div>
-            <Link to="/journals" className="text-link">{settings.ui.writingAllCta} <ArrowRight size={16} /></Link>
+            <Link to="/writing" className="text-link">{settings.ui.writingAllCta} <ArrowRight size={16} /></Link>
           </div>
         </Reveal>
         <div className="article-list">
-          {posts.slice(0, 3).map((post, index) => (
+          {loading ? <DataLoading label="Loading field notes…" variant="list" /> : posts.slice(0, 3).map((post, index) => (
             <Reveal key={post.id ?? post.slug} delay={index * 0.06}>
-              <Link to={`/journal/${post.slug}`} className="article-row">
+              <Link to={`/writing/${post.slug}`} className="article-row">
                 <span className="article-index">0{index + 1}</span>
                 <div><h3>{post.title}</h3><p>{post.tags?.join(' · ') || 'Technical note'}</p></div>
                 <time>{post.date}</time><ArrowDownRight size={18} />

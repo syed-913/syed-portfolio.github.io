@@ -26,6 +26,23 @@ import { siteDefaults } from '../data/siteDefaults';
 const byOrder = <T extends { order?: number }>(items: T[]) =>
   [...items].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
 
+const containsImplementationDetail = (value?: string) => /firebase|cloudflare|webhook|discord webhook|backend|database collection|private dashboard/i.test(value ?? '');
+
+const sanitizePublicSettings = (settings: SiteSettings): SiteSettings => ({
+  ...settings,
+  aboutBody: /(?:about\s+)?(?:~?\s*)?(?:1|one)\s+year.*professional experience/i.test(settings.aboutBody) ? siteDefaults.aboutBody : settings.aboutBody,
+  contactIntro: containsImplementationDetail(settings.contactIntro) ? siteDefaults.contactIntro : settings.contactIntro,
+  ui: {
+    ...settings.ui,
+    projectEmptyTitle: containsImplementationDetail(settings.ui.projectEmptyTitle) ? siteDefaults.ui.projectEmptyTitle : settings.ui.projectEmptyTitle,
+    projectEmptyBody: containsImplementationDetail(settings.ui.projectEmptyBody) ? siteDefaults.ui.projectEmptyBody : settings.ui.projectEmptyBody,
+    signalsNote: containsImplementationDetail(settings.ui.signalsNote) ? siteDefaults.ui.signalsNote : settings.ui.signalsNote,
+    experienceEmptyTitle: containsImplementationDetail(settings.ui.experienceEmptyTitle) ? siteDefaults.ui.experienceEmptyTitle : settings.ui.experienceEmptyTitle,
+    experienceEmptyBody: containsImplementationDetail(settings.ui.experienceEmptyBody) ? siteDefaults.ui.experienceEmptyBody : settings.ui.experienceEmptyBody,
+    contactPrivacy: containsImplementationDetail(settings.ui.contactPrivacy) ? siteDefaults.ui.contactPrivacy : settings.ui.contactPrivacy,
+  },
+});
+
 export const getProjects = async (): Promise<Project[]> => {
   const snapshot = await getDocs(collection(db, 'projects'));
   return byOrder(snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as Project)));
@@ -43,8 +60,9 @@ export const getCertificates = async (): Promise<Certificate[]> => {
 };
 
 export const getPublicCertificates = async (): Promise<Certificate[]> => {
-  const all = await getCertificates();
-  return all.filter((item) => item.visible !== false);
+  const q = query(collection(db, 'certificates'), where('visible', '==', true));
+  const snapshot = await getDocs(q);
+  return byOrder(snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as Certificate)));
 };
 
 export const getExperience = async (): Promise<Experience[]> => {
@@ -53,8 +71,9 @@ export const getExperience = async (): Promise<Experience[]> => {
 };
 
 export const getPublicExperience = async (): Promise<Experience[]> => {
-  const all = await getExperience();
-  return all.filter((item) => item.visible !== false);
+  const q = query(collection(db, 'experience'), where('visible', '==', true));
+  const snapshot = await getDocs(q);
+  return byOrder(snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as Experience)));
 };
 
 export const getPosts = async (): Promise<BlogPost[]> => {
@@ -64,19 +83,22 @@ export const getPosts = async (): Promise<BlogPost[]> => {
 };
 
 export const getPublicPosts = async (): Promise<BlogPost[]> => {
-  const all = await getPosts();
-  return all.filter((item) => item.visible !== false);
+  const q = query(collection(db, 'posts'), where('visible', '==', true));
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map((item) => ({ id: item.id, ...item.data() } as BlogPost))
+    .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
 };
 
 export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
-  const q = query(collection(db, 'posts'), where('slug', '==', slug));
+  const q = query(collection(db, 'posts'), where('slug', '==', slug), where('visible', '==', true));
   const snapshot = await getDocs(q);
   if (snapshot.empty) return null;
   return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as BlogPost;
 };
 
 export const incrementUpvote = async (slug: string): Promise<void> => {
-  const q = query(collection(db, 'posts'), where('slug', '==', slug));
+  const q = query(collection(db, 'posts'), where('slug', '==', slug), where('visible', '==', true));
   const snapshot = await getDocs(q);
   if (!snapshot.empty) {
     await updateDoc(doc(db, 'posts', snapshot.docs[0].id), { upvotes: increment(1) });
@@ -110,14 +132,14 @@ export const getSiteSettings = async (): Promise<SiteSettings> => {
     const snapshot = await getDoc(doc(db, 'siteSettings', 'main'));
     if (!snapshot.exists()) return siteDefaults;
     const remote = snapshot.data() as Partial<SiteSettings>;
-    return {
+    return sanitizePublicSettings({
       ...siteDefaults,
       ...remote,
       socials: { ...siteDefaults.socials, ...(remote.socials ?? {}) },
       seo: { ...siteDefaults.seo, ...(remote.seo ?? {}) },
       ui: { ...siteDefaults.ui, ...(remote.ui ?? {}) },
       capabilities: remote.capabilities?.length ? remote.capabilities : siteDefaults.capabilities,
-    };
+    });
   } catch (error) {
     console.warn('Using local portfolio copy because siteSettings could not be read.', error);
     return siteDefaults;
