@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Check, Mail, Trash2 } from 'lucide-react';
-import { deleteItem, getMessages, updateItem } from '../../services/db';
+import { deleteItem, getMessages, updateItem } from '../../services/adminDb';
 import type { ContactMessage } from '../../types/database';
 import { AdminSection } from './AdminUI';
 

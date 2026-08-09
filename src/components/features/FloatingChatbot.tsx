@@ -18,10 +18,10 @@ const prompts: Record<Role, string> = {
   RECRUITER: 'You are the portfolio assistant for recruiters and hiring managers evaluating the person described in the authoritative portfolio data below. Use only the current portfolio data supplied below. Summarize evidence relevant to infrastructure, Linux system administration, DevOps, cloud, Kubernetes-adjacent and SRE-oriented opportunities without inflating seniority. Separate professional experience from labs, projects, certifications and formal education. If evidence is missing, say so. Encourage a direct conversation when there is a plausible role fit.',
 };
 
-export const FloatingChatbot = () => {
+export const FloatingChatbot = ({ initialOpen = false }: { initialOpen?: boolean }) => {
   const { settings } = useSiteSettings();
   const reduce = useReducedMotion();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialOpen);
   const [role, setRole] = useState<Role>('NORMAL');
   const [messages, setMessages] = useState<ChatMessage[]>([{ role:'model', text:'Hi — I can help you find the relevant parts of this portfolio without making you hunt through every page.' }]);
   const [input,setInput]=useState(''); const [typing,setTyping]=useState(false); const [remaining,setRemaining]=useState(getRemaining);
@@ -29,7 +29,15 @@ export const FloatingChatbot = () => {
   const contextLoaded=useRef(false); const bottomRef=useRef<HTMLDivElement>(null);
 
   useEffect(()=>bottomRef.current?.scrollIntoView({behavior:reduce?'auto':'smooth'}),[messages,typing,open,reduce]);
-  useEffect(()=>{if(!open||contextLoaded.current)return;contextLoaded.current=true;Promise.all([getPublicProjects().catch(()=>[]),getPublicExperience().catch(()=>[]),getPublicCertificates().catch(()=>[]),getPublicPosts().catch(()=>[])]).then(([projects,experience,certificates,posts])=>setPortfolioContext(JSON.stringify({profile:{name:settings.name,location:settings.location,availability:settings.availability,positioning:settings.heroBody,profile:settings.aboutBody,currentFocus:settings.currentFocus,capabilities:settings.capabilities},professionalExperience:experience.map(({role,company,duration,startDate,endDate,description,techStack})=>({role,company,duration,startDate,endDate,description,techStack})),projects:projects.map(({name,description,command,url,problem,built,decisions,outcome,learnings,stack})=>({name,description,command,url,problem,built,decisions,outcome,learnings,stack})),credentials:certificates.filter(item=>item.entryType!=='education').map(({name,issuer,date,category,credentialId})=>({name,issuer,date,category,credentialId})),education:certificates.filter(item=>item.entryType==='education').map(({name,institution,field,startDate,endDate,educationStatus,details})=>({name,institution,field,startDate,endDate,educationStatus,details})),writing:posts.slice(0,12).map(({title,date,tags,slug})=>({title,date,tags,slug}))})))},[open,settings]);
+  useEffect(()=>{
+    if(!open||contextLoaded.current)return;
+    contextLoaded.current=true;
+    const timer=window.setTimeout(()=>{
+      Promise.all([getPublicProjects().catch(()=>[]),getPublicExperience().catch(()=>[]),getPublicCertificates().catch(()=>[]),getPublicPosts().catch(()=>[])])
+        .then(([projects,experience,certificates,posts])=>setPortfolioContext(JSON.stringify({profile:{name:settings.name,location:settings.location,availability:settings.availability,positioning:settings.heroBody,profile:settings.aboutBody,currentFocus:settings.currentFocus,capabilities:settings.capabilities},professionalExperience:experience.map(({role,company,duration,startDate,endDate,description,techStack})=>({role,company,duration,startDate,endDate,description,techStack})),projects:projects.map(({name,description,command,url,problem,built,decisions,outcome,learnings,stack})=>({name,description,command,url,problem,built,decisions,outcome,learnings,stack})),credentials:certificates.filter(item=>item.entryType!=='education').map(({name,issuer,date,category,credentialId})=>({name,issuer,date,category,credentialId})),education:certificates.filter(item=>item.entryType==='education').map(({name,institution,field,startDate,endDate,educationStatus,details})=>({name,institution,field,startDate,endDate,educationStatus,details})),writing:posts.slice(0,12).map(({title,date,tags,slug})=>({title,date,tags,slug}))})));
+    },260);
+    return()=>window.clearTimeout(timer);
+  },[open,settings]);
   if(!settings.chatbotEnabled)return null;
 
   const send=async(event?:React.FormEvent)=>{event?.preventDefault();const userMessage=input.trim();if(!userMessage||typing||remaining<=0)return;setInput('');recordUse();setRemaining(getRemaining());setMessages(p=>[...p,{role:'user',text:userMessage}]);setTyping(true);try{const proxyUrl=import.meta.env.VITE_GEMINI_PROXY_URL;if(!proxyUrl)throw new Error('AI gateway is not configured.');const recent=[...messages,{role:'user' as const,text:userMessage}].slice(-6);const response=await fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{role:'system',parts:[{text:`${prompts[role]}\n\nCURRENT PORTFOLIO DATA (authoritative):\n${portfolioContext||JSON.stringify({profile:{name:settings.name,positioning:settings.heroBody,currentFocus:settings.currentFocus}})}`}]},contents:recent.map(message=>({role:message.role,parts:[{text:message.text}]})),temperature: role === 'RECRUITER' ? 0.2 : 0.55, topP: role === 'RECRUITER' ? 0.8 : 0.92})});if(!response.ok)throw new Error(`AI gateway returned ${response.status}.`);const data=await response.json();const text=data?.candidates?.[0]?.content?.parts?.[0]?.text??'I could not generate a response.';setMessages(p=>[...p,{role:'model',text}]);addItem('chatLogs',{sessionId,timestamp:new Date().toISOString(),mode:role,userQuery:userMessage,aiResponse:text}).catch(()=>undefined)}catch(error){setMessages(p=>[...p,{role:'model',text:error instanceof Error?`The assistant is temporarily unavailable. ${error.message}`:'The assistant is temporarily unavailable.'}])}finally{setTyping(false)}};
@@ -37,14 +45,14 @@ export const FloatingChatbot = () => {
 
   const panelTransition = reduce ? { duration: 0 } : { type:'spring' as const, stiffness:360, damping:31, mass:.82 };
   return <div className="chatbot-dock">
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="wait">
       {open ? <motion.section key="panel" className="chatbot-panel" aria-label="Portfolio assistant" initial={reduce?false:{opacity:0,y:24,scale:.94,filter:'blur(7px)'}} animate={{opacity:1,y:0,scale:1,filter:'blur(0px)'}} exit={reduce?undefined:{opacity:0,y:18,scale:.96,filter:'blur(5px)'}} transition={panelTransition}>
         <header className="chatbot-header"><div className="chatbot-title"><span className="chatbot-orb"><Bot size={18}/></span><div><strong>Ask about {settings.shortName.split(' ')[0]}</strong><small>Portfolio guide</small></div></div><button className="chat-icon-button" onClick={()=>setOpen(false)} aria-label="Close assistant"><X size={19}/></button></header>
         <div className="chatbot-modes"><button className={role==='NORMAL'?'active':''} onClick={()=>switchRole('NORMAL')}><UserRound size={14}/>Visitor</button><button className={role==='RECRUITER'?'active':''} onClick={()=>switchRole('RECRUITER')}><BriefcaseBusiness size={14}/>Recruiter</button></div>
         <div className="chatbot-messages">{messages.map((message,index)=><motion.div initial={reduce?false:{opacity:0,y:7}} animate={{opacity:1,y:0}} transition={{duration:.25}} key={index} className={`chat-message ${message.role}`}>{message.text}</motion.div>)}{typing&&<div className="chat-message model typing-dots"><span/><span/><span/></div>}<div ref={bottomRef}/></div>
         <form className="chatbot-form" onSubmit={send}><input value={input} onChange={e=>setInput(e.target.value)} placeholder={remaining?'Ask about experience, projects, skills…':'Daily limit reached'} disabled={!remaining} aria-label="Message"/><button type="submit" disabled={!input.trim()||typing||!remaining} aria-label="Send message"><Send size={16}/></button></form>
         <div className="chatbot-limit">{remaining}/{DAILY_LIMIT} questions remaining today</div>
-      </motion.section> : <motion.button key="launch" className="chatbot-launch" onClick={()=>setOpen(true)} aria-label="Open portfolio assistant" initial={reduce?false:{opacity:0,y:10,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={reduce?undefined:{opacity:0,y:8,scale:.94}} transition={panelTransition} whileHover={reduce?undefined:{y:-3,scale:1.018}} whileTap={reduce?undefined:{scale:.97}}><MessageCircle size={21}/><span>Ask about me</span><Sparkles size={13}/></motion.button>}
+      </motion.section> : <motion.button key="launch" className="chatbot-launch" onClick={()=>setOpen(true)} aria-label="Ask about me — open portfolio assistant" initial={reduce?false:{opacity:0,y:10,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={reduce?undefined:{opacity:0,y:8,scale:.94}} transition={panelTransition} whileHover={reduce?undefined:{y:-3,scale:1.018}} whileTap={reduce?undefined:{scale:.97}}><MessageCircle size={21}/><span>Ask about me</span><Sparkles size={13}/></motion.button>}
     </AnimatePresence>
   </div>;
 };

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDownRight, ArrowRight, Cloud, Container, Gauge, GraduationCap, Network, Server, Sparkles } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { Reveal } from '../components/ui/Reveal';
 import { DataLoading } from '../components/ui/DataState';
 import { SEO } from '../components/features/SEO';
 import { useSiteSettings } from '../hooks/useSiteSettings';
-import { getPublicCertificates, getPublicExperience, getPublicPosts, getPublicProjects } from '../services/db';
+import { scheduleAfterPaint } from '../lib/idle';
 import { displayExperienceDuration, formatProfessionalExperience } from '../lib/experience';
 import { learningEntryType, type BlogPost, type Certificate, type Experience, type Project } from '../types/database';
 
@@ -22,17 +22,24 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      getPublicProjects().catch(() => []),
-      getPublicPosts().catch(() => []),
-      getPublicExperience().catch(() => []),
-      getPublicCertificates().catch(() => []),
-    ]).then(([projectData, postData, experienceData, certificateData]) => {
-      setProjects(projectData);
-      setPosts(postData);
-      setExperience(experienceData);
-      setCertificates(certificateData);
-    }).finally(() => setLoading(false));
+    let active = true;
+    const cancel = scheduleAfterPaint(() => {
+      import('../services/db').then(({ getPublicProjects, getPublicPosts, getPublicExperience, getPublicCertificates }) =>
+        Promise.all([
+          getPublicProjects().catch(() => []),
+          getPublicPosts().catch(() => []),
+          getPublicExperience().catch(() => []),
+          getPublicCertificates().catch(() => []),
+        ])
+      ).then(([projectData, postData, experienceData, certificateData]) => {
+        if (!active) return;
+        setProjects(projectData);
+        setPosts(postData);
+        setExperience(experienceData);
+        setCertificates(certificateData);
+      }).finally(() => active && setLoading(false));
+    });
+    return () => { active = false; cancel(); };
   }, []);
 
   const certificationItems = certificates.filter((item) => learningEntryType(item) === 'certificate');
@@ -44,7 +51,7 @@ const Home = () => {
       <SEO title={settings.seo.title} description={settings.seo.description} path="/" />
       <section className="hero-section">
         <div className="hero-grid">
-          <motion.div
+          <m.div
             initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -57,9 +64,9 @@ const Home = () => {
               <Link className="button button-primary" to="/projects">{settings.ui.homePrimaryCta} <ArrowRight size={17} /></Link>
               <Link className="button button-ghost" to="/contact">{settings.ui.homeSecondaryCta} <ArrowDownRight size={17} /></Link>
             </div>
-          </motion.div>
+          </m.div>
 
-          <motion.aside
+          <m.aside
             className="hero-orbit-card"
             initial={reduce ? false : { opacity: 0, scale: 0.96 }}
             animate={reduce ? undefined : { opacity: 1, scale: 1 }}
@@ -78,7 +85,7 @@ const Home = () => {
               <div><span>Location</span><strong>{settings.location}</strong></div>
               <div><span>Status</span><strong>{settings.availability}</strong></div>
             </div>
-          </motion.aside>
+          </m.aside>
         </div>
 
         <div className="scroll-cue"><span>{settings.ui.homeScrollCue}</span><ArrowDownRight size={15} /></div>

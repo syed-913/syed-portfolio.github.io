@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Edit3, Plus, Save, Trash2, X } from 'lucide-react';
-import { addItem, deleteItem, getExperience, updateItem } from '../../services/db';
+import { addItem, deleteItem, getExperience, updateItem } from '../../services/adminDb';
 import type { Experience } from '../../types/database';
 import { displayExperienceDuration } from '../../lib/experience';
 import { AdminField, AdminInput, AdminSection, AdminTextarea } from './AdminUI';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
-import { getSiteSettings, saveSiteSettings } from '../../services/db';
+import { getSiteSettings, saveSiteSettings } from '../../services/adminDb';
 import type { SiteSettings } from '../../types/database';
 import { siteDefaults } from '../../data/siteDefaults';
 import { AdminField, AdminInput, AdminSection, AdminTextarea } from './AdminUI';

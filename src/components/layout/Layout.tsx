@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
-import { FloatingChatbot } from '../features/FloatingChatbot';
+import { ChatbotLauncher } from '../features/ChatbotLauncher';
 import { CursorField } from '../features/CursorField';
 
 export const Layout = ({ children }: { children: ReactNode }) => {
@@ -17,7 +17,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       <CursorField />
       <Navbar />
       <AnimatePresence mode="wait" initial={false}>
-        <motion.main
+        <m.main
           key={location.pathname}
           className="site-main"
           initial={reduce ? false : { opacity: 0, y: 10, filter: 'blur(4px)' }}
@@ -25,7 +25,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
           exit={reduce ? undefined : { opacity: 0, y: -7, filter: 'blur(3px)' }}
           transition={{ duration: reduce ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] }}
         >
-          <motion.div
+          <m.div
             className="route-signal"
             aria-hidden="true"
             initial={reduce ? false : { scaleX: 0, opacity: 0.9 }}
@@ -33,10 +33,10 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             transition={{ duration: reduce ? 0 : 0.62, ease: [0.22, 1, 0.36, 1] }}
           />
           {children}
-        </motion.main>
+        </m.main>
       </AnimatePresence>
       <Footer />
-      <FloatingChatbot />
+      <ChatbotLauncher />
     </div>
   );
 };

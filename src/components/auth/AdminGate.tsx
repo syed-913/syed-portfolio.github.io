@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { browserSessionPersistence, setPersistence, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { LockKeyhole, LoaderCircle, ShieldCheck } from 'lucide-react';
-import { auth } from '../../lib/firebase';
+import { auth } from '../../lib/adminFirebase';
 import { clearAdminSession, hasAdminSession, markAdminSession } from '../../lib/adminSession';
 import { useAuth } from '../../context/AuthContext';
 import { SEO } from '../features/SEO';
@@ -16,7 +16,7 @@ export const AdminGate = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading || submitting) return;
     if (user && !hasAdminSession()) {
-      // Firebase defaults to persistent auth. Never trust a restored browser login for this hidden workspace.
+      // Never trust an authenticated state unless this browser session also passed the private workspace gate.
       signOut(auth).finally(() => {
         clearAdminSession();
         setCheckingRestoredSession(false);
@@ -35,7 +35,6 @@ export const AdminGate = ({ children }: { children: ReactNode }) => {
     setError('');
     try {
       const email = import.meta.env.VITE_ADMIN_EMAIL || 'syedammar06@proton.me';
-      await setPersistence(auth, browserSessionPersistence);
       const credential = await signInWithEmailAndPassword(auth, email, password);
       if (credential.user.email?.toLowerCase() !== email.toLowerCase()) {
         await signOut(auth);

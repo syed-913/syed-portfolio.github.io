@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Edit3, Plus, Save, Trash2, X } from 'lucide-react';
-import { addItem, deleteItem, getProjects, updateItem } from '../../services/db';
+import { addItem, deleteItem, getProjects, updateItem } from '../../services/adminDb';
 import type { Project } from '../../types/database';
 import { AdminField, AdminInput, AdminSection, AdminTextarea } from './AdminUI';
 
