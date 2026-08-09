@@ -1,18 +1,18 @@
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
 import { Layout } from './components/layout/Layout';
 import { AnalyticsTracker } from './components/features/AnalyticsTracker';
-import { AdminGate } from './components/auth/AdminGate';
 import Home from './pages/Home';
-import About from './pages/About';
-import Experience from './pages/Experience';
-import Projects from './pages/Projects';
-import Achievements from './pages/Achievements';
-import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import Contact from './pages/Contact';
-import Dashboard from './pages/Dashboard';
-import NotFound from './pages/NotFound';
+
+const About = lazy(() => import('./pages/About'));
+const Experience = lazy(() => import('./pages/Experience'));
+const Projects = lazy(() => import('./pages/Projects'));
+const Achievements = lazy(() => import('./pages/Achievements'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const Contact = lazy(() => import('./pages/Contact'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const DashboardPortal = lazy(() => import('./components/auth/DashboardPortal'));
 
 const ScrollToTop = () => {
   const location = useLocation();
@@ -20,31 +20,41 @@ const ScrollToTop = () => {
   return null;
 };
 
+const RoutePending = ({ compact = false }: { compact?: boolean }) => (
+  <div className={`route-pending ${compact ? 'is-compact' : ''}`} role="status" aria-live="polite">
+    <span className="route-pending-mark" aria-hidden="true"><i /><i /><i /></span>
+    <span>Loading interface</span>
+  </div>
+);
+
+const Deferred = ({ children }: { children: ReactNode }) => (
+  <Suspense fallback={<RoutePending />}>{children}</Suspense>
+);
+
 function AppRoutes() {
   return (
     <>
       <AnalyticsTracker />
       <ScrollToTop />
       <Routes>
-        <Route path="/dashboard" element={<AdminGate><Dashboard /></AdminGate>} />
+        <Route path="/dashboard" element={<Suspense fallback={<RoutePending compact />}><DashboardPortal /></Suspense>} />
         <Route path="/*" element={
           <Layout>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/experience" element={<Experience />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/credentials" element={<Achievements />} />
-              <Route path="/writing" element={<Blog />} />
-              <Route path="/writing/:slug" element={<BlogPost />} />
+              <Route path="/about" element={<Deferred><About /></Deferred>} />
+              <Route path="/experience" element={<Deferred><Experience /></Deferred>} />
+              <Route path="/projects" element={<Deferred><Projects /></Deferred>} />
+              <Route path="/credentials" element={<Deferred><Achievements /></Deferred>} />
+              <Route path="/writing" element={<Deferred><Blog /></Deferred>} />
+              <Route path="/writing/:slug" element={<Deferred><BlogPost /></Deferred>} />
 
-              {/* Legacy public URLs stay valid, but canonical navigation now uses the clearer names. */}
               <Route path="/achievements" element={<Navigate to="/credentials" replace />} />
               <Route path="/journals" element={<Navigate to="/writing" replace />} />
               <Route path="/journal/:slug" element={<LegacyJournalRedirect />} />
 
-              <Route path="/contact" element={<Contact />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="/contact" element={<Deferred><Contact /></Deferred>} />
+              <Route path="*" element={<Deferred><NotFound /></Deferred>} />
             </Routes>
           </Layout>
         } />

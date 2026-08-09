@@ -1,16 +1,16 @@
 import { StrictMode } from 'react';
+import { LazyMotion, domAnimation } from 'framer-motion';
 import App from './App';
-import { AuthProvider } from './context/AuthContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 
 export default function Bootstrap() {
   return (
     <StrictMode>
-      <AuthProvider>
+      <LazyMotion features={domAnimation}>
         <SiteSettingsProvider>
           <App />
         </SiteSettingsProvider>
-      </AuthProvider>
+      </LazyMotion>
     </StrictMode>
   );
 }

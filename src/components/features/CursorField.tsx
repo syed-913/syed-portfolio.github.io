@@ -10,39 +10,46 @@ export const CursorField = () => {
   useEffect(() => {
     if (!matchMedia('(pointer: fine)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    let tx = innerWidth / 2, ty = innerHeight / 2;
-    let fx = tx, fy = ty, hx = tx, hy = ty;
+    let targetX = innerWidth / 2;
+    let targetY = innerHeight / 2;
+    let ringX = targetX;
+    let ringY = targetY;
+    let haloX = targetX;
+    let haloY = targetY;
     let raf = 0;
     let interactive = false;
 
     document.documentElement.classList.add('cursor-field-enabled');
 
     const move = (event: PointerEvent) => {
-      tx = event.clientX;
-      ty = event.clientY;
-      if (dot.current) dot.current.style.transform = `translate3d(${tx}px,${ty}px,0)`;
-      const nextInteractive = Boolean((event.target as Element | null)?.closest?.(interactiveSelector));
-      if (nextInteractive !== interactive) {
-        interactive = nextInteractive;
-        follower.current?.classList.toggle('is-interactive', interactive);
-      }
+      targetX = event.clientX;
+      targetY = event.clientY;
+      if (dot.current) dot.current.style.transform = `translate3d(${targetX}px,${targetY}px,0)`;
+    };
+
+    // Interaction state changes on element boundaries, not on every pointer frame.
+    const over = (event: PointerEvent) => {
+      const next = Boolean((event.target as Element | null)?.closest?.(interactiveSelector));
+      if (next === interactive) return;
+      interactive = next;
+      follower.current?.classList.toggle('is-interactive', interactive);
     };
 
     const leave = () => document.documentElement.classList.add('cursor-field-hidden');
     const enter = () => document.documentElement.classList.remove('cursor-field-hidden');
 
     const loop = () => {
-      // Ring is responsive; halo has a slightly heavier lag so the two still read as one object.
-      fx += (tx - fx) * 0.16;
-      fy += (ty - fy) * 0.16;
-      hx += (tx - hx) * 0.075;
-      hy += (ty - hy) * 0.075;
-      if (follower.current) follower.current.style.transform = `translate3d(${fx}px,${fy}px,0)`;
-      if (halo.current) halo.current.style.transform = `translate3d(${hx}px,${hy}px,0)`;
+      ringX += (targetX - ringX) * 0.16;
+      ringY += (targetY - ringY) * 0.16;
+      haloX += (targetX - haloX) * 0.075;
+      haloY += (targetY - haloY) * 0.075;
+      if (follower.current) follower.current.style.transform = `translate3d(${ringX}px,${ringY}px,0)`;
+      if (halo.current) halo.current.style.transform = `translate3d(${haloX}px,${haloY}px,0)`;
       raf = requestAnimationFrame(loop);
     };
 
     window.addEventListener('pointermove', move, { passive: true });
+    window.addEventListener('pointerover', over, { passive: true });
     document.documentElement.addEventListener('mouseleave', leave);
     document.documentElement.addEventListener('mouseenter', enter);
     raf = requestAnimationFrame(loop);
@@ -50,6 +57,7 @@ export const CursorField = () => {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerover', over);
       document.documentElement.removeEventListener('mouseleave', leave);
       document.documentElement.removeEventListener('mouseenter', enter);
       document.documentElement.classList.remove('cursor-field-enabled', 'cursor-field-hidden');

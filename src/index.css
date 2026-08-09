@@ -335,3 +335,15 @@ button { cursor: pointer; }
 @media(max-width:900px){.learning-section-head{grid-template-columns:1fr;gap:18px}.education-card{grid-template-columns:1fr;gap:22px}.education-meta{max-width:520px}.snapshot-learning::after{display:none}}
 @media(max-width:620px){.learning-section{padding-top:56px}.learning-section+.learning-section{padding-top:82px}.education-timeline{margin-left:-8px}.education-entry{grid-template-columns:38px minmax(0,1fr)}.education-card{padding:22px 0 34px}.education-card-top{align-items:flex-start;gap:12px}.education-status{padding:6px 8px}.education-copy h3{font-size:28px}.snapshot-learning{align-items:flex-start;flex-wrap:wrap}.snapshot-learning>a{margin-left:52px}.entry-type-switch{grid-template-columns:1fr}.learning-admin-toolbar{align-items:stretch}.admin-filter-tabs{width:100%;overflow:auto}.admin-filter-tabs button{white-space:nowrap}.credential-admin-row>.admin-row-meta{flex-wrap:wrap;justify-content:flex-end}}
 @media(prefers-reduced-motion:reduce){.education-entry.is-active .education-rail i{animation:none}}
+
+/* v11 performance + accessibility polish */
+.project-number { color: #8e938b; }
+.chatbot-launch.is-loading { opacity:.78; cursor:progress; }
+.route-pending { min-height:42vh; display:grid; place-items:center; align-content:center; gap:14px; color:var(--muted); font:10px var(--mono); text-transform:uppercase; letter-spacing:.13em; }
+.route-pending.is-compact { min-height:100vh; background:var(--ink); }
+.route-pending-mark { width:54px; height:14px; display:flex; align-items:center; justify-content:center; gap:6px; }
+.route-pending-mark i { width:6px; height:6px; border-radius:50%; background:var(--signal); opacity:.25; animation:routePendingPulse .9s ease-in-out infinite alternate; }
+.route-pending-mark i:nth-child(2){animation-delay:.16s}.route-pending-mark i:nth-child(3){animation-delay:.32s}
+@keyframes routePendingPulse { to { opacity:1; transform:translateY(-3px); box-shadow:0 0 14px color-mix(in srgb,var(--signal) 50%,transparent); } }
+.cursor-follower,.cursor-dot,.cursor-halo { contain:layout style paint; }
+@media (prefers-reduced-motion: reduce) { .route-pending-mark i { animation:none; opacity:.7; } }

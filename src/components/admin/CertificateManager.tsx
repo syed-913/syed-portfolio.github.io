@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Award, CheckCircle2, Clock3, Edit3, ExternalLink, FileCheck2, GraduationCap, Plus, Save, Trash2, UploadCloud, X } from 'lucide-react';
-import { addItem, deleteItem, getCertificates, updateItem } from '../../services/db';
+import { addItem, deleteItem, getCertificates, updateItem } from '../../services/adminDb';
 import { deleteCredentialMedia, uploadCredentialMedia } from '../../lib/media';
 import { learningEntryType, type Certificate, type EducationStatus, type LearningEntryType } from '../../types/database';
 import { IssuerBadge } from '../ui/IssuerBadge';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
@@ -41,8 +41,8 @@ export const Navbar = () => {
   return (
     <header className="site-nav-wrap">
       <nav className="site-nav" aria-label="Primary navigation">
-        <Link to="/" className="brand" aria-label={`${settings.shortName} home`}>
-          <span className="brand-mark"><img src="/profile-avatar.webp" alt="" aria-hidden="true" /></span>
+        <Link to="/" className="brand">
+          <span className="brand-mark"><img src="/profile-avatar-nav.webp" width="96" height="96" loading="eager" decoding="async" alt="" aria-hidden="true" /></span>
           <span className="brand-copy">
             <strong>{settings.shortName}</strong>
             <small>{settings.ui.navTagline}</small>
@@ -61,7 +61,7 @@ export const Navbar = () => {
 
         <div className="nav-controls">
           <ThemeToggle className="mobile-theme-toggle" />
-          <motion.button
+          <m.button
             className="menu-button"
             type="button"
             onClick={() => setOpen((value) => !value)}
@@ -71,7 +71,7 @@ export const Navbar = () => {
             whileTap={reduce ? undefined : { scale: 0.92 }}
           >
             <AnimatePresence mode="wait" initial={false}>
-              <motion.span
+              <m.span
                 key={open ? 'close' : 'menu'}
                 className="menu-icon"
                 initial={reduce ? false : { opacity: 0, rotate: open ? -18 : 18, scale: 0.75 }}
@@ -80,28 +80,28 @@ export const Navbar = () => {
                 transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
               >
                 {open ? <X size={20} /> : <Menu size={20} />}
-              </motion.span>
+              </m.span>
             </AnimatePresence>
-          </motion.button>
+          </m.button>
         </div>
       </nav>
 
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             className="mobile-menu-layer"
             initial={reduce ? false : { opacity: 0 }}
             animate={reduce ? undefined : { opacity: 1 }}
             exit={reduce ? undefined : { opacity: 0 }}
             transition={{ duration: reduce ? 0 : 0.24 }}
           >
-            <motion.button
+            <m.button
               className="mobile-menu-backdrop"
               type="button"
               aria-label="Close navigation menu"
               onClick={() => setOpen(false)}
             />
-            <motion.div
+            <m.div
               id="mobile-navigation"
               className="mobile-panel"
               role="navigation"
@@ -113,7 +113,7 @@ export const Navbar = () => {
             >
               <div className="mobile-panel-signal" aria-hidden="true"><i /><i /><i /><b /></div>
               {links.map((link, index) => (
-                <motion.div
+                <m.div
                   key={link.to}
                   initial={reduce ? false : { opacity: 0, y: 12 }}
                   animate={reduce ? undefined : { opacity: 1, y: 0 }}
@@ -122,18 +122,18 @@ export const Navbar = () => {
                   <NavLink to={link.to} className={({ isActive }) => `mobile-link ${isActive ? 'is-active' : ''}`}>
                     <span>0{index + 1}</span><strong>{link.label}</strong><em aria-hidden="true">↗</em>
                   </NavLink>
-                </motion.div>
+                </m.div>
               ))}
-              <motion.div
+              <m.div
                 initial={reduce ? false : { opacity: 0, y: 12 }}
                 animate={reduce ? undefined : { opacity: 1, y: 0 }}
                 transition={{ duration: reduce ? 0 : 0.34, delay: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Link to="/contact" className="mobile-link mobile-link-cta"><span>06</span><strong>{settings.ui.navConnect}</strong><em aria-hidden="true">↗</em></Link>
-              </motion.div>
+              </m.div>
               <p className="mobile-panel-foot">{settings.ui.navTagline}</p>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </header>

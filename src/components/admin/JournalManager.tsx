@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Edit3, Plus, Save, Trash2, X } from 'lucide-react';
-import { addItem, deleteItem, getPosts, updateItem } from '../../services/db';
+import { addItem, deleteItem, getPosts, updateItem } from '../../services/adminDb';
 import type { BlogPost } from '../../types/database';
 import { displayReadTime } from '../../lib/writing';
 import { AdminField, AdminInput, AdminSection, AdminTextarea } from './AdminUI';

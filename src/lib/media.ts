@@ -1,4 +1,4 @@
-import { auth } from './firebase';
+import { auth } from './adminFirebase';
 
 const MEDIA_WORKER_URL = (import.meta.env.VITE_MEDIA_WORKER_URL as string | undefined)?.replace(/\/$/, '');
 const IMAGEKIT_UPLOAD_URL = 'https://upload.imagekit.io/api/v1/files/upload';
