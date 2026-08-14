@@ -8,7 +8,7 @@
   <meta name="robots" content="index,follow" />
   <meta name="description" content="Portfolio of Syed Ammar Hussain: Linux systems, cloud infrastructure, DevOps, automation, homelab projects, certifications and technical writing." />
   <meta name="keywords" content="Syed Ammar, Linux System Administrator, DevOps, Cloud Engineer, AWS, Kubernetes, SRE, Terraform, Ansible, Karachi, infrastructure" />
-  <link rel="canonical" href="https://syedammar.engineer" />
+  <link rel="canonical" href="https://syedammar.engineer/" />
   <link rel="icon" type="image/x-icon" href="/pf.ico" />
   <link rel="apple-touch-icon" href="/pf.png" />
 
@@ -16,7 +16,7 @@
   <meta property="og:site_name" content="Syed Ammar" />
   <meta property="og:title" content="Syed Ammar — Infrastructure, Cloud & Operations" />
   <meta property="og:description" content="Linux systems, cloud infrastructure, DevOps, automation, homelab projects, certifications and technical writing." />
-  <meta property="og:url" content="https://syedammar.engineer" />
+  <meta property="og:url" content="https://syedammar.engineer/" />
   <meta property="og:image" content="https://syedammar.engineer/pf.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Syed Ammar — Infrastructure, Cloud & Operations" />
@@ -52,18 +52,42 @@
     })();
   </script>
 
-  <script type="application/ld+json">
+  <script id="site-structured-data" type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Syed Ammar Hussain",
-    "url": "https://syedammar.engineer",
-    "sameAs": [
-      "https://github.com/syed-913",
-      "https://www.linkedin.com/in/syed-ammar-hussain/",
-      "https://www.credly.com/users/syed-ammar-hussain.913"
-    ],
-    "knowsAbout": ["Linux", "System Administration", "DevOps", "Cloud Infrastructure", "AWS", "Terraform", "Ansible", "Kubernetes", "Observability"]
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://syedammar.engineer/#person",
+        "name": "Syed Ammar Hussain",
+        "url": "https://syedammar.engineer/",
+        "sameAs": [
+          "https://github.com/syed-913",
+          "https://www.linkedin.com/in/syed-ammar-hussain/",
+          "https://www.credly.com/users/syed-ammar-hussain.913"
+        ],
+        "knowsAbout": ["Linux", "System Administration", "DevOps", "Cloud Infrastructure", "AWS", "Terraform", "Ansible", "Kubernetes", "Observability"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://syedammar.engineer/#website",
+        "url": "https://syedammar.engineer/",
+        "name": "Syed Ammar",
+        "description": "Portfolio of Syed Ammar Hussain: Linux systems, cloud infrastructure, DevOps, automation, homelab projects, certifications, education and technical writing.",
+        "publisher": { "@id": "https://syedammar.engineer/#person" },
+        "inLanguage": "en"
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": "https://syedammar.engineer/#profile",
+        "url": "https://syedammar.engineer/",
+        "name": "Syed Ammar — Infrastructure, Cloud & Operations",
+        "description": "Portfolio of Syed Ammar Hussain: Linux systems, cloud infrastructure, DevOps, automation, homelab projects, certifications, education and technical writing.",
+        "mainEntity": { "@id": "https://syedammar.engineer/#person" },
+        "isPartOf": { "@id": "https://syedammar.engineer/#website" },
+        "inLanguage": "en"
+      }
+    ]
   }
   </script>
   <title>Syed Ammar — Infrastructure, Cloud & Operations</title>

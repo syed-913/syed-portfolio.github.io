@@ -55,9 +55,27 @@ const BlogPost = () => {
   if (loading) return <div className="article-loading"><DataLoading label="Opening field note…" variant="article" /></div>;
   if (!post) return <div className="article-loading"><h1>Note not found.</h1><Link to="/writing">Back to writing</Link></div>;
 
+  const articleDescription = post.content.replace(/[#*_`>\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155);
+  const parsedDate = post.date ? new Date(post.date) : null;
+  const publishedTime = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : undefined;
+  const articleUrl = `https://syedammar.engineer/writing/${post.slug}/`;
+  const articleStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: articleDescription,
+    url: articleUrl,
+    mainEntityOfPage: articleUrl,
+    author: { '@id': 'https://syedammar.engineer/#person' },
+    publisher: { '@id': 'https://syedammar.engineer/#person' },
+    ...(publishedTime ? { datePublished: publishedTime } : {}),
+    ...(post.tags?.length ? { keywords: post.tags.join(', ') } : {}),
+    inLanguage: 'en',
+  };
+
   return (
     <>
-      <SEO title={`${post.title} — ${settings.shortName}`} description={post.content.replace(/[#*_`>\-]/g, '').slice(0, 155)} path={`/writing/${post.slug}`} type="article" />
+      <SEO title={`${post.title} — ${settings.shortName}`} description={articleDescription} path={`/writing/${post.slug}`} type="article" publishedTime={publishedTime} structuredData={articleStructuredData} />
       <motion.div className="article-reading-progress" aria-hidden="true" style={{ scaleX: reduce ? scrollYProgress : readingProgress }} />
       <article ref={articleRef} className="article-page">
         <Link to="/writing" className="article-back"><ArrowLeft size={16} /> All field notes</Link>

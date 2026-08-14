@@ -1,0 +1,10 @@
+.github/workflows/deploy.yml
+scripts/generate-seo.mjs
+public/robots.txt
+public/sitemap.xml
+public/404.html
+index.html
+src/components/features/SEO.tsx
+src/pages/BlogPost.tsx
+README-V15.md
+FILE-MANIFEST.txt
