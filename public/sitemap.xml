@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Fallback sitemap. GitHub Actions replaces dist/sitemap.xml with the Firebase-aware generated version after every build. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://syedammar.engineer/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://syedammar.engineer/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://syedammar.engineer/projects</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://syedammar.engineer/experience</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://syedammar.engineer/credentials</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://syedammar.engineer/writing</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://syedammar.engineer/contact</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://syedammar.engineer/</loc></url>
+  <url><loc>https://syedammar.engineer/about/</loc></url>
+  <url><loc>https://syedammar.engineer/projects/</loc></url>
+  <url><loc>https://syedammar.engineer/experience/</loc></url>
+  <url><loc>https://syedammar.engineer/credentials/</loc></url>
+  <url><loc>https://syedammar.engineer/writing/</loc></url>
+  <url><loc>https://syedammar.engineer/contact/</loc></url>
 </urlset>
