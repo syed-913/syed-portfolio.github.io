@@ -29,3 +29,22 @@ update_guide.txt
 .env.local
 .env.production.local
 .env.development.local
+
+# Private/local environment variants and Cloudflare credentials
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+.wrangler/
+
+# Local design-session evidence; keep the source-backed design system in Git
+.impeccable/review/
+.impeccable/build/
+.impeccable/mocks/
+.impeccable/questions/
+.impeccable/resume.md
+
+# Build/check reports
+coverage/
+playwright-report/
+test-results/

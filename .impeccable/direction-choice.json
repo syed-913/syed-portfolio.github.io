@@ -1,0 +1,13 @@
+{
+  "seed": "c5caf5d7",
+  "kind": "assigned",
+  "optionId": "assigned",
+  "direction": "Technical Field Manual",
+  "source": "owner selection on the visual decision board",
+  "decisionComp": ".impeccable/mocks/decision/field-manual.png",
+  "buildPath": "comp",
+  "compositionApproved": true,
+  "composition": "Profile + project",
+  "approvedComp": ".impeccable/mocks/field-manual-split.png",
+  "compositionSelectionSource": "agent choice under explicit owner layout delegation"
+}

@@ -1,252 +1,384 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowDownRight, ArrowRight, Cloud, Container, Gauge, GraduationCap, Network, Server, Sparkles } from 'lucide-react';
-import { m, useReducedMotion } from 'framer-motion';
-import { Reveal } from '../components/ui/Reveal';
-import { DataLoading } from '../components/ui/DataState';
-import { SEO } from '../components/features/SEO';
-import { useSiteSettings } from '../hooks/useSiteSettings';
-import { scheduleAfterPaint } from '../lib/idle';
-import { displayExperienceDuration, formatProfessionalExperience } from '../lib/experience';
-import { learningEntryType, type BlogPost, type Certificate, type Experience, type Project } from '../types/database';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowUpRight,
+  Check,
+  FlaskConical,
+  MapPin,
+} from "lucide-react";
+import { SEO } from "../components/features/SEO";
+import { useSiteSettings } from "../hooks/useSiteSettings";
+import { scheduleAfterPaint } from "../lib/idle";
+import { InlineCopy, InlineCopyLines } from "../components/ui/InlineCopy";
+import type { Certificate, Experience, Project } from "../types/database";
 
-const icons = [Server, Cloud, Container, Gauge];
-
-const Home = () => {
+const stages = [
+  {
+    name: "Import",
+    caption: "Parse CSV/JSON imports and inspect account data.",
+    detail:
+      "Review imported account data before it reaches system files. The console accepts bulk CSV and JSON input.",
+  },
+  {
+    name: "Validate",
+    caption: "Check for policy compliance, duplicates, and required fields.",
+    detail:
+      "Validation checks input and account policy before changes. A dry run lets you inspect the intended operations.",
+  },
+  {
+    name: "Commit",
+    caption: "Apply approved changes to the system.",
+    detail:
+      "Transactional account changes include rollback and crash recovery. The project implements Linux account lifecycle operations in Bash.",
+  },
+  {
+    name: "Audit",
+    caption: "Inspect account configuration and review change records.",
+    detail:
+      "CIS-mapped checks inspect account configuration. Transaction history and hash-chained JSONL logs record changes, with structured journald logging where available. Read the repository for implementation and test evidence.",
+  },
+];
+function WorkflowGlyph({ stage }: { stage: string }) {
+  return (
+    <span
+      className={`workflow-glyph glyph-${stage.toLowerCase()}`}
+      aria-hidden="true"
+    >
+      {stage === "Validate" ? (
+        <span className="glyph-checklist">
+          {[0, 1, 2].map((row) => (
+            <span key={row}>
+              <Check size={20} strokeWidth={1.4} />
+              <i />
+            </span>
+          ))}
+        </span>
+      ) : (
+        <>
+          <span className="glyph-page">
+            <span className="glyph-fold" />
+            <span className="glyph-lines">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+          </span>
+          {stage === "Commit" && (
+            <span className="glyph-approval">
+              <Check size={28} strokeWidth={1.3} />
+            </span>
+          )}
+          {stage === "Audit" && <span className="glyph-search" />}
+        </>
+      )}
+    </span>
+  );
+}
+export default function Home() {
   const { settings } = useSiteSettings();
-  const reduce = useReducedMotion();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [experience, setExperience] = useState<Experience[]>([]);
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [data, setData] = useState<{
+    projects: Project[];
+    certificates: Certificate[];
+    experience: Experience[];
+  }>({ projects: [], certificates: [], experience: [] });
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState(false);
+  const [stage, setStage] = useState<number | null>(null);
   useEffect(() => {
     let active = true;
     const cancel = scheduleAfterPaint(() => {
-      import('../services/db').then(({ getPublicProjects, getPublicPosts, getPublicExperience, getPublicCertificates }) =>
-        Promise.all([
-          getPublicProjects().catch(() => []),
-          getPublicPosts().catch(() => []),
-          getPublicExperience().catch(() => []),
-          getPublicCertificates().catch(() => []),
-        ])
-      ).then(([projectData, postData, experienceData, certificateData]) => {
-        if (!active) return;
-        setProjects(projectData);
-        setPosts(postData);
-        setExperience(experienceData);
-        setCertificates(certificateData);
-      }).finally(() => active && setLoading(false));
+      import("../services/db")
+        .then(async (db) => {
+          const results = await Promise.allSettled([
+            db.getPublicProjects(),
+            db.getPublicCertificates(),
+            db.getPublicExperience(),
+          ]);
+          if (!active) return;
+          setData({
+            projects: results[0].status === "fulfilled" ? results[0].value : [],
+            certificates:
+              results[1].status === "fulfilled" ? results[1].value : [],
+            experience:
+              results[2].status === "fulfilled" ? results[2].value : [],
+          });
+          setError(results.some((r) => r.status === "rejected"));
+        })
+        .catch(() => active && setError(true))
+        .finally(() => active && setLoading(false));
     });
-    return () => { active = false; cancel(); };
+    return () => {
+      active = false;
+      cancel();
+    };
   }, []);
-
-  const certificationItems = certificates.filter((item) => learningEntryType(item) === 'certificate');
-  const educationItems = certificates.filter((item) => learningEntryType(item) === 'education');
-  const activeEducation = educationItems.find((item) => item.educationStatus === 'in_progress');
-
+  const project =
+    data.projects.find((p) => /user.management.console/i.test(p.name)) ??
+    data.projects[0];
+  const isConsole = !!project && /user.management.console/i.test(project.name);
+  const evidence = [
+    {
+      mark: "AWS",
+      item: data.certificates.find((c) => /cloud practitioner/i.test(c.name)),
+      label: "AWS Cloud Practitioner",
+    },
+    {
+      mark: "ISC2",
+      item: data.certificates.find((c) =>
+        /certified in cybersecurity/i.test(c.name),
+      ),
+      label: "ISC2 Certified in Cybersecurity",
+    },
+    {
+      mark: "GRC",
+      item: data.certificates.find((c) => /27001.*lead auditor/i.test(c.name)),
+      label: "ISO/IEC 27001\nLead Auditor",
+    },
+  ];
   return (
     <>
-      <SEO title={settings.seo.title} description={settings.seo.description} path="/" />
-      <section className="hero-section">
-        <div className="hero-grid">
-          <m.div
-            initial={reduce ? false : { opacity: 0, y: 24 }}
-            animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="hero-copy"
-          >
-            <p className="eyebrow"><span className="status-dot" />{settings.heroKicker}</p>
-            <h1>{settings.heroTitle}</h1>
-            <p className="hero-body">{settings.heroBody}</p>
-            <div className="hero-actions">
-              <Link className="button button-primary" to="/projects">{settings.ui.homePrimaryCta} <ArrowRight size={17} /></Link>
-              <Link className="button button-ghost" to="/contact">{settings.ui.homeSecondaryCta} <ArrowDownRight size={17} /></Link>
-            </div>
-          </m.div>
-
-          <m.aside
-            className="hero-orbit-card"
-            initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-            animate={reduce ? undefined : { opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="orbit-visual" aria-hidden="true">
-              <span className="orbit orbit-a" /><span className="orbit orbit-b" /><span className="orbit orbit-c" />
-              <span className="orbit-core"><Network size={28} /></span>
-              <span className="orbit-node node-a" /><span className="orbit-node node-b" /><span className="orbit-node node-c" />
-            </div>
-            <div className="orbit-copy">
-              <p className="micro-label">Current orbit</p>
-              <p>{settings.currentFocus}</p>
-            </div>
-            <div className="mini-status-grid">
-              <div><span>Location</span><strong>{settings.location}</strong></div>
-              <div><span>Status</span><strong>{settings.availability}</strong></div>
-            </div>
-          </m.aside>
-        </div>
-
-        <div className="scroll-cue"><span>{settings.ui.homeScrollCue}</span><ArrowDownRight size={15} /></div>
-      </section>
-
-      <section className="manifesto-strip">
-        <p>{settings.ui.homeManifestoA}</p>
-        <p>{settings.ui.homeManifestoB}</p>
-      </section>
-
-      <section className="snapshot-section" aria-label="Professional snapshot">
-        <Reveal className="snapshot-heading">
-          <p className="eyebrow">{settings.ui.snapshotEyebrow}</p>
-          <h2>{settings.ui.snapshotTitle}</h2>
-        </Reveal>
-        <div className="snapshot-grid">
-          <Reveal className="snapshot-cell" delay={0.02}>
-            <span>01</span>
-            <strong>{loading ? '—' : formatProfessionalExperience(experience)}</strong>
-            <small>{settings.ui.snapshotExperience}</small>
-          </Reveal>
-          <Reveal className="snapshot-cell" delay={0.05}>
-            <span>02</span>
-            <strong>{loading ? '—' : projects.length}</strong>
-            <small>{settings.ui.snapshotProjects}</small>
-          </Reveal>
-          <Reveal className="snapshot-cell" delay={0.08}>
-            <span>03</span>
-            <strong>{loading ? '—' : `${certificationItems.length} / ${educationItems.length}`}</strong>
-            <small>{settings.ui.snapshotCredentials} / {settings.ui.snapshotEducation}</small>
-          </Reveal>
-          <Reveal className="snapshot-cell snapshot-direction" delay={0.11}>
-            <span>04</span>
-            <strong>{settings.heroKicker}</strong>
-            <small>{settings.ui.snapshotDirection}</small>
-          </Reveal>
-        </div>
-        {!loading && activeEducation && (
-          <Reveal className="snapshot-learning" delay={0.14}>
-            <span className="snapshot-learning-icon"><GraduationCap size={17} /></span>
-            <div><small>{settings.ui.snapshotCurrentlyStudying}</small><strong>{activeEducation.name}</strong><span>{activeEducation.institution || activeEducation.issuer || 'Academic program'}{activeEducation.endDate ? ` · expected ${activeEducation.endDate}` : ''}</span></div>
-            <Link to="/credentials" className="text-link">{settings.ui.snapshotLearningCta} <ArrowRight size={14} /></Link>
-          </Reveal>
-        )}
-      </section>
-
-      <section className="content-section">
-        <Reveal>
-          <div className="section-heading-row">
-            <div><p className="eyebrow">{settings.ui.capabilitiesEyebrow}</p><h2>{settings.ui.capabilitiesTitle}</h2></div>
-            <p className="section-copy">{settings.ui.capabilitiesIntro}</p>
+      <SEO
+        title={settings.seo.title}
+        description={settings.seo.description}
+        path="/"
+      />
+      <div className="manual-opening">
+        <aside className="index-rail" aria-hidden="true">
+          <span>
+            <b>01</b>
+            <i>/ Profile</i>
+          </span>
+          <span>
+            <b>02</b>
+            <i>Selected work</i>
+          </span>
+          <span>
+            <b>03</b>
+            <i>Credentials</i>
+          </span>
+        </aside>
+        <section className="manual-hero" aria-labelledby="hero-title">
+          <h1 id="hero-title" className="hero-title">
+            <InlineCopyLines lineClassName={index => index === 2 ? "accent" : undefined}>{settings.heroTitle}</InlineCopyLines>
+          </h1>
+          <p className="hero-introduction"><InlineCopy>{settings.heroBody}</InlineCopy></p>
+          <div className="hero-actions">
+            <Link className="button button-primary" to="/projects">
+              {settings.ui.homePrimaryCta}
+              <ArrowUpRight size={21} />
+            </Link>
+            <Link className="button button-ghost" to="/experience">
+              {settings.ui.homeSecondaryCta}
+            </Link>
           </div>
-        </Reveal>
-        <div className="capability-grid">
-          {settings.capabilities.map((capability, index) => {
-            const Icon = icons[index % icons.length];
-            return (
-              <Reveal key={capability.title} delay={index * 0.07} className="capability-card">
-                <div className="capability-top"><span className="capability-index">0{index + 1}</span><span className="capability-icon"><Icon size={21} /></span></div>
-                <div className="capability-schematic" aria-hidden="true"><i/><i/><i/><b/></div>
-                <h3>{capability.title}</h3>
-                <p>{capability.description}</p>
-                <div className="tag-row">{capability.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
-              </Reveal>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="content-section work-preview">
-        <Reveal>
-          <div className="section-heading-row">
-            <div><p className="eyebrow">{settings.ui.workEyebrow}</p><h2>{settings.workTitle}</h2></div>
-            <Link to="/projects" className="text-link">{settings.ui.workAllCta} <ArrowRight size={16} /></Link>
+          <picture>
+            <source srcSet="/images/profile-portrait.webp" type="image/webp" />
+            <img
+              className="hero-portrait"
+              src="/images/profile-portrait.png"
+              width="1024"
+              height="1024"
+              alt="Syed Ammar Hussain in an emerald hoodie, black cap and glasses"
+              fetchPriority="high"
+            />
+          </picture>
+          <div className="hero-context">
+            <strong>{settings.name}</strong>
+            <span>
+              <MapPin size={18} />
+              {settings.location}
+            </span>
+            <span>
+              <i className="status-dot" />
+              {settings.availability}
+            </span>
           </div>
-        </Reveal>
-        <div className="project-preview-grid">
-          {loading ? <DataLoading label="Loading selected work…" variant="cards" /> : projects.slice(0, 3).map((project, index) => (
-            <Reveal key={project.id ?? project.name} delay={index * 0.08} className="project-preview-card">
-              <div className="project-visual">
-                <div className="project-visual-grid" />
-                <span className="project-number">0{index + 1}</span>
-                <span className="project-command">{project.command || 'lab / build / iterate'}</span>
+          <div className="project-specimen" aria-label="Featured project">
+            {loading ? (
+              <div className="specimen-pending" role="status">
+                Loading selected project…
               </div>
-              <div className="project-preview-copy">
-                <h3>{project.name}</h3>
-                <p>{project.description}</p>
-                {(project.outcome || project.stack?.length) && (
-                  <div className="project-preview-evidence">
-                    {project.outcome && <div><span>{settings.ui.projectOutcomeLabel}</span><strong>{project.outcome}</strong></div>}
-                    {!!project.stack?.length && <div className="project-stack-row">{project.stack.slice(0, 4).map((tool) => <span key={tool}>{tool}</span>)}</div>}
-                  </div>
-                )}
-                <div className="project-preview-actions">
-                  <Link to="/projects" className="text-link">{settings.ui.projectStoryCta} <ArrowRight size={15} /></Link>
-                  {project.url && <a href={project.url} target="_blank" rel="noreferrer" className="project-external-link" aria-label={`Open ${project.name} externally`}>↗</a>}
+            ) : project ? (
+              <>
+                <div className="specimen-heading">
+                  <h2>01 / {project.name}</h2>
+                  <span>Linux / Security / Automation</span>
                 </div>
+                {isConsole ? (
+                  <>
+                    <div className="workflow-stages">
+                      {stages.map((s, i) => {
+                        return (
+                          <div className="workflow-stage" key={s.name}>
+                            <button
+                              type="button"
+                              className={`stage-frame ${stage === i ? "is-selected" : ""}`}
+                              aria-expanded={stage === i}
+                              aria-controls="workflow-detail"
+                              onClick={() => setStage(stage === i ? null : i)}
+                            >
+                              <span className="stage-number">0{i + 1}</span>
+                              <strong>{s.name}</strong>
+                              <WorkflowGlyph stage={s.name} />
+                              <span
+                                className="stage-affordance"
+                                aria-hidden="true"
+                              >
+                                {stage === i ? (
+                                  <Check size={15} />
+                                ) : (
+                                  <ArrowUpRight size={15} />
+                                )}
+                              </span>
+                            </button>
+                            <p>{s.caption}</p>
+                            {i < 3 && (
+                              <span
+                                className="stage-connector"
+                                aria-hidden="true"
+                              >
+                                <i />
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="file-feeds" aria-hidden="true">
+                      <i />
+                      <i />
+                    </div>
+                    <div className="system-files">
+                      <p>Account files (read / update)</p>
+                      <div className="system-file-list">
+                        {[
+                          ["/etc/passwd", "User account information"],
+                          ["/etc/shadow", "Password hashes and aging policy"],
+                          ["/etc/{group,gshadow}", "Group access records"],
+                        ].map(([name, description]) => (
+                          <div className="system-file" key={name}>
+                            <svg
+                              className="system-file-icon"
+                              width="30"
+                              height="36"
+                              viewBox="0 0 30 36"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.1"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M2 1.5H19.5L28.5 10.5V34.5H2Z M19.5 1.5V10.5H28.5" />
+                              <path d="M7 13.5H14 M7 19.5H22 M7 25.5H22" />
+                            </svg>
+                            <div>
+                              <strong>{name}</strong>
+                              <span>{description}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {stage !== null && (
+                      <div
+                        id="workflow-detail"
+                        className="workflow-detail"
+                        role="region"
+                        aria-label={`${stages[stage].name} details`}
+                      >
+                        <strong>{stages[stage].name}</strong>
+                        <p>{stages[stage].detail}</p>
+                        <button
+                          onClick={() => setStage(null)}
+                          aria-label="Close stage details"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="specimen-description">{project.description}</p>
+                )}
+                <Link
+                  className="specimen-cta"
+                  to={`/projects#${project.id ?? "selected"}`}
+                >
+                  Explore the case study
+                  <ArrowUpRight size={24} />
+                </Link>
+                <div className="specimen-focus">
+                  <span>Project focus</span>
+                  <p>Linux · Automation · Compliance</p>
+                </div>
+              </>
+            ) : (
+              <div className="specimen-pending">
+                <h2>
+                  {error
+                    ? "Project content is unavailable."
+                    : "Projects are being prepared."}
+                </h2>
+                <p>
+                  {error
+                    ? "Please reload to try again. You can also explore the repositories on GitHub."
+                    : "Explore my repositories for more work."}
+                </p>
+                <a
+                  className="text-link"
+                  href={settings.socials.github}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Explore GitHub
+                  <ArrowUpRight size={18} />
+                </a>
               </div>
-            </Reveal>
-          ))}
-          {!loading && !projects.length && (
-            <Reveal className="empty-state-card">
-              <Sparkles size={22} /><h3>{settings.ui.projectEmptyTitle}</h3><p>{settings.ui.projectEmptyBody}</p>
-            </Reveal>
+            )}
+          </div>
+        </section>
+        <div
+          className="credential-strip"
+          aria-label="Selected credentials and training"
+        >
+          {evidence
+            .filter((e) => loading || e.item)
+            .map((e) => (
+              <Link
+                key={e.mark}
+                to="/credentials"
+                className="credential-signal"
+              >
+                <span className="credential-mark">{e.mark}</span>
+                <div>
+                  <strong>{e.label}</strong>
+                  <span>
+                    {loading
+                      ? "Loading…"
+                      : e.item
+                        ? e.mark === "GRC"
+                          ? `${e.item.issuer} / ${e.item.date}`
+                          : `/ ${e.item.date}`
+                        : "View credentials"}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          {(loading ||
+            data.experience.some((e) => /al.?nafi/i.test(e.company))) && (
+            <Link to="/experience" className="credential-signal">
+              <span className="credential-mark">
+                <FlaskConical size={37} strokeWidth={1.3} />
+              </span>
+              <div>
+                <strong>Lab-based internship</strong>
+                <span>/ 2023 – 2024</span>
+              </div>
+            </Link>
           )}
         </div>
-      </section>
-
-      <section className="content-section split-section">
-        <Reveal className="experience-teaser">
-          <p className="eyebrow">{settings.ui.experienceEyebrow}</p>
-          <h2>{settings.experienceTitle}</h2>
-          <p>{settings.experienceIntro}</p>
-          {loading ? <div className="teaser-loading"><span/><span/></div> : experience.slice(0, 2).map((item) => (
-            <div className="teaser-row" key={item.id ?? item.company}>
-              <div><strong>{item.role}</strong><span>{item.company}</span></div><time>{displayExperienceDuration(item)}</time>
-            </div>
-          ))}
-          <Link to="/experience" className="button button-ghost">{settings.ui.experienceTimelineCta} <ArrowRight size={16} /></Link>
-        </Reveal>
-
-        <Reveal className="numbers-panel" delay={0.08}>
-          <p className="eyebrow">{settings.ui.signalsEyebrow}</p>
-          <div className="big-number"><strong>{loading ? '—' : projects.length}</strong><span>{settings.ui.signalsProjects}</span></div>
-          <div className="big-number"><strong>{loading ? '—' : certificationItems.length}</strong><span>{settings.ui.signalsCredentials}</span></div>
-          <div className="big-number"><strong>{loading ? '—' : educationItems.length}</strong><span>{settings.ui.signalsEducation}</span></div>
-          <div className="big-number"><strong>{loading ? '—' : posts.length}</strong><span>{settings.ui.signalsWriting}</span></div>
-          <p className="numbers-note">{settings.ui.signalsNote}</p>
-        </Reveal>
-      </section>
-
-      <section className="content-section writing-preview">
-        <Reveal>
-          <div className="section-heading-row">
-            <div><p className="eyebrow">{settings.ui.writingEyebrow}</p><h2>{settings.writingTitle}</h2></div>
-            <Link to="/writing" className="text-link">{settings.ui.writingAllCta} <ArrowRight size={16} /></Link>
-          </div>
-        </Reveal>
-        <div className="article-list">
-          {loading ? <DataLoading label="Loading field notes…" variant="list" /> : posts.slice(0, 3).map((post, index) => (
-            <Reveal key={post.id ?? post.slug} delay={index * 0.06}>
-              <Link to={`/writing/${post.slug}`} className="article-row">
-                <span className="article-index">0{index + 1}</span>
-                <div><h3>{post.title}</h3><p>{post.tags?.join(' · ') || 'Technical note'}</p></div>
-                <time>{post.date}</time><ArrowDownRight size={18} />
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <section className="cta-section">
-        <Reveal>
-          <p className="eyebrow">{settings.ui.connectEyebrow}</p>
-          <h2>{settings.contactTitle}</h2>
-          <p>{settings.contactIntro}</p>
-          <Link to="/contact" className="button button-light">{settings.ui.connectCta} <ArrowRight size={17} /></Link>
-        </Reveal>
-      </section>
+      </div>
     </>
   );
-};
-
-export default Home;
+}

@@ -13,14 +13,17 @@ import {
 import { adminDb as db } from '../lib/adminFirebase';
 import type { BlogPost, Certificate, ContactMessage, Experience, Project, SiteSettings } from '../types/database';
 import { siteDefaults } from '../data/siteDefaults';
+import { invalidatePublicCache as clearPublishedCache } from './db';
 
 const byOrder = <T extends { order?: number }>(items: T[]) =>
   [...items].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
 
 const invalidatePublicCache = () => {
+  clearPublishedCache();
   try {
     sessionStorage.removeItem('portfolio:public-data:v11');
     sessionStorage.removeItem('portfolio:site-settings-render:v11');
+    sessionStorage.removeItem('portfolio:site-settings-render:v12');
   } catch { /* no-op */ }
 };
 
@@ -89,4 +92,5 @@ export const getSiteSettings = async (): Promise<SiteSettings> => {
 export const saveSiteSettings = async (data: SiteSettings) => {
   await setDoc(doc(db, 'siteSettings', 'main'), data, { merge: true });
   invalidatePublicCache();
+  window.dispatchEvent(new CustomEvent('portfolio:site-copy-updated', { detail: data }));
 };

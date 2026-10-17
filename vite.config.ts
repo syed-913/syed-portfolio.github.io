@@ -1,10 +1,14 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/',
+  base: "/",
+  server: {
+    // Design-session artifacts update independently of the application.
+    watch: { ignored: ["**/.impeccable/**", "**/PRODUCT.md", "**/DESIGN.md"] },
+  },
   build: {
     // Let Rollup preserve the lazy route/admin boundaries instead of forcing
     // Firebase, dashboard and writing-only libraries into shared startup chunks.

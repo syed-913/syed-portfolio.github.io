@@ -1,36 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { siteDefaults as defaults } from '../src/data/siteDefaults.ts';
+import { plainInlineCopy } from '../src/lib/inlineCopy.ts';
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, 'dist');
-const ORIGIN = 'https://syedammar.engineer';
-
-const defaults = {
-  name: 'Syed Ammar Hussain',
-  shortName: 'Syed Ammar',
-  aboutBody: 'I learn by running real systems: breaking things in a homelab, automating repetitive work, reading logs, tracing failures and turning the result into something more reliable. I’m intentionally building breadth toward DevOps, cloud engineering, Kubernetes administration and SRE-oriented work.',
-  workIntro: 'Projects are where I turn infrastructure concepts into something I can run, inspect and improve.',
-  experienceIntro: 'Professional work, responsibilities and the tools I used along the way.',
-  credentialsIntro: 'Certifications, academic learning and formal milestones that document how I keep building depth across infrastructure and technology.',
-  writingIntro: 'What I learn becomes easier to keep when I write it down. These are my notes, experiments and technical reflections.',
-  contactIntro: 'If you’re hiring, collaborating, or simply want to compare notes, send me a message and I’ll get back to you.',
-  currentFocus: 'Kubernetes, Ansible, AWS, Terraform, Grafana, Podman and OPNsense',
-  socials: {
-    github: 'https://github.com/syed-913',
-    linkedin: 'https://www.linkedin.com/in/syed-ammar-hussain/',
-    credly: 'https://www.credly.com/users/syed-ammar-hussain.913',
-  },
-  seo: {
-    title: 'Syed Ammar — Infrastructure, Cloud & Operations',
-    description: 'Portfolio of Syed Ammar Hussain: Linux systems, cloud infrastructure, DevOps, automation, homelab projects, certifications, education and technical writing.',
-  },
-  capabilities: [
-    { title: 'Linux & systems', tools: ['RHEL', 'Linux', 'Bash', 'systemd', 'Podman'] },
-    { title: 'Cloud & infrastructure', tools: ['AWS', 'Terraform', 'Ansible', 'Networking'] },
-    { title: 'Containers & platform', tools: ['Docker', 'Podman', 'Kubernetes', 'Helm'] },
-    { title: 'Observability & reliability', tools: ['Grafana', 'Prometheus', 'Logs', 'OPNsense'] },
-  ],
-};
+const { origin: ORIGIN } = JSON.parse(await fs.readFile(new URL('../deployment.config.json', import.meta.url), 'utf8'));
 
 const implementationDetail = /firebase|cloudflare|webhook|discord webhook|backend|database collection|private dashboard/i;
 
@@ -57,6 +32,8 @@ const readEnvFile = async (filename) => {
 const localEnv = {
   ...(await readEnvFile('.env')),
   ...(await readEnvFile('.env.local')),
+  ...(await readEnvFile('.env.production')),
+  ...(await readEnvFile('.env.production.local')),
 };
 
 const env = (key) => process.env[key] || localEnv[key] || '';
@@ -79,7 +56,7 @@ const decodeValue = (value) => {
 const decodeFields = (fields) => Object.fromEntries(Object.entries(fields || {}).map(([key, value]) => [key, decodeValue(value)]));
 
 const fetchJson = async (url, options = {}) => {
-  const response = await fetch(url, options);
+  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(15_000) });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
   return response.json();
 };
@@ -88,7 +65,11 @@ const fetchSiteSettings = async () => {
   if (!projectId || !apiKey) return defaults;
   try {
     const url = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/siteSettings/main?key=${encodeURIComponent(apiKey)}`;
-    const document = await fetchJson(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+    // This optional document may legitimately not exist yet.
+    if (response.status === 404) return defaults;
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const document = await response.json();
     const remote = decodeFields(document.fields || {});
     const settings = {
       ...defaults,
@@ -101,6 +82,7 @@ const fetchSiteSettings = async () => {
     if (/(?:about\s+)?(?:~?\s*)?(?:1|one)\s+year.*professional experience/i.test(settings.aboutBody || '')) settings.aboutBody = defaults.aboutBody;
     return settings;
   } catch (error) {
+    if (process.env.SEO_STRICT === '1') throw new Error(`[seo] Public site settings read failed (${error.message}).`);
     console.warn(`[seo] Site settings could not be read; using local defaults (${error.message}).`);
     return defaults;
   }
@@ -108,6 +90,7 @@ const fetchSiteSettings = async () => {
 
 const fetchVisiblePosts = async () => {
   if (!projectId || !apiKey) {
+    if (process.env.SEO_STRICT === '1') throw new Error('[seo] Firebase configuration is required for release route generation.');
     console.warn('[seo] Firebase variables are unavailable; generating static-route SEO only.');
     return [];
   }
@@ -148,6 +131,7 @@ const fetchVisiblePosts = async () => {
       }))
       .filter((post) => typeof post.slug === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug) && typeof post.title === 'string');
   } catch (error) {
+    if (process.env.SEO_STRICT === '1') throw new Error(`[seo] Public writing read failed (${error.message}).`);
     console.warn(`[seo] Visible writing entries could not be read; sitemap will contain static routes only (${error.message}).`);
     return [];
   }
@@ -214,6 +198,8 @@ const removeJsonLd = (html, id) => {
 };
 
 const pageHtml = (baseHtml, { title, description, route, type = 'website', robots = 'index,follow', siteSchema, routeSchema }) => {
+  title = plainInlineCopy(title);
+  description = plainInlineCopy(description);
   const url = canonicalUrl(route);
   let html = baseHtml;
   html = upsertTitle(html, title);
@@ -233,9 +219,9 @@ const pageHtml = (baseHtml, { title, description, route, type = 'website', robot
 };
 
 const siteSchemaFor = (settings) => {
-  const sameAs = [settings.socials?.github, settings.socials?.linkedin, settings.socials?.credly].filter(Boolean);
+  const sameAs = [settings.socials?.github, settings.socials?.linkedin, settings.socials?.credly, settings.socials?.medium].filter(Boolean);
   const knowsAbout = [...new Set([
-    'Linux', 'System Administration', 'DevOps', 'Cloud Infrastructure', 'AWS', 'Terraform', 'Ansible', 'Kubernetes', 'Observability',
+    'Linux', 'Cloud Infrastructure', 'Security', 'Compliance foundations',
     ...(settings.capabilities || []).flatMap((item) => [item?.title, ...(item?.tools || [])]).filter(Boolean),
   ])];
   return {
@@ -343,7 +329,7 @@ const siteSchema = siteSchemaFor(settings);
 const staticPages = [
   { route: '/', title: settings.seo?.title || defaults.seo.title, description: settings.seo?.description || defaults.seo.description },
   { route: '/about', title: `Profile — ${settings.shortName || defaults.shortName}`, description: settings.aboutBody || defaults.aboutBody },
-  { route: '/projects', title: `Work — ${settings.shortName || defaults.shortName}`, description: settings.workIntro || defaults.workIntro },
+  { route: '/projects', title: `Selected work — ${settings.shortName || defaults.shortName}`, description: settings.workIntro || defaults.workIntro },
   { route: '/experience', title: `Experience — ${settings.shortName || defaults.shortName}`, description: settings.experienceIntro || defaults.experienceIntro },
   { route: '/credentials', title: `Credentials & Education — ${settings.shortName || defaults.shortName}`, description: settings.credentialsIntro || defaults.credentialsIntro },
   { route: '/writing', title: `Writing — ${settings.shortName || defaults.shortName}`, description: settings.writingIntro || defaults.writingIntro },

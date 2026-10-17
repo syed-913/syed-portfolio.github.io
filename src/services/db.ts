@@ -13,7 +13,7 @@ import { publicDb as db } from '../lib/publicFirebase';
 import type { BlogPost, Certificate, Experience, Project, SiteSettings } from '../types/database';
 import { siteDefaults } from '../data/siteDefaults';
 
-const CACHE_KEY = 'portfolio:public-data:v11';
+const CACHE_KEY = 'portfolio:public-data:v12';
 const DEFAULT_TTL = 5 * 60 * 1000;
 
 type CacheEnvelope = Record<string, { expires: number; value: unknown }>;

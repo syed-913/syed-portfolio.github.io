@@ -1,81 +1,222 @@
-import { useEffect, useState } from 'react';
-import { ArrowUpRight, Cpu, FlaskConical, Network, Wrench } from 'lucide-react';
-import { SEO } from '../components/features/SEO';
-import { PageIntro } from '../components/ui/PageIntro';
-import { Reveal } from '../components/ui/Reveal';
-import { useSiteSettings } from '../hooks/useSiteSettings';
-import { getPublicExperience } from '../services/db';
-import { formatProfessionalExperience } from '../lib/experience';
-import type { Experience } from '../types/database';
-
-const About = () => {
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, ChevronDown, MapPin } from "lucide-react";
+import { PlatformDirectory } from "../components/ui/PlatformDirectory";
+import { SEO } from "../components/features/SEO";
+import { DataError, DataLoading } from "../components/ui/DataState";
+import { useSiteSettings } from "../hooks/useSiteSettings";
+import { usePublicData } from "../hooks/usePublicData";
+import {
+  getPublicCertificates,
+  getPublicExperience,
+  getPublicProjects,
+} from "../services/db";
+import { displayExperienceDuration } from "../lib/experience";
+import { learningEntryType } from "../types/database";
+import { useActiveSection } from "../hooks/useActiveSection";
+import { InlineCopy } from "../components/ui/InlineCopy";
+import { EducationProgress } from "../components/ui/EducationProgress";
+const profileSections = [
+  { id: "focus", label: "Technical focus" }, { id: "training", label: "Experience" },
+  { id: "profile-projects", label: "Projects" }, { id: "learning-records", label: "Credentials" },
+  { id: "current-learning", label: "Learning" }, { id: "platforms", label: "Across the web" },
+];
+export default function About() {
   const { settings } = useSiteSettings();
-  const [experience, setExperience] = useState<Experience[]>([]);
-  const [experienceLoading, setExperienceLoading] = useState(true);
-
+  const experience = usePublicData(getPublicExperience);
+  const projects = usePublicData(getPublicProjects);
+  const learning = usePublicData(getPublicCertificates);
+  const activeSection = useActiveSection(profileSections.map(section => section.id));
+  const [contentsOpen, setContentsOpen] = useState(() => window.matchMedia("(min-width: 1101px)").matches);
   useEffect(() => {
-    getPublicExperience().then(setExperience).catch(() => setExperience([])).finally(() => setExperienceLoading(false));
+    const media = window.matchMedia("(min-width: 1101px)");
+    const update = () => setContentsOpen(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
   }, []);
-
-  const professionalExperience = experienceLoading ? 'Calculating…' : formatProfessionalExperience(experience);
-
   return (
-    <>
-      <SEO title={`Profile — ${settings.shortName}`} description={settings.aboutBody} path="/about" />
-      <PageIntro eyebrow={settings.ui.aboutIntroEyebrow} title={settings.aboutTitle} intro={settings.aboutBody} />
-
-      <section className="content-section profile-layout">
-        <Reveal className="profile-statement">
-          <p className="eyebrow">{settings.ui.aboutPhilosophyEyebrow}</p>
-          <blockquote>“{settings.ui.aboutQuote}”</blockquote>
-          <p>{settings.aboutNote}</p>
-        </Reveal>
-        <Reveal className="profile-facts" delay={0.08}>
-          <div><span>Based in</span><strong>{settings.location}</strong></div>
-          <div><span>Professional experience</span><strong className={experienceLoading ? 'soft-loading-text' : ''}>{professionalExperience}</strong></div>
-          <div><span>Learning style</span><strong>{settings.ui.aboutFactLearning}</strong></div>
-          <div><span>Direction</span><strong>{settings.ui.aboutFactDirection}</strong></div>
-        </Reveal>
-      </section>
-
-      <section className="content-section">
-        <Reveal>
-          <div className="section-heading-row">
-            <div><p className="eyebrow">{settings.ui.interestsEyebrow}</p><h2>{settings.ui.interestsTitle}</h2></div>
-            <p className="section-copy">{settings.ui.interestsIntro}</p>
-          </div>
-        </Reveal>
-        <div className="interest-grid">
-          <Reveal className="interest-card"><span className="card-signal"><Cpu /></span><h3>{settings.ui.interestSystemsTitle}</h3><p>{settings.ui.interestSystemsBody}</p></Reveal>
-          <Reveal className="interest-card" delay={0.05}><span className="card-signal"><Network /></span><h3>{settings.ui.interestInfrastructureTitle}</h3><p>{settings.ui.interestInfrastructureBody}</p></Reveal>
-          <Reveal className="interest-card" delay={0.1}><span className="card-signal"><Wrench /></span><h3>{settings.ui.interestAutomationTitle}</h3><p>{settings.ui.interestAutomationBody}</p></Reveal>
-          <Reveal className="interest-card" delay={0.15}><span className="card-signal"><FlaskConical /></span><h3>{settings.ui.interestHomelabTitle}</h3><p>{settings.ui.interestHomelabBody}</p></Reveal>
+    <div className="resume-page profile-page">
+      <SEO
+        title={`Profile — ${settings.shortName}`}
+        description={settings.aboutBody}
+        path="/about"
+      />
+      <header className="page-intro resume-intro">
+        <div>
+          <h1 className="page-title">{settings.name}</h1>
+          <p className="resume-position">Linux / Cloud / Security</p>
+          <p className="page-lead"><InlineCopy>{settings.aboutBody}</InlineCopy></p>
+        </div>
+        <div className="resume-contact">
+          <img className="profile-portrait" src="/profile-avatar.webp" alt="Syed Ammar" width="80" height="80" />
+          <span>
+            <MapPin size={18} />
+            {settings.location}
+          </span>
+          <span>
+            <i className="status-dot" />
+            {settings.availability}
+          </span>
+          <Link className="text-link" to="/contact">
+            Get in touch
+            <ArrowUpRight size={18} />
+          </Link>
+        </div>
+      </header>
+      <div className="profile-layout content-section">
+      <aside className="profile-section-rail">
+        <details className="profile-section-disclosure" open={contentsOpen} onToggle={event => setContentsOpen(event.currentTarget.open)}>
+          <summary onClick={event => { if (window.matchMedia("(min-width: 1101px)").matches) event.preventDefault(); }}>On this page<ChevronDown size={16} aria-hidden="true" /></summary>
+          <nav className="profile-navigation" aria-label="Profile sections">
+            {profileSections.map(section => <a key={section.id} href={`#${section.id}`} aria-current={activeSection === section.id ? "location" : undefined} onClick={() => { if (window.matchMedia("(max-width: 1100px)").matches) setContentsOpen(false); }}>{section.label}</a>)}
+          </nav>
+        </details>
+      </aside>
+      <div className="profile-content">
+      <section className="resume-section" id="focus">
+        <h2>Technical focus</h2>
+        <div className="resume-skills">
+          {settings.capabilities.map((item) => (
+            <div key={item.title}>
+              <h3>{item.title}</h3>
+              <p><InlineCopy>{item.description}</InlineCopy></p>
+              <div className="tag-row">
+                {item.tools.map((tool) => (
+                  <span key={tool}>{tool}</span>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
-
-      <section className="content-section">
-        <Reveal>
-          <p className="eyebrow">{settings.ui.workingSetEyebrow}</p>
-          <h2 className="medium-heading">{settings.ui.workingSetTitle}</h2>
-        </Reveal>
-        <div className="tool-marquee" aria-label="Current tools">
-          {settings.capabilities.flatMap((item) => item.tools).filter((tool, index, array) => array.indexOf(tool) === index).map((tool) => <span key={tool}>{tool}</span>)}
+      <section className="resume-section" id="training">
+        <h2>Experience & training</h2>
+        <div>
+          {experience.loading ? (
+            <DataLoading variant="list" />
+          ) : experience.error ? (
+            <DataError retry={experience.retry} />
+          ) : (
+            experience.items.map((item) => (
+              <article className="resume-entry" key={item.id ?? item.role}>
+                <div className="resume-entry-head">
+                  <h3>{item.role}</h3>
+                  <time>{displayExperienceDuration(item)}</time>
+                </div>
+                <p className="resume-entry-sub">
+                  {item.company}
+                  {/al.?nafi/i.test(item.company)
+                    ? " · Lab-based internship"
+                    : ""}
+                </p>
+                <ul>
+                  {item.description.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            ))
+          )}
+          <p className="context-note"><InlineCopy>{settings.aboutNote}</InlineCopy></p>
+          <Link className="text-link profile-section-link" to="/experience">Explore experience & training<ArrowUpRight size={17} /></Link>
         </div>
       </section>
-
-      <section className="content-section social-panel">
-        <Reveal>
-          <p className="eyebrow">{settings.ui.elsewhereEyebrow}</p><h2>{settings.ui.elsewhereTitle}</h2>
-          <div className="social-grid">
-            <a href={settings.socials.github} target="_blank" rel="noreferrer">GitHub <ArrowUpRight /></a>
-            <a href={settings.socials.linkedin} target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight /></a>
-            <a href={settings.socials.credly} target="_blank" rel="noreferrer">Credly <ArrowUpRight /></a>
-            <a href={settings.socials.discord} target="_blank" rel="noreferrer">Discord <ArrowUpRight /></a>
-          </div>
-        </Reveal>
+      <section className="resume-section" id="profile-projects">
+        <h2>Projects</h2>
+        <div>
+          {projects.loading ? (
+            <DataLoading variant="list" />
+          ) : projects.error ? (
+            <DataError retry={projects.retry} />
+          ) : (
+            projects.items.map((item) => (
+              <article className="resume-entry" key={item.id ?? item.name}>
+                <div className="resume-entry-head">
+                  <h3>{item.name}</h3>
+                  {item.url && (
+                    <a
+                      className="text-link"
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Repository
+                      <ArrowUpRight size={17} />
+                    </a>
+                  )}
+                </div>
+                <p>{item.description}</p>
+                <div className="tag-row">
+                  {item.stack?.map((tool) => (
+                    <span key={tool}>{tool}</span>
+                  ))}
+                </div>
+                <Link
+                  className="text-link"
+                  to={`/projects#${item.id ?? item.name}`}
+                >
+                  Read case study
+                  <ArrowUpRight size={17} />
+                </Link>
+              </article>
+            ))
+          )}
+        </div>
       </section>
-    </>
+      <section className="resume-section" id="learning-records">
+        <h2>Certifications & education</h2>
+        <div>
+          {learning.loading ? (
+            <DataLoading variant="list" />
+          ) : learning.error ? (
+            <DataError retry={learning.retry} />
+          ) : (
+            [...learning.items].sort((a, b) => Number(learningEntryType(a) === "education") - Number(learningEntryType(b) === "education")).map((item) => (
+              <article className="resume-learning" key={item.id ?? item.name}>
+                <div>
+                  <h3>{item.name}</h3>
+                  <p>
+                    {learningEntryType(item) === "education"
+                      ? item.institution || item.issuer
+                      : item.issuer}
+                  </p>
+                  <EducationProgress entry={item} />
+                </div>
+                <span>
+                  {learningEntryType(item) === "education"
+                    ? `${(item.startDate || "").replace("/", " ")} – ${(item.endDate || "Present").replace("/", " ")}`
+                    : item.date}
+                </span>
+              </article>
+            ))
+          )}
+          <Link className="text-link" to="/credentials">
+            View credentials
+            <ArrowUpRight size={17} />
+          </Link>
+        </div>
+      </section>
+      <section className="resume-section" id="current-learning">
+        <h2>Current learning</h2>
+        <div>
+          <p><InlineCopy>{settings.currentFocus}</InlineCopy></p>
+          <p className="context-note">
+            Tools I’m exploring alongside my documented projects and formal
+            training.
+          </p>
+        </div>
+      </section>
+      <section id="platforms">
+        <div className="section-heading-row">
+          <h2>Across the web.</h2>
+          <p className="section-copy">
+            One place to find the code, credentials and writing.
+          </p>
+        </div>
+        <PlatformDirectory />
+      </section>
+      </div>
+      </div>
+    </div>
   );
-};
-
-export default About;
+}

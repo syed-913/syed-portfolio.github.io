@@ -1,11 +1,15 @@
-import { Reveal } from './Reveal';
+import { InlineCopy } from "./InlineCopy";
 
-export const PageIntro = ({ eyebrow, title, intro }: { eyebrow: string; title: string; intro: string }) => (
+export const PageIntro = ({
+  title,
+  intro,
+}: {
+  eyebrow?: string;
+  title: string;
+  intro: string;
+}) => (
   <section className="page-intro">
-    <Reveal>
-      <p className="eyebrow">{eyebrow}</p>
-      <h1 className="page-title">{title}</h1>
-      <p className="page-lead">{intro}</p>
-    </Reveal>
+    <h1 className="page-title"><InlineCopy>{title}</InlineCopy></h1>
+    <p className="page-lead"><InlineCopy>{intro}</InlineCopy></p>
   </section>
 );

@@ -5,9 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run seo && node scripts/prepare-dist.mjs && npm run check:dist",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seo": "node --experimental-strip-types scripts/generate-seo.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "check:deploy-env": "node scripts/check-deploy-env.mjs",
+    "check:dist": "node scripts/check-dist.mjs",
+    "release:check": "node scripts/release-check.mjs"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -43,5 +48,8 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
     "vite": "^7.3.1"
+  },
+  "engines": {
+    "node": ">=22.18.0"
   }
 }

@@ -1,6 +1,9 @@
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import ConfigurationRequired from './components/system/ConfigurationRequired';
+import { installDeploymentRecovery } from './lib/deploymentRecovery';
+
+installDeploymentRecovery();
 
 const requiredFirebaseEnv = [
   'VITE_FIREBASE_API_KEY',
@@ -26,11 +29,11 @@ if (missing.length) {
     .catch((error) => {
       console.error('[portfolio] Application bootstrap failed:', error);
       root.render(
-        <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 32, background: '#0c0e11', color: '#eef0e8' }}>
+        <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 32, background: 'var(--ink)', color: 'var(--paper)' }}>
           <section style={{ maxWidth: 720 }}>
-            <p style={{ color: '#b9ff66', fontFamily: 'monospace' }}>Application startup error</p>
+            <p style={{ color: 'var(--signal)', fontFamily: 'monospace' }}>Application startup error</p>
             <h1 style={{ fontSize: 48, letterSpacing: '-.04em' }}>The portfolio could not start.</h1>
-            <p style={{ color: '#a6aba3', lineHeight: 1.7 }}>Open the browser developer console for the exact error. The startup failure is now surfaced here instead of leaving a blank page.</p>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.7 }}>Open the browser developer console for the exact error. The startup failure is now surfaced here instead of leaving a blank page.</p>
           </section>
         </main>,
       );

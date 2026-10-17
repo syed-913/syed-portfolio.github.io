@@ -17,8 +17,8 @@ export interface Project {
   order: number;
 }
 
-export type LearningEntryType = 'certificate' | 'education';
-export type EducationStatus = 'completed' | 'in_progress';
+export type LearningEntryType = "certificate" | "education";
+export type EducationStatus = "completed" | "in_progress";
 
 /**
  * A single learning record. Existing Firestore documents without `entryType`
@@ -37,13 +37,13 @@ export interface Certificate {
   imageUrl?: string;
   /** ImageKit file ID for dashboard-side deletion/replacement of uploaded credentials. */
   mediaFileId?: string;
-  mediaProvider?: 'imagekit';
+  mediaProvider?: "imagekit";
   /** @deprecated Legacy Firebase Storage field retained for older documents only. */
   storagePath?: string;
   credentialUrl?: string;
   image?: string;
   url?: string;
-  category?: 'Hard' | 'Challenging' | 'Easy';
+  category?: "Hard" | "Challenging" | "Easy";
   credentialId?: string;
 
   // Education / academic learning fields
@@ -51,6 +51,8 @@ export interface Certificate {
   field?: string;
   startDate?: string;
   endDate?: string;
+  /** Exact YYYY-MM-DD enables the scheduled completion reminder; estimates never send it. */
+  endDatePrecision?: "estimated" | "exact";
   educationStatus?: EducationStatus;
 
   details?: string;
@@ -58,7 +60,8 @@ export interface Certificate {
   order: number;
 }
 
-export const learningEntryType = (entry: Certificate): LearningEntryType => entry.entryType === 'education' ? 'education' : 'certificate';
+export const learningEntryType = (entry: Certificate): LearningEntryType =>
+  entry.entryType === "education" ? "education" : "certificate";
 
 export interface Experience {
   id?: string;
@@ -102,7 +105,6 @@ export interface Capability {
   description: string;
   tools: string[];
 }
-
 
 export interface InterfaceCopy {
   navTagline: string;
@@ -234,6 +236,7 @@ export interface SiteSettings {
     linkedin: string;
     discord: string;
     credly: string;
+    medium?: string;
   };
   seo: {
     title: string;

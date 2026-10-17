@@ -1,5 +1,7 @@
 # Portfolio v15 — Search / GSC SEO patch
 
+> Historical patch notes. Use [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the current workflow. The current workflow deploys on pushes to `main` and manual dispatch; it has no daily schedule. Route shells and the sitemap refresh at build time. Firebase content remains live in the browser between builds.
+
 This patch is intentionally SEO-only. It does not change the visual design, Firebase collections, ImageKit, Cloudflare workers, dashboard CRUD, theme system, cursor, animations, or portfolio content model.
 
 ## What v15 adds
