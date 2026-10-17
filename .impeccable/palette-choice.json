@@ -1,0 +1,11 @@
+{
+  "selectedAt": "2026-10-16",
+  "selection": "Graphite + Emerald + Parchment",
+  "source": "Direct owner instruction: Graphite + Emerald + Parchment is the one I've chosen",
+  "proposal": ".impeccable/proposals/color-directions.html",
+  "proposalKey": "graphite",
+  "layoutAuthority": "Latest implemented layouts; preserve all public and dashboard pages",
+  "exception": "Dashboard Overview traffic chart changes from bars to a line series",
+  "dark": {"canvas":"#14181B","surface":"#20272B","text":"#F3F2EB","muted":"#ACB8BC","emerald":"#49C7A5","warm":"#D3B58C","line":"#3B4549"},
+  "light": {"canvas":"#F4F1E9","surface":"#E7E8E1","text":"#202B2B","muted":"#556461","emerald":"#096D55","warm":"#76542C","line":"#BCC8C1"}
+}

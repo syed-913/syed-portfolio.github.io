@@ -1,5 +1,7 @@
 # Syed Ammar Portfolio — Front-end Redesign Overlay
 
+> Historical overlay notes. The current source is already integrated. Use [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for release steps, environment settings and backend boundaries; do not reapply this overlay or copy its old release instructions.
+
 This package is an **overlay for the existing repository**, not a replacement for your backend or deployment setup. Copy it over the repository root so the files in this package replace their current front-end equivalents. Files that are not included here (Firebase deployment config, Cloudflare Worker code, existing credential/logo images, environment files, GitHub workflows, etc.) should stay as they are.
 
 ## Design direction

@@ -1,132 +1,83 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowUpRight, CheckCircle2, Clock3, GraduationCap } from 'lucide-react';
-import { SEO } from '../components/features/SEO';
-import { PageIntro } from '../components/ui/PageIntro';
-import { Reveal } from '../components/ui/Reveal';
-import { IssuerBadge } from '../components/ui/IssuerBadge';
-import { DataEmpty, DataLoading } from '../components/ui/DataState';
-import { useSiteSettings } from '../hooks/useSiteSettings';
-import { getPublicCertificates } from '../services/db';
-import { learningEntryType, type Certificate } from '../types/database';
+import { useMemo } from "react";
+import { ArrowUpRight, CheckCircle2, ChevronDown, Clock3, GraduationCap } from "lucide-react";
+import { SEO } from "../components/features/SEO";
+import { PageIntro } from "../components/ui/PageIntro";
+import { IssuerBadge } from "../components/ui/IssuerBadge";
+import { DataEmpty, DataError, DataLoading } from "../components/ui/DataState";
+import { useSiteSettings } from "../hooks/useSiteSettings";
+import { usePublicData } from "../hooks/usePublicData";
+import { getPublicCertificates } from "../services/db";
+import { learningEntryType, type Certificate } from "../types/database";
+import { EducationProgress } from "../components/ui/EducationProgress";
+import { readableEducationDate } from "../lib/education";
 
 const resolveCredentialUrl = (cert: Certificate) => {
   const path = cert.credentialUrl || cert.imageUrl || cert.image || cert.url;
   if (!path) return undefined;
   if (/^(https?:)?\/\//.test(path)) return path;
-  const clean = path.replace(/^\.\//, '').replace(/^\//, '').replace(/^public\//, '');
-  return `/${clean}`;
+  return `/${path.replace(/^\.\//, "").replace(/^\//, "").replace(/^public\//, "")}`;
+};
+const educationPeriod = (entry: Certificate) => {
+  const start = readableEducationDate(entry.startDate);
+  const end = readableEducationDate(entry.endDate);
+  if (entry.educationStatus === "in_progress") return `${start || "Started"} — Present`;
+  return start && end ? `${start} — ${end}` : start || end || "—";
 };
 
-const formatEducationPeriod = (entry: Certificate) => {
-  const start = entry.startDate?.trim();
-  const end = entry.endDate?.trim();
-  if (!start && !end) return entry.educationStatus === 'in_progress' ? 'Current' : '—';
-  if (entry.educationStatus === 'in_progress') return `${start || 'Started'} — Present`;
-  if (start && end) return `${start} — ${end}`;
-  return start || end || '—';
-};
-
-const Achievements = () => {
+export default function Achievements() {
   const { settings } = useSiteSettings();
-  const [items, setItems] = useState<Certificate[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getPublicCertificates().then(setItems).catch(() => setItems([])).finally(() => setLoading(false));
-  }, []);
-
+  const { items, loading, error, retry } = usePublicData(getPublicCertificates);
   const { certificates, education } = useMemo(() => ({
-    certificates: items.filter((item) => learningEntryType(item) === 'certificate'),
-    education: items.filter((item) => learningEntryType(item) === 'education'),
+    certificates: items.filter(item => learningEntryType(item) === "certificate"),
+    education: items.filter(item => learningEntryType(item) === "education"),
   }), [items]);
 
-  return (
-    <>
-      <SEO title={`Credentials & Education — ${settings.shortName}`} description={settings.credentialsIntro} path="/credentials" />
-      <PageIntro eyebrow={settings.ui.credentialsIntroEyebrow} title={settings.credentialsTitle} intro={settings.credentialsIntro} />
-
-      <section className="content-section learning-section learning-certifications">
-        <Reveal className="learning-section-head">
-          <div>
-            <p className="eyebrow">{settings.ui.credentialsCertificatesEyebrow}</p>
-            <h2>{settings.ui.credentialsCertificatesTitle}</h2>
-          </div>
-          <p>{settings.ui.credentialsCertificatesIntro}</p>
-        </Reveal>
-
-        <div className="credential-grid">
-          {loading ? <DataLoading label="Loading credentials…" variant="cards" /> : certificates.map((cert, index) => {
-            const credentialUrl = resolveCredentialUrl(cert);
-            return (
-              <Reveal className="credential-card" key={cert.id ?? cert.name} delay={index * 0.05}>
-                <div className="credential-top">
-                  <IssuerBadge issuer={cert.issuer || 'Credential authority'} />
-                  <span className="micro-label">{cert.category || 'Credential'}</span>
-                </div>
-                <div className="credential-main">
-                  <span className="credential-index">{String(index + 1).padStart(2, '0')}</span>
-                  <h2>{cert.name}</h2>
-                  <IssuerBadge issuer={cert.issuer || 'Credential authority'} compact withLabel />
-                </div>
-                <dl>
-                  <div><dt>Date</dt><dd>{cert.date || '—'}</dd></div>
-                  {cert.credentialId && <div><dt>ID</dt><dd>{cert.credentialId}</dd></div>}
-                </dl>
-                {credentialUrl ? (
-                  <a href={credentialUrl} target="_blank" rel="noopener noreferrer" className="text-link credential-link">
-                    {settings.ui.credentialViewCta} <ArrowUpRight size={16} />
-                  </a>
-                ) : <span className="credential-unavailable">{settings.ui.credentialUnavailable}</span>}
-              </Reveal>
-            );
-          })}
-          {!loading && !certificates.length && <DataEmpty title={settings.ui.certificateEmptyTitle} body={settings.ui.certificateEmptyBody} />}
-        </div>
+  return <div className="credentials-index">
+    <SEO title={`Credentials & Education — ${settings.shortName}`} description={settings.credentialsIntro} path="/credentials" />
+    <PageIntro title={settings.credentialsTitle} intro={settings.credentialsIntro} />
+    <div className="content-section learning-register">
+      <section aria-labelledby="certifications-heading" className="learning-register-section">
+        <h2 id="certifications-heading">{settings.ui.credentialsCertificatesTitle}</h2>
+        {loading ? <DataLoading label="Loading credentials…" variant="list" /> : error ? <DataError retry={retry} /> : <div className="credential-grid">{certificates.map(cert => {
+          const url = resolveCredentialUrl(cert);
+          return <article className="credential-card" key={cert.id ?? cert.name}>
+            <div className="credential-card-top"><IssuerBadge issuer={cert.issuer || "Credential authority"} /><span className="credential-year">{cert.date || "—"}</span></div>
+            <div className="credential-card-copy">
+              <h3>{cert.name}</h3>
+              <p>{cert.issuer || "Credential authority"}</p>
+              <div className="credential-card-actions">
+                {url ? <a href={url} target="_blank" rel="noopener noreferrer" className="text-link">{settings.ui.credentialViewCta}<ArrowUpRight size={16} /></a> : <span className="credential-unavailable">{settings.ui.credentialUnavailable}</span>}
+                {cert.credentialId && <details className="credential-record">
+                  <summary>Credential ID<ChevronDown size={14} aria-hidden="true" /></summary>
+                  <code>{cert.credentialId}</code>
+                </details>}
+              </div>
+            </div>
+          </article>;
+        })}</div>}
+        {!loading && !error && !certificates.length && <DataEmpty title={settings.ui.certificateEmptyTitle} body={settings.ui.certificateEmptyBody} />}
       </section>
-
-      <section className="content-section learning-section education-section">
-        <Reveal className="learning-section-head education-heading">
-          <div>
-            <p className="eyebrow">{settings.ui.credentialsEducationEyebrow}</p>
-            <h2>{settings.ui.credentialsEducationTitle}</h2>
-          </div>
-          <p>{settings.ui.credentialsEducationIntro}</p>
-        </Reveal>
-
-        <div className="education-timeline">
-          {loading ? <DataLoading label="Loading education…" variant="list" /> : education.map((entry, index) => {
-            const inProgress = entry.educationStatus === 'in_progress';
-            const institution = entry.institution || entry.issuer || 'Academic institution';
-            return (
-              <Reveal className={`education-entry ${inProgress ? 'is-active' : 'is-complete'}`} key={entry.id ?? entry.name} delay={index * 0.06}>
-                <div className="education-rail" aria-hidden="true"><span /><i /></div>
-                <div className="education-card">
-                  <div className="education-card-top">
-                    <IssuerBadge issuer={institution} compact />
-                    <span className={`education-status ${inProgress ? 'is-active' : ''}`}>
-                      {inProgress ? <Clock3 size={13} /> : <CheckCircle2 size={13} />}
-                      {inProgress ? settings.ui.educationInProgress : settings.ui.educationCompleted}
-                    </span>
-                  </div>
-                  <div className="education-copy">
-                    <span className="credential-index">{String(index + 1).padStart(2, '0')}</span>
-                    <h3>{entry.name}</h3>
-                    <div className="education-institution"><GraduationCap size={17} /><strong>{institution}</strong></div>
-                    {entry.details && <p>{entry.details}</p>}
-                  </div>
-                  <dl className="education-meta">
-                    {entry.field && <div><dt>{settings.ui.educationFieldLabel}</dt><dd>{entry.field}</dd></div>}
-                    <div><dt>{settings.ui.educationPeriodLabel}</dt><dd>{formatEducationPeriod(entry)}</dd></div>
-                  </dl>
-                </div>
-              </Reveal>
-            );
-          })}
-          {!loading && !education.length && <DataEmpty title={settings.ui.educationEmptyTitle} body={settings.ui.educationEmptyBody} />}
-        </div>
+      <section aria-labelledby="education-heading" className="learning-register-section">
+        <h2 id="education-heading">{settings.ui.credentialsEducationTitle}</h2>
+        {loading ? <DataLoading label="Loading education…" variant="list" /> : error ? <DataError retry={retry} /> : education.map(entry => {
+          const active = entry.educationStatus === "in_progress";
+          return <article className="education-record" key={entry.id ?? entry.name}>
+            <GraduationCap className="education-mark" size={24} aria-hidden="true" />
+            <div>
+              <h3>{entry.name}</h3>
+              <p className="education-record-institution">{entry.institution || entry.issuer || "Academic institution"}</p>
+              <dl className="education-record-meta">
+                <div><dt>{settings.ui.educationPeriodLabel}</dt><dd>{educationPeriod(entry)}</dd></div>
+                {entry.field && <div><dt>{settings.ui.educationFieldLabel}</dt><dd>{entry.field}</dd></div>}
+              </dl>
+              {entry.details && <p className="education-record-details">{entry.details}</p>}
+              <EducationProgress entry={entry} />
+            </div>
+            <span className="education-status">{active ? <Clock3 size={13} /> : <CheckCircle2 size={13} />}{active ? settings.ui.educationInProgress : settings.ui.educationCompleted}</span>
+          </article>;
+        })}
+        {!loading && !error && !education.length && <DataEmpty title={settings.ui.educationEmptyTitle} body={settings.ui.educationEmptyBody} />}
       </section>
-    </>
-  );
-};
-
-export default Achievements;
+    </div>
+  </div>;
+}

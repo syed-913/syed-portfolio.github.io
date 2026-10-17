@@ -1,37 +1,77 @@
-import { useEffect, useState } from 'react';
-import { SEO } from '../components/features/SEO';
-import { PageIntro } from '../components/ui/PageIntro';
-import { Reveal } from '../components/ui/Reveal';
-import { DataEmpty, DataLoading } from '../components/ui/DataState';
-import { useSiteSettings } from '../hooks/useSiteSettings';
-import { getPublicExperience } from '../services/db';
-import { displayExperienceDuration } from '../lib/experience';
-import type { Experience as ExperienceType } from '../types/database';
-
-const Experience = () => {
+import { Link } from "react-router-dom";
+import { ArrowRight, FlaskConical } from "lucide-react";
+import { SEO } from "../components/features/SEO";
+import { PageIntro } from "../components/ui/PageIntro";
+import { DataEmpty, DataError, DataLoading } from "../components/ui/DataState";
+import { useSiteSettings } from "../hooks/useSiteSettings";
+import { usePublicData } from "../hooks/usePublicData";
+import { getPublicExperience } from "../services/db";
+import { displayExperienceDuration } from "../lib/experience";
+export default function Experience() {
   const { settings } = useSiteSettings();
-  const [items, setItems] = useState<ExperienceType[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { getPublicExperience().then(setItems).catch(() => setItems([])).finally(() => setLoading(false)); }, []);
-
+  const { items, loading, error, retry } = usePublicData(getPublicExperience);
   return (
     <>
-      <SEO title={`Experience — ${settings.shortName}`} description={settings.experienceIntro} path="/experience" />
-      <PageIntro eyebrow={settings.ui.experienceIntroEyebrow} title={settings.experienceTitle} intro={settings.experienceIntro} />
+      <SEO
+        title={`Experience — ${settings.shortName}`}
+        description={settings.experienceIntro}
+        path="/experience"
+      />
+      <PageIntro
+        title={settings.experienceTitle}
+        intro={settings.experienceIntro}
+      />
       <section className="content-section timeline">
-        {loading ? <DataLoading label="Loading professional timeline…" variant="timeline" /> : items.map((item, index) => (
-          <Reveal key={item.id ?? `${item.company}-${index}`} delay={index * 0.07} className="timeline-item">
-            <div className="timeline-marker"><span>{String(index + 1).padStart(2, '0')}</span></div>
-            <div className="timeline-card">
-              <div className="timeline-head"><div><p className="micro-label">{item.company}</p><h2>{item.role}</h2></div><time>{displayExperienceDuration(item)}</time></div>
-              <ul>{item.description.map((point) => <li key={point}>{point}</li>)}</ul>
-              <div className="tag-row">{item.techStack.map((tool) => <span key={tool}>{tool}</span>)}</div>
-            </div>
-          </Reveal>
-        ))}
-        {!loading && !items.length && <DataEmpty title={settings.ui.experienceEmptyTitle} body={settings.ui.experienceEmptyBody} />}
+        {loading ? (
+          <DataLoading label="Loading experience…" variant="timeline" />
+        ) : error ? (
+          <DataError retry={retry} />
+        ) : (
+          items.map((item) => (
+            <article className="timeline-item" key={item.id ?? item.company}>
+              <div className="timeline-meta">
+                <time>{displayExperienceDuration(item)}</time>
+                {/al.?nafi/i.test(item.company) && (
+                  <span className="training-label">
+                    <FlaskConical size={16} />
+                    Lab-based internship
+                  </span>
+                )}
+              </div>
+              <div className="timeline-card">
+                <h2>{item.role}</h2>
+                <p className="experience-company">{item.company}</p>
+                <ul>
+                  {item.description.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+                <h3 className="small-heading">Training topics</h3>
+                <div className="tag-row">
+                  {item.techStack.map((tool) => (
+                    <span key={tool}>
+                      {tool === "CISSP" ? "CISSP curriculum" : tool}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))
+        )}
+        {!loading && !error && !items.length && (
+          <DataEmpty
+            title={settings.ui.experienceEmptyTitle}
+            body={settings.ui.experienceEmptyBody}
+          />
+        )}
+      </section>
+      <section className="content-section next-route">
+        <h2>See the work behind the learning.</h2>
+        <Link className="text-link" to="/projects">
+          Explore projects
+          <ArrowRight size={18} />
+        </Link>
       </section>
     </>
   );
-};
-export default Experience;
+}

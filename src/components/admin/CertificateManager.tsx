@@ -5,10 +5,11 @@ import { deleteCredentialMedia, uploadCredentialMedia } from '../../lib/media';
 import { learningEntryType, type Certificate, type EducationStatus, type LearningEntryType } from '../../types/database';
 import { IssuerBadge } from '../ui/IssuerBadge';
 import { AdminField, AdminInput, AdminSection, AdminSelect, AdminTextarea } from './AdminUI';
+import { educationTimeline, isExactEducationDate, parseEducationDate } from '../../lib/education';
 
 const empty: Partial<Certificate> = {
   name: '', entryType: 'certificate', issuer: '', date: '', credentialId: '', imageUrl: '', mediaFileId: '', mediaProvider: undefined,
-  category: undefined, details: '', institution: '', field: '', startDate: '', endDate: '', educationStatus: 'in_progress', visible: true, order: 1,
+  category: undefined, details: '', institution: '', field: '', startDate: '', endDate: '', endDatePrecision: 'estimated', educationStatus: 'in_progress', visible: true, order: 1,
 };
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 const allowedTypes = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'application/pdf']);
@@ -31,6 +32,7 @@ const payloadFor = (form: Partial<Certificate>) => {
       field: form.field?.trim() || '',
       startDate: form.startDate?.trim() || '',
       endDate: form.endDate?.trim() || '',
+      endDatePrecision: form.endDatePrecision || 'estimated',
       educationStatus: (form.educationStatus || 'in_progress') as EducationStatus,
       // Clear certificate-only values if an existing record changes type.
       issuer: '', date: '', credentialId: '', credentialUrl: '', imageUrl: '', mediaFileId: '', mediaProvider: null,
@@ -52,7 +54,7 @@ const payloadFor = (form: Partial<Certificate>) => {
     url: form.url || '',
     category: form.category || null,
     // Clear education-only values if an existing record changes type.
-    institution: '', field: '', startDate: '', endDate: '', educationStatus: null,
+    institution: '', field: '', startDate: '', endDate: '', endDatePrecision: null, educationStatus: null,
   };
 };
 
@@ -69,7 +71,7 @@ export const CertificateManager = () => {
 
   const refresh = () => getCertificates().then(setItems);
   useEffect(() => { refresh(); }, []);
-  const set = (key: keyof Certificate, value: any) => setForm((previous) => ({ ...previous, [key]: value }));
+  const set = <Key extends keyof Certificate>(key: Key, value: Certificate[Key]) => setForm((previous) => ({ ...previous, [key]: value }));
   const savedItem = () => editing ? items.find((item) => item.id === editing) : undefined;
   const entryType: LearningEntryType = form.entryType === 'education' ? 'education' : 'certificate';
 
@@ -143,6 +145,12 @@ export const CertificateManager = () => {
     if (entryType === 'education' && !form.institution?.trim()) { setUploadError('Institution is required for an education entry.'); return; }
     if (entryType === 'education' && !form.startDate?.trim()) { setUploadError('Start date is required for an education entry.'); return; }
     if (entryType === 'education' && form.educationStatus === 'completed' && !form.endDate?.trim()) { setUploadError('Add a completion date for completed education.'); return; }
+    if (entryType === 'education' && form.educationStatus === 'in_progress') {
+      if (parseEducationDate(form.startDate) === null) { setUploadError('Use a start date such as 2025, Sep 2025, or 2025-09-01.'); return; }
+      if (form.endDate?.trim() && parseEducationDate(form.endDate, true) === null) { setUploadError('Use an expected end date such as 2027, Sep 2027, or 2027-09-01.'); return; }
+      if (form.endDatePrecision === 'exact' && !isExactEducationDate(form.endDate)) { setUploadError('Choose the exact target date for the completion reminder.'); return; }
+      if (form.endDate?.trim() && !educationTimeline(form)) { setUploadError('The expected end date must be after the start date.'); return; }
+    }
 
     setSaving(true);
     setUploadError('');
@@ -178,7 +186,7 @@ export const CertificateManager = () => {
   const edit = async (item: Certificate) => {
     await removeUncommittedUpload();
     setEditing(item.id!);
-    setForm({ ...item, entryType: learningEntryType(item), educationStatus: item.educationStatus || 'in_progress' });
+    setForm({ ...item, entryType: learningEntryType(item), endDatePrecision: item.endDatePrecision || 'estimated', educationStatus: item.educationStatus || 'in_progress' });
     setUploadError('');
     setUploadProgress(0);
     if (fileRef.current) fileRef.current.value = '';
@@ -190,12 +198,14 @@ export const CertificateManager = () => {
     action={<button className="admin-secondary" onClick={resetEditor}><Plus size={15} /> New learning entry</button>}
   >
     <form onSubmit={save} className="admin-editor-card learning-editor-card">
-      <AdminField label="Entry type" hint="This controls which fields and public layout are used.">
+      <fieldset className="admin-field entry-type-field">
+        <legend>Entry type</legend>
         <div className="entry-type-switch" role="group" aria-label="Learning entry type">
-          <button type="button" className={entryType === 'certificate' ? 'active' : ''} onClick={() => set('entryType', 'certificate')}><Award size={16} /><span><strong>Certification</strong><small>Credential / training validation</small></span></button>
-          <button type="button" className={entryType === 'education' ? 'active' : ''} onClick={() => set('entryType', 'education')}><GraduationCap size={16} /><span><strong>Education</strong><small>Academic program / qualification</small></span></button>
+          <button type="button" aria-pressed={entryType === 'certificate'} className={entryType === 'certificate' ? 'active' : ''} onClick={() => set('entryType', 'certificate')}><Award size={20} /><span><strong>Certification</strong><small>Credential / training validation</small></span></button>
+          <button type="button" aria-pressed={entryType === 'education'} className={entryType === 'education' ? 'active' : ''} onClick={() => set('entryType', 'education')}><GraduationCap size={20} /><span><strong>Education</strong><small>Academic program / qualification</small></span></button>
         </div>
-      </AdminField>
+        <small>This controls which fields and public layout are used.</small>
+      </fieldset>
 
       <div className="admin-form-grid">
         <AdminField label={entryType === 'education' ? 'Program / qualification' : 'Certificate name'}><AdminInput required value={form.name ?? ''} onChange={(e) => set('name', e.target.value)} /></AdminField>
@@ -213,7 +223,8 @@ export const CertificateManager = () => {
           <AdminField label="Field / specialization"><AdminInput placeholder="e.g. Information Technology" value={form.field ?? ''} onChange={(e) => set('field', e.target.value)} /></AdminField>
           <AdminField label="Status"><AdminSelect value={form.educationStatus ?? 'in_progress'} onChange={(e) => set('educationStatus', e.target.value as EducationStatus)}><option value="in_progress">In progress</option><option value="completed">Completed</option></AdminSelect></AdminField>
           <AdminField label="Start date" hint="Free-form so you can use 2025, Sep 2025, etc."><AdminInput required value={form.startDate ?? ''} onChange={(e) => set('startDate', e.target.value)} /></AdminField>
-          <AdminField label={form.educationStatus === 'in_progress' ? 'Expected completion' : 'Completion date'}><AdminInput required={form.educationStatus === 'completed'} value={form.endDate ?? ''} onChange={(e) => set('endDate', e.target.value)} /></AdminField>
+          {form.educationStatus === 'in_progress' && <AdminField label="End date precision" hint="An estimate drives the public timeline. An exact date also enables the scheduled Discord reminder for public education."><AdminSelect value={form.endDatePrecision ?? 'estimated'} onChange={event => setForm(previous => ({ ...previous, endDatePrecision: event.target.value as Certificate['endDatePrecision'], endDate: event.target.value === 'exact' && !isExactEducationDate(previous.endDate) ? '' : previous.endDate }))}><option value="estimated">Estimated — month or year is enough</option><option value="exact">Exact — remind me on this date</option></AdminSelect></AdminField>}
+          <AdminField label={form.educationStatus === 'in_progress' ? 'Expected completion' : 'Completion date'} hint={form.educationStatus === 'in_progress' ? 'The timeline never marks education complete automatically. Extend this date or confirm completion yourself.' : undefined}><AdminInput type={form.educationStatus === 'in_progress' && form.endDatePrecision === 'exact' ? 'date' : 'text'} placeholder="Sep 2027" required={form.educationStatus === 'completed' || form.endDatePrecision === 'exact'} value={form.endDate ?? ''} onChange={(e) => set('endDate', e.target.value)} /></AdminField>
         </>}
         <AdminField label="Order"><AdminInput type="number" value={form.order ?? 1} onChange={(e) => set('order', Number(e.target.value))} /></AdminField>
       </div>

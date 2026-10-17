@@ -8,7 +8,7 @@ export interface SiteSettingsContextValue {
   loading: boolean;
 }
 
-const SETTINGS_CACHE_KEY = 'portfolio:site-settings-render:v11';
+const SETTINGS_CACHE_KEY = 'portfolio:site-settings-render:v12';
 
 const readWarmSettings = (): SiteSettings => {
   try {
@@ -27,6 +27,12 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let active = true;
+    const updateCopy = (event: Event) => {
+      const next = (event as CustomEvent<SiteSettings>).detail;
+      setSettings(next);
+      try { sessionStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(next)); } catch { /* no-op */ }
+    };
+    window.addEventListener('portfolio:site-copy-updated', updateCopy);
     const cancel = scheduleAfterPaint(() => {
       import('../services/db')
         .then(({ getSiteSettings }) => getSiteSettings())
@@ -39,7 +45,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         .finally(() => active && setLoading(false));
     });
 
-    return () => { active = false; cancel(); };
+    return () => { active = false; cancel(); window.removeEventListener('portfolio:site-copy-updated', updateCopy); };
   }, []);
 
   return <SiteSettingsContext.Provider value={{ settings, loading }}>{children}</SiteSettingsContext.Provider>;

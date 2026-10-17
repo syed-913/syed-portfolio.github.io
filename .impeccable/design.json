@@ -1,0 +1,827 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T22:48:21Z",
+  "title": "Design System: Syed Ammar",
+  "extensions": {
+    "colorMeta": {
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Graphite Canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0086 240.3)",
+          "oklch(25% 0.0086 240.3)",
+          "oklch(35% 0.0086 240.3)",
+          "oklch(45% 0.0086 240.3)",
+          "oklch(55% 0.0086 240.3)",
+          "oklch(65% 0.0086 240.3)",
+          "oklch(80% 0.0086 240.3)",
+          "oklch(95% 0.0086 240.3)"
+        ]
+      },
+      "paper-dark": {
+        "role": "neutral",
+        "displayName": "Warm Cream Text",
+        "tonalRamp": [
+          "oklch(15% 0.0093 100.0)",
+          "oklch(25% 0.0093 100.0)",
+          "oklch(35% 0.0093 100.0)",
+          "oklch(45% 0.0093 100.0)",
+          "oklch(55% 0.0093 100.0)",
+          "oklch(65% 0.0093 100.0)",
+          "oklch(80% 0.0093 100.0)",
+          "oklch(95% 0.0093 100.0)"
+        ]
+      },
+      "muted-dark": {
+        "role": "neutral",
+        "displayName": "Muted Graphite Text",
+        "tonalRamp": [
+          "oklch(15% 0.0145 219.7)",
+          "oklch(25% 0.0145 219.7)",
+          "oklch(35% 0.0145 219.7)",
+          "oklch(45% 0.0145 219.7)",
+          "oklch(55% 0.0145 219.7)",
+          "oklch(65% 0.0145 219.7)",
+          "oklch(80% 0.0145 219.7)",
+          "oklch(95% 0.0145 219.7)"
+        ]
+      },
+      "panel-dark": {
+        "role": "neutral",
+        "displayName": "Graphite Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0125 233.0)",
+          "oklch(25% 0.0125 233.0)",
+          "oklch(35% 0.0125 233.0)",
+          "oklch(45% 0.0125 233.0)",
+          "oklch(55% 0.0125 233.0)",
+          "oklch(65% 0.0125 233.0)",
+          "oklch(80% 0.0125 233.0)",
+          "oklch(95% 0.0125 233.0)"
+        ]
+      },
+      "panel-soft-dark": {
+        "role": "neutral",
+        "displayName": "Soft Graphite Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0142 226.5)",
+          "oklch(25% 0.0142 226.5)",
+          "oklch(35% 0.0142 226.5)",
+          "oklch(45% 0.0142 226.5)",
+          "oklch(55% 0.0142 226.5)",
+          "oklch(65% 0.0142 226.5)",
+          "oklch(80% 0.0142 226.5)",
+          "oklch(95% 0.0142 226.5)"
+        ]
+      },
+      "signal-dark": {
+        "role": "primary",
+        "displayName": "Bright Emerald Signal",
+        "tonalRamp": [
+          "oklch(15% 0.1219 171.8)",
+          "oklch(25% 0.1219 171.8)",
+          "oklch(35% 0.1219 171.8)",
+          "oklch(45% 0.1219 171.8)",
+          "oklch(55% 0.1219 171.8)",
+          "oklch(65% 0.1219 171.8)",
+          "oklch(80% 0.1219 171.8)",
+          "oklch(95% 0.1219 171.8)"
+        ]
+      },
+      "signal-soft-dark": {
+        "role": "primary",
+        "displayName": "Quiet Emerald Fill — Dark",
+        "tonalRamp": [
+          "oklch(15% 0.0363 173.0)",
+          "oklch(25% 0.0363 173.0)",
+          "oklch(35% 0.0363 173.0)",
+          "oklch(45% 0.0363 173.0)",
+          "oklch(55% 0.0363 173.0)",
+          "oklch(65% 0.0363 173.0)",
+          "oklch(80% 0.0363 173.0)",
+          "oklch(95% 0.0363 173.0)"
+        ]
+      },
+      "warm-dark": {
+        "role": "secondary",
+        "displayName": "Sand Technical Detail",
+        "tonalRamp": [
+          "oklch(15% 0.0648 75.3)",
+          "oklch(25% 0.0648 75.3)",
+          "oklch(35% 0.0648 75.3)",
+          "oklch(45% 0.0648 75.3)",
+          "oklch(55% 0.0648 75.3)",
+          "oklch(65% 0.0648 75.3)",
+          "oklch(80% 0.0648 75.3)",
+          "oklch(95% 0.0648 75.3)"
+        ]
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Graphite Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0147 223.9)",
+          "oklch(25% 0.0147 223.9)",
+          "oklch(35% 0.0147 223.9)",
+          "oklch(45% 0.0147 223.9)",
+          "oklch(55% 0.0147 223.9)",
+          "oklch(65% 0.0147 223.9)",
+          "oklch(80% 0.0147 223.9)",
+          "oklch(95% 0.0147 223.9)"
+        ]
+      },
+      "line-strong-dark": {
+        "role": "neutral",
+        "displayName": "Calibrated Graphite Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0191 210.2)",
+          "oklch(25% 0.0191 210.2)",
+          "oklch(35% 0.0191 210.2)",
+          "oklch(45% 0.0191 210.2)",
+          "oklch(55% 0.0191 210.2)",
+          "oklch(65% 0.0191 210.2)",
+          "oklch(80% 0.0191 210.2)",
+          "oklch(95% 0.0191 210.2)"
+        ]
+      },
+      "action-hover-dark": {
+        "role": "primary",
+        "displayName": "Bright Emerald Hover",
+        "tonalRamp": [
+          "oklch(15% 0.1006 173.6)",
+          "oklch(25% 0.1006 173.6)",
+          "oklch(35% 0.1006 173.6)",
+          "oklch(45% 0.1006 173.6)",
+          "oklch(55% 0.1006 173.6)",
+          "oklch(65% 0.1006 173.6)",
+          "oklch(80% 0.1006 173.6)",
+          "oklch(95% 0.1006 173.6)"
+        ]
+      },
+      "on-action-dark": {
+        "role": "neutral",
+        "displayName": "Graphite Action Foreground",
+        "tonalRamp": [
+          "oklch(15% 0.0086 240.3)",
+          "oklch(25% 0.0086 240.3)",
+          "oklch(35% 0.0086 240.3)",
+          "oklch(45% 0.0086 240.3)",
+          "oklch(55% 0.0086 240.3)",
+          "oklch(65% 0.0086 240.3)",
+          "oklch(80% 0.0086 240.3)",
+          "oklch(95% 0.0086 240.3)"
+        ]
+      },
+      "error-dark": {
+        "role": "error",
+        "displayName": "Soft Coral Feedback",
+        "tonalRamp": [
+          "oklch(15% 0.0921 28.4)",
+          "oklch(25% 0.0921 28.4)",
+          "oklch(35% 0.0921 28.4)",
+          "oklch(45% 0.0921 28.4)",
+          "oklch(55% 0.0921 28.4)",
+          "oklch(65% 0.0921 28.4)",
+          "oklch(80% 0.0921 28.4)",
+          "oklch(95% 0.0921 28.4)"
+        ]
+      },
+      "error-soft-dark": {
+        "role": "error",
+        "displayName": "Quiet Coral Fill — Dark",
+        "tonalRamp": [
+          "oklch(15% 0.0330 22.0)",
+          "oklch(25% 0.0330 22.0)",
+          "oklch(35% 0.0330 22.0)",
+          "oklch(45% 0.0330 22.0)",
+          "oklch(55% 0.0330 22.0)",
+          "oklch(65% 0.0330 22.0)",
+          "oklch(80% 0.0330 22.0)",
+          "oklch(95% 0.0330 22.0)"
+        ]
+      },
+      "ink-light": {
+        "role": "neutral",
+        "displayName": "Parchment Canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0111 89.7)",
+          "oklch(25% 0.0111 89.7)",
+          "oklch(35% 0.0111 89.7)",
+          "oklch(45% 0.0111 89.7)",
+          "oklch(55% 0.0111 89.7)",
+          "oklch(65% 0.0111 89.7)",
+          "oklch(80% 0.0111 89.7)",
+          "oklch(95% 0.0111 89.7)"
+        ]
+      },
+      "paper-light": {
+        "role": "neutral",
+        "displayName": "Charcoal Text",
+        "tonalRamp": [
+          "oklch(15% 0.0152 196.3)",
+          "oklch(25% 0.0152 196.3)",
+          "oklch(35% 0.0152 196.3)",
+          "oklch(45% 0.0152 196.3)",
+          "oklch(55% 0.0152 196.3)",
+          "oklch(65% 0.0152 196.3)",
+          "oklch(80% 0.0152 196.3)",
+          "oklch(95% 0.0152 196.3)"
+        ]
+      },
+      "muted-light": {
+        "role": "neutral",
+        "displayName": "Muted Charcoal Text",
+        "tonalRamp": [
+          "oklch(15% 0.0189 182.1)",
+          "oklch(25% 0.0189 182.1)",
+          "oklch(35% 0.0189 182.1)",
+          "oklch(45% 0.0189 182.1)",
+          "oklch(55% 0.0189 182.1)",
+          "oklch(65% 0.0189 182.1)",
+          "oklch(80% 0.0189 182.1)",
+          "oklch(95% 0.0189 182.1)"
+        ]
+      },
+      "panel-light": {
+        "role": "neutral",
+        "displayName": "Parchment Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0094 113.2)",
+          "oklch(25% 0.0094 113.2)",
+          "oklch(35% 0.0094 113.2)",
+          "oklch(45% 0.0094 113.2)",
+          "oklch(55% 0.0094 113.2)",
+          "oklch(65% 0.0094 113.2)",
+          "oklch(80% 0.0094 113.2)",
+          "oklch(95% 0.0094 113.2)"
+        ]
+      },
+      "panel-soft-light": {
+        "role": "neutral",
+        "displayName": "Soft Parchment Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0128 126.4)",
+          "oklch(25% 0.0128 126.4)",
+          "oklch(35% 0.0128 126.4)",
+          "oklch(45% 0.0128 126.4)",
+          "oklch(55% 0.0128 126.4)",
+          "oklch(65% 0.0128 126.4)",
+          "oklch(80% 0.0128 126.4)",
+          "oklch(95% 0.0128 126.4)"
+        ]
+      },
+      "signal-light": {
+        "role": "primary",
+        "displayName": "Deep Emerald Signal",
+        "tonalRamp": [
+          "oklch(15% 0.0917 170.3)",
+          "oklch(25% 0.0917 170.3)",
+          "oklch(35% 0.0917 170.3)",
+          "oklch(45% 0.0917 170.3)",
+          "oklch(55% 0.0917 170.3)",
+          "oklch(65% 0.0917 170.3)",
+          "oklch(80% 0.0917 170.3)",
+          "oklch(95% 0.0917 170.3)"
+        ]
+      },
+      "signal-soft-light": {
+        "role": "primary",
+        "displayName": "Pale Emerald Fill",
+        "tonalRamp": [
+          "oklch(15% 0.0200 159.7)",
+          "oklch(25% 0.0200 159.7)",
+          "oklch(35% 0.0200 159.7)",
+          "oklch(45% 0.0200 159.7)",
+          "oklch(55% 0.0200 159.7)",
+          "oklch(65% 0.0200 159.7)",
+          "oklch(80% 0.0200 159.7)",
+          "oklch(95% 0.0200 159.7)"
+        ]
+      },
+      "warm-light": {
+        "role": "secondary",
+        "displayName": "Earth Technical Detail",
+        "tonalRamp": [
+          "oklch(15% 0.0718 69.0)",
+          "oklch(25% 0.0718 69.0)",
+          "oklch(35% 0.0718 69.0)",
+          "oklch(45% 0.0718 69.0)",
+          "oklch(55% 0.0718 69.0)",
+          "oklch(65% 0.0718 69.0)",
+          "oklch(80% 0.0718 69.0)",
+          "oklch(95% 0.0718 69.0)"
+        ]
+      },
+      "line-light": {
+        "role": "neutral",
+        "displayName": "Parchment Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0163 160.5)",
+          "oklch(25% 0.0163 160.5)",
+          "oklch(35% 0.0163 160.5)",
+          "oklch(45% 0.0163 160.5)",
+          "oklch(55% 0.0163 160.5)",
+          "oklch(65% 0.0163 160.5)",
+          "oklch(80% 0.0163 160.5)",
+          "oklch(95% 0.0163 160.5)"
+        ]
+      },
+      "line-strong-light": {
+        "role": "neutral",
+        "displayName": "Calibrated Parchment Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0233 165.6)",
+          "oklch(25% 0.0233 165.6)",
+          "oklch(35% 0.0233 165.6)",
+          "oklch(45% 0.0233 165.6)",
+          "oklch(55% 0.0233 165.6)",
+          "oklch(65% 0.0233 165.6)",
+          "oklch(80% 0.0233 165.6)",
+          "oklch(95% 0.0233 165.6)"
+        ]
+      },
+      "action-hover-light": {
+        "role": "primary",
+        "displayName": "Deep Emerald Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0825 166.4)",
+          "oklch(25% 0.0825 166.4)",
+          "oklch(35% 0.0825 166.4)",
+          "oklch(45% 0.0825 166.4)",
+          "oklch(55% 0.0825 166.4)",
+          "oklch(65% 0.0825 166.4)",
+          "oklch(80% 0.0825 166.4)",
+          "oklch(95% 0.0825 166.4)"
+        ]
+      },
+      "on-action-light": {
+        "role": "neutral",
+        "displayName": "White Action Foreground",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.0)",
+          "oklch(25% 0.0000 0.0)",
+          "oklch(35% 0.0000 0.0)",
+          "oklch(45% 0.0000 0.0)",
+          "oklch(55% 0.0000 0.0)",
+          "oklch(65% 0.0000 0.0)",
+          "oklch(80% 0.0000 0.0)",
+          "oklch(95% 0.0000 0.0)"
+        ]
+      },
+      "error-light": {
+        "role": "error",
+        "displayName": "Deep Coral Feedback",
+        "tonalRamp": [
+          "oklch(15% 0.1453 29.4)",
+          "oklch(25% 0.1453 29.4)",
+          "oklch(35% 0.1453 29.4)",
+          "oklch(45% 0.1453 29.4)",
+          "oklch(55% 0.1453 29.4)",
+          "oklch(65% 0.1453 29.4)",
+          "oklch(80% 0.1453 29.4)",
+          "oklch(95% 0.1453 29.4)"
+        ]
+      },
+      "error-soft-light": {
+        "role": "error",
+        "displayName": "Quiet Coral Fill — Light",
+        "tonalRamp": [
+          "oklch(15% 0.0231 41.4)",
+          "oklch(25% 0.0231 41.4)",
+          "oklch(35% 0.0231 41.4)",
+          "oklch(45% 0.0231 41.4)",
+          "oklch(55% 0.0231 41.4)",
+          "oklch(65% 0.0231 41.4)",
+          "oklch(80% 0.0231 41.4)",
+          "oklch(95% 0.0231 41.4)"
+        ]
+      },
+      "code-canvas": {
+        "role": "neutral",
+        "displayName": "Fixed Code Graphite",
+        "tonalRamp": [
+          "oklch(15% 0.0086 240.3)",
+          "oklch(25% 0.0086 240.3)",
+          "oklch(35% 0.0086 240.3)",
+          "oklch(45% 0.0086 240.3)",
+          "oklch(55% 0.0086 240.3)",
+          "oklch(65% 0.0086 240.3)",
+          "oklch(80% 0.0086 240.3)",
+          "oklch(95% 0.0086 240.3)"
+        ]
+      },
+      "code-paper": {
+        "role": "neutral",
+        "displayName": "Fixed Code Cream",
+        "tonalRamp": [
+          "oklch(15% 0.0093 100.0)",
+          "oklch(25% 0.0093 100.0)",
+          "oklch(35% 0.0093 100.0)",
+          "oklch(45% 0.0093 100.0)",
+          "oklch(55% 0.0093 100.0)",
+          "oklch(65% 0.0093 100.0)",
+          "oklch(80% 0.0093 100.0)",
+          "oklch(95% 0.0093 100.0)"
+        ]
+      },
+      "code-muted": {
+        "role": "neutral",
+        "displayName": "Fixed Code Metadata",
+        "tonalRamp": [
+          "oklch(15% 0.0145 219.7)",
+          "oklch(25% 0.0145 219.7)",
+          "oklch(35% 0.0145 219.7)",
+          "oklch(45% 0.0145 219.7)",
+          "oklch(55% 0.0145 219.7)",
+          "oklch(65% 0.0145 219.7)",
+          "oklch(80% 0.0145 219.7)",
+          "oklch(95% 0.0145 219.7)"
+        ]
+      },
+      "code-line": {
+        "role": "neutral",
+        "displayName": "Fixed Code Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0147 223.9)",
+          "oklch(25% 0.0147 223.9)",
+          "oklch(35% 0.0147 223.9)",
+          "oklch(45% 0.0147 223.9)",
+          "oklch(55% 0.0147 223.9)",
+          "oklch(65% 0.0147 223.9)",
+          "oklch(80% 0.0147 223.9)",
+          "oklch(95% 0.0147 223.9)"
+        ]
+      },
+      "code-signal": {
+        "role": "primary",
+        "displayName": "Fixed Code Emerald",
+        "tonalRamp": [
+          "oklch(15% 0.1219 171.8)",
+          "oklch(25% 0.1219 171.8)",
+          "oklch(35% 0.1219 171.8)",
+          "oklch(45% 0.1219 171.8)",
+          "oklch(55% 0.1219 171.8)",
+          "oklch(65% 0.1219 171.8)",
+          "oklch(80% 0.1219 171.8)",
+          "oklch(95% 0.1219 171.8)"
+        ]
+      },
+      "scrim": {
+        "role": "neutral",
+        "displayName": "Graphite Menu Scrim",
+        "tonalRamp": [
+          "oklch(15% 0.0086 240.3 / 0.7020)",
+          "oklch(25% 0.0086 240.3 / 0.7020)",
+          "oklch(35% 0.0086 240.3 / 0.7020)",
+          "oklch(45% 0.0086 240.3 / 0.7020)",
+          "oklch(55% 0.0086 240.3 / 0.7020)",
+          "oklch(65% 0.0086 240.3 / 0.7020)",
+          "oklch(80% 0.0086 240.3 / 0.7020)",
+          "oklch(95% 0.0086 240.3 / 0.7020)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Focus Display",
+        "purpose": "Heavy focus headline; viewport-scaled on the wide sheet, with tablet/mobile overrides in DESIGN.md. Authored formatting preserves its line wrappers; explicit hero code uses a local 0.64em scale."
+      },
+      "page-title": {
+        "displayName": "Page Title",
+        "purpose": "Introductions to reading surfaces, with smaller tablet and mobile measures."
+      },
+      "headline": {
+        "displayName": "Section Headline",
+        "purpose": "Catamaran section emphasis and evidence headings."
+      },
+      "title": {
+        "displayName": "Item Title",
+        "purpose": "Public Sans local titles within records, forms and utility content."
+      },
+      "lead": {
+        "displayName": "Introduction",
+        "purpose": "Readable opening copy with a 68ch maximum measure."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default prose, navigation and form reading voice."
+      },
+      "reading": {
+        "displayName": "Article Reading",
+        "purpose": "Long-form article prose in the 800px reading canvas."
+      },
+      "metadata": {
+        "displayName": "Technical Metadata",
+        "purpose": "Short factual labels, dates and structured technical details; uppercase only where observed."
+      },
+      "tag": {
+        "displayName": "Technology Tag",
+        "purpose": "Compact, natural-case technical tags."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Code frames and inline technical text. Owner-authored inline code uses local copy scales without changing this established role."
+      },
+      "button": {
+        "displayName": "Action Label",
+        "purpose": "Readable sans-serif labels for primary and outlined public actions."
+      }
+    },
+    "shadows": [
+      {
+        "name": "assistant-launcher",
+        "value": "0 6px 20px #0002",
+        "purpose": "Small utility lift for the assistant launcher within navigation."
+      },
+      {
+        "name": "assistant-panel",
+        "value": "0 12px 40px #0005",
+        "purpose": "Separation for the open utility overlay."
+      },
+      {
+        "name": "workflow-detail",
+        "value": "0 12px 32px #14181b66",
+        "purpose": "Separation for revealed project detail."
+      },
+      {
+        "name": "cursor-hover",
+        "value": "0 4px 18px color-mix(in srgb, var(--signal) 19%, transparent)",
+        "purpose": "Subtle interactive glow around the supplementary cursor ring."
+      }
+    ],
+    "motion": [
+      {
+        "name": "theme-color-duration",
+        "value": "0.3s",
+        "purpose": "Background, text and border color transitions on principal page surfaces and controls."
+      },
+      {
+        "name": "theme-color-ease",
+        "value": "ease",
+        "purpose": "Shared easing for persistent theme color changes."
+      },
+      {
+        "name": "navigation-underline",
+        "value": "0.22s",
+        "purpose": "Underline scale on desktop link hover and active state."
+      },
+      {
+        "name": "specimen-stage",
+        "value": "0.25s",
+        "purpose": "Stage background and outline response."
+      },
+      {
+        "name": "specimen-affordance",
+        "value": "0.2s",
+        "purpose": "Inspect affordance opacity response."
+      },
+      {
+        "name": "theme-thumb",
+        "value": "0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Switch-thumb translation."
+      },
+      {
+        "name": "cursor-ring",
+        "value": "0.25s",
+        "purpose": "Ring size, fill and shadow response."
+      },
+      {
+        "name": "cursor-follow-lerp",
+        "value": "0.16",
+        "purpose": "Per-frame interpolation fraction; the animation stops when the total remaining distance is at most 0.1px."
+      },
+      {
+        "name": "content-reveal",
+        "value": "0.45s cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "10px once-in-view content movement, bypassed when reduced motion is requested."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Disable CSS transitions/animations, smooth scrolling and the follower; retain 80ms opacity feedback for the mobile menu and assistant."
+      },
+      {
+        "name": "cursor-pointer-gate",
+        "value": "(pointer: fine)",
+        "purpose": "Enable the supplementary cursor only for a fine pointer while motion is allowed."
+      },
+      {
+        "name": "mobile-menu-enter",
+        "value": "0.26s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Reveal the mobile panel with a vertical clip; the trigger morphs into a close glyph."
+      },
+      {
+        "name": "mobile-menu-exit",
+        "value": "0.14s",
+        "purpose": "Close the mobile panel more quickly than it enters."
+      },
+      {
+        "name": "mobile-menu-stagger",
+        "value": "0.02s",
+        "purpose": "Sibling link delay, bounded by six navigation items; omitted for reduced motion."
+      },
+      {
+        "name": "assistant-enter",
+        "value": "0.42s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Body-portal panel opacity and 20px translation after a 70ms first-arrival pause; visible interruptions continue from the current frame without replaying the pause."
+      },
+      {
+        "name": "assistant-exit",
+        "value": "0.14s cubic-bezier(0.4, 0, 1, 1)",
+        "purpose": "Panel opacity and 8px translation without delay; commit the final frame before cancellation and removal, then return focus."
+      },
+      {
+        "name": "overlay-reduced-feedback",
+        "value": "0.08s",
+        "purpose": "Opacity-only menu and assistant feedback without panel translation, clip movement or stagger."
+      },
+      {
+        "name": "assistant-arrival-pause",
+        "value": "0.07s",
+        "purpose": "First-arrival settling pause only; preserved through development effect replay and omitted for reduced motion."
+      },
+      {
+        "name": "link-color-feedback",
+        "value": "0.26s ease",
+        "purpose": "Hyperlink color and quiet surface response in both directions."
+      },
+      {
+        "name": "link-underline-feedback",
+        "value": "0.32s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Emerald text-action underline reveal and retraction; inline article links use 0.34s and retain their resting underline."
+      },
+      {
+        "name": "project-disclosure",
+        "value": "0.42s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Case-study grid disclosure with 0.26s opacity feedback; collapsed content remains inert, and reduced motion uses opacity only."
+      },
+      {
+        "name": "route-arrival",
+        "value": "0.24s ease-out",
+        "purpose": "Public route opacity settle from 0.9 to 1; removed for reduced motion."
+      },
+      {
+        "name": "traffic-point-feedback",
+        "value": "0.2s ease",
+        "purpose": "Point dot background and transform feedback; reduced motion removes both transition and transform. Chart values and layout coordinates do not animate."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow-mobile",
+        "value": "380px"
+      },
+      {
+        "name": "mobile",
+        "value": "600px"
+      },
+      {
+        "name": "reading-and-navigation",
+        "value": "1000px"
+      },
+      {
+        "name": "desktop-entry",
+        "value": "1001px"
+      },
+      {
+        "name": "compact-desktop",
+        "value": "1200px"
+      },
+      {
+        "name": "shell-cap",
+        "value": "1600px"
+      },
+      {
+        "name": "profile-contents-disclosure",
+        "value": "1100px"
+      },
+      {
+        "name": "traffic-chart-compact",
+        "value": "560px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Filled public action using the active emerald and its paired foreground; hover follows the active theme.",
+      "html": "<button type=\"button\" class=\"ds-primary\">Explore projects <svg width=\"21\" height=\"21\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></button>",
+      "css": ".ds-primary{min-height:48px;border:1px solid transparent;border-radius:3px;padding:0 24px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font:500 16px/1.3 'Public Sans',sans-serif;cursor:pointer;transition:background-color .3s ease,color .3s ease,border-color .3s ease;background:var(--action,#49c7a5);color:var(--on-action,#14181b);}.ds-primary:hover{background:var(--action-hover,#76d7bc);}.ds-primary:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}.ds-primary:disabled{cursor:wait;opacity:.6;}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none;}}"
+    },
+    {
+      "name": "Outlined Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action with a strong outline and quiet emerald hover fill.",
+      "html": "<div class=\"ds-ghost-context\"><button type=\"button\" class=\"ds-ghost\">View experience</button></div>",
+      "css": ".ds-ghost-context{background:var(--ink,#14181b);padding:24px;}.ds-ghost{min-height:48px;border:1px solid transparent;border-radius:3px;padding:0 24px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font:500 16px/1.3 'Public Sans',sans-serif;cursor:pointer;transition:background-color .3s ease,color .3s ease,border-color .3s ease;border-color:var(--line-strong,#7c8c8f);background:transparent;color:var(--paper,#f3f2eb);}.ds-ghost:hover{background:var(--signal-soft,#203b33);border-color:var(--signal,#49c7a5);}.ds-ghost:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}.ds-ghost:disabled{cursor:wait;opacity:.6;}@media(prefers-reduced-motion:reduce){.ds-ghost{transition:none;}}"
+    },
+    {
+      "name": "Navigation Action",
+      "kind": "button",
+      "refersTo": "button-nav",
+      "description": "Compact filled contact link from the desktop navigation.",
+      "html": "<a class=\"ds-nav-action\" href=\"/contact\">Connect <svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></a>",
+      "css": ".ds-nav-action{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--action,#49c7a5);color:var(--on-action,#14181b);width:calc(121 * var(--u,1px));height:calc(40 * var(--u,1px));border-radius:2px;font:400 calc(16 * var(--u,1px))/1.6 'Public Sans',sans-serif;text-decoration:none;white-space:nowrap;}.ds-nav-action:hover{background:var(--action-hover,#76d7bc);}.ds-nav-action:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}@media(max-width:1200px) and (min-width:1001px){.ds-nav-action{font-size:14px;width:105px;}}"
+    },
+    {
+      "name": "Specimen Action",
+      "kind": "button",
+      "refersTo": "button-specimen",
+      "description": "Square case-study link on the neutral project field, using the shared action and foreground roles.",
+      "html": "<div class=\"ds-specimen-context\"><a class=\"ds-specimen-action\" href=\"/projects\">Explore the case study <svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></a></div>",
+      "css": ".ds-specimen-context{background:var(--field,#20272b);padding:24px;color:var(--field-paper,#f3f2eb);}.ds-specimen-action{display:flex;align-items:center;justify-content:flex-start;gap:17px;height:calc(64 * var(--u,1px));width:calc(425 * var(--u,1px));max-width:100%;padding-left:calc(54 * var(--u,1px));border:1px solid var(--action,#49c7a5);border-radius:0;background:var(--action,#49c7a5);color:var(--on-action,#14181b);font:500 calc(20 * var(--u,1px))/1.6 'Public Sans',sans-serif;text-decoration:none;transition:background .2s;}.ds-specimen-action:hover{background:var(--action-hover,#76d7bc);}.ds-specimen-action:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}@media(max-width:600px){.ds-specimen-action{width:100%;height:50px;padding:0;justify-content:center;font-size:16px;gap:12px;}.ds-specimen-action svg{width:18px;}}@media(prefers-reduced-motion:reduce){.ds-specimen-action{transition:none;}}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Theme-aware contact field with a persistent label, full-opacity muted placeholder and one border that changes to signal on focus.",
+      "html": "<div class=\"ds-field-context\"><label class=\"ds-field\"><span>Email</span><input type=\"email\" name=\"email\" placeholder=\"you@example.com\" autocomplete=\"email\"></label></div>",
+      "css": ".ds-field-context{background:var(--ink,#14181b);padding:24px;}.ds-field{display:flex;flex-direction:column;gap:9px;font-family:'Public Sans',sans-serif;}.ds-field>span{font-size:14px;line-height:1.6;color:var(--muted,#acb8bc);}.ds-field input{width:100%;border:1px solid var(--line-strong,#7c8c8f);background:transparent;color:var(--paper,#f3f2eb);padding:14px 16px;border-radius:3px;font:400 16px/1.6 'Public Sans',sans-serif;caret-color:var(--signal,#49c7a5);outline:none;box-shadow:none;transition:border-color .2s ease,background-color .2s ease;}.ds-field input::placeholder{color:var(--muted,#acb8bc);opacity:1;}.ds-field input:hover{border-color:var(--signal,#49c7a5);}.ds-field input:is(:focus,:focus-visible){border-color:var(--signal,#49c7a5);outline:none;box-shadow:none;}@media(prefers-reduced-motion:reduce){.ds-field input{transition:none;}}"
+    },
+    {
+      "name": "Ruled Navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "A sample of the sticky navigation's link treatment, with its mobile ruled-panel form.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Portfolio navigation\"><a class=\"ds-nav-link\" href=\"/about\">Profile</a><a class=\"ds-nav-link\" href=\"/projects\" aria-current=\"page\">Projects</a><a class=\"ds-nav-link\" href=\"/writing\">Writing</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:calc(56 * var(--u,1px));height:calc(76 * var(--u,1px));padding:0 calc(40 * var(--u,1px)) 0 calc(67 * var(--u,1px));background:var(--ink,#14181b);color:var(--paper,#f3f2eb);border-bottom:1px solid var(--line,#3b4549);}.ds-nav-link{position:relative;padding:9px 0;font:400 calc(16 * var(--u,1px))/1.5 'Public Sans',sans-serif;text-decoration:none;}.ds-nav-link::after{content:\"\";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--signal,#49c7a5);transform:scaleX(0);transform-origin:left;transition:transform .22s;}.ds-nav-link:hover::after,.ds-nav-link[aria-current=\"page\"]::after{transform:scaleX(1);}.ds-nav-link:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}@media(max-width:1200px) and (min-width:1001px){.ds-nav{gap:28px;}.ds-nav-link{font-size:14px;}}@media(max-width:1000px){.ds-nav{height:auto;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:16px 28px 28px;border-bottom-color:var(--line-strong,#7c8c8f);}.ds-nav-link{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line,#3b4549);padding:17px 0;font-size:20px;}.ds-nav-link::after{display:none;}.ds-nav-link[aria-current=\"page\"]{color:var(--signal,#49c7a5);}}@media(max-width:600px){.ds-nav{padding-inline:20px;}}@media(prefers-reduced-motion:reduce){.ds-nav-link::after{transition:none;}}"
+    },
+    {
+      "name": "Technical Tags",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Static metadata tags; wrapping and density follow the public tag rows.",
+      "html": "<div class=\"ds-tag-context\"><div class=\"ds-tags\" aria-label=\"Project technologies\"><span class=\"ds-tag\">Linux</span><span class=\"ds-tag\">Bash</span><span class=\"ds-tag\">Compliance</span></div></div>",
+      "css": ".ds-tag-context{background:var(--ink,#14181b);padding:24px;}.ds-tags{display:flex;flex-wrap:wrap;gap:8px;}.ds-tag{font:400 11px/1.4 'JetBrains Mono',monospace;padding:7px 10px;background:var(--signal-soft,#203b33);color:var(--muted,#acb8bc);border:1px solid var(--line,#3b4549);border-radius:2px;transition:background-color .3s ease,color .3s ease,border-color .3s ease;}@media(max-width:600px){.ds-tags{gap:6px;}.ds-tag{font-size:10px;padding:5px 7px;}}@media(prefers-reduced-motion:reduce){.ds-tag{transition:none;}}"
+    },
+    {
+      "name": "Case Detail Container",
+      "kind": "card",
+      "refersTo": "case-container",
+      "description": "Square tonal panel used for expanded project evidence, with reading-sized copy.",
+      "html": "<section class=\"ds-case\"><h3 class=\"ds-case-title\">Workflow evidence</h3><p class=\"ds-case-copy\">A documented Linux account lifecycle with validation and audit records.</p></section>",
+      "css": ".ds-case{background:var(--panel,#20272b);color:var(--muted,#acb8bc);padding:36px;border-radius:0;font-family:'Public Sans',sans-serif;}.ds-case-title{margin:0 0 16px;color:var(--signal,#49c7a5);font:500 20px/1.1 'Public Sans',sans-serif;letter-spacing:-.025em;}.ds-case-copy{margin:0;font-size:16px;line-height:1.75;}@media(max-width:600px){.ds-case{padding:22px;}.ds-case-copy{font-size:14px;}}"
+    },
+    {
+      "name": "Specimen Stage",
+      "kind": "custom",
+      "refersTo": "specimen-stage",
+      "description": "Interactive square workflow stage on the active neutral field, with the implemented folded-file illustration.",
+      "html": "<div class=\"ds-stage-field\"><button type=\"button\" class=\"ds-stage\" aria-expanded=\"false\" aria-label=\"Inspect Read stage\"><span class=\"ds-stage-number\">01</span><strong class=\"ds-stage-title\">Read</strong><span class=\"ds-stage-art\" aria-hidden=\"true\"><span class=\"ds-stage-file\"><i class=\"ds-stage-fold\"></i><span class=\"ds-stage-lines\"><i></i><i></i><i></i><i></i></span></span></span><span class=\"ds-stage-affordance\" aria-hidden=\"true\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></span></button><p class=\"ds-stage-caption\">Inspect existing accounts.</p></div>",
+      "css": ".ds-stage-field{padding:24px;background-color:var(--field,#20272b);color:var(--field-paper,#f3f2eb);background-image:linear-gradient(var(--field-grid,color-mix(in srgb,var(--paper,#f3f2eb) 4%,transparent)) 1px,transparent 1px),linear-gradient(90deg,var(--field-grid,color-mix(in srgb,var(--paper,#f3f2eb) 4%,transparent)) 1px,transparent 1px);background-size:47px 47px;}.ds-stage{height:201px;width:160px;padding:13px 16px;border:1px solid var(--field-line,#7c8c8f);border-radius:0;background:var(--field-dark,#14181b);color:inherit;text-align:left;display:flex;flex-direction:column;align-items:flex-start;position:relative;font-family:'Public Sans',sans-serif;cursor:pointer;transition:background .25s,border-color .25s;}.ds-stage-number{font-size:14px;line-height:1.5;}.ds-stage-title{font-size:24px;font-weight:500;letter-spacing:-.02em;line-height:1.1;}.ds-stage-art{position:absolute;left:29px;top:81px;width:108px;height:92px;color:var(--field-paper,#f3f2eb);}.ds-stage-file{display:block;position:relative;width:76px;height:89px;border:2px solid currentColor;border-radius:2px;clip-path:polygon(0 0,72% 0,100% 25%,100% 100%,0 100%);}.ds-stage-fold{position:absolute;right:-2px;top:-2px;width:23px;height:24px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;}.ds-stage-fold::before{content:\"\";position:absolute;top:0;left:0;width:33px;height:2px;background:currentColor;transform:rotate(46deg);transform-origin:top left;}.ds-stage-lines{position:absolute;left:11px;top:20px;display:flex;flex-direction:column;gap:12px;}.ds-stage-lines i{height:2px;width:30px;background:currentColor;}.ds-stage-lines i:nth-child(2){width:39px;}.ds-stage-lines i:nth-child(3){width:49px;}.ds-stage-lines i:nth-child(4){width:31px;}.ds-stage-affordance{position:absolute;right:10px;bottom:9px;opacity:0;transition:opacity .2s;}.ds-stage:hover,.ds-stage:focus-visible,.ds-stage[aria-expanded=\"true\"]{background:var(--field-selected,#2b3438);border-color:var(--signal,#49c7a5);}.ds-stage:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}.ds-stage:hover .ds-stage-affordance,.ds-stage:focus-visible .ds-stage-affordance,.ds-stage[aria-expanded=\"true\"] .ds-stage-affordance{opacity:1;}.ds-stage-caption{font:400 14px/1.5 'JetBrains Mono',monospace;color:var(--field-muted,#acb8bc);margin:13px 0 0;}@media(max-width:600px){.ds-stage{height:137px;padding:12px 13px;}.ds-stage-number{font-size:10px;}.ds-stage-title{font-size:19px;}.ds-stage-art{top:64px;left:calc(50% - 29px);transform:scale(.54);transform-origin:top left;}.ds-stage-affordance{opacity:1;right:7px;bottom:6px;}.ds-stage-affordance svg{width:12px;height:12px;}.ds-stage-caption{font-size:10px;line-height:1.6;margin-top:10px;}}@media(prefers-reduced-motion:reduce){.ds-stage,.ds-stage-affordance{transition:none;}}"
+    },
+    {
+      "name": "Theme Switch",
+      "kind": "custom",
+      "refersTo": "theme-switch",
+      "description": "Signal-outlined track with the active text-colored thumb; the preview follows the inherited document theme.",
+      "html": "<div class=\"ds-switch-context\"><button type=\"button\" class=\"ds-switch\" aria-label=\"Switch to light mode\"><svg class=\"ds-switch-icon\" width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2 M12 20v2 M4.93 4.93l1.42 1.42 M17.65 17.65l1.42 1.42 M2 12h2 M20 12h2 M4.93 19.07l1.42-1.42 M17.65 6.35l1.42-1.42\"/></svg><span class=\"ds-switch-track\" aria-hidden=\"true\"><span class=\"ds-switch-thumb\"></span></span><svg class=\"ds-switch-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20.9 13A9 9 0 1 1 11 3.1 7 7 0 0 0 20.9 13Z\"/></svg></button></div>",
+      "css": ".ds-switch-context{background:var(--ink,#14181b);padding:24px;}.ds-switch{display:flex;align-items:center;justify-content:center;gap:12px;padding:0;border:0;color:var(--paper,#f3f2eb);background:transparent;min-height:40px;cursor:pointer;}.ds-switch-track{width:48px;height:29px;border:1px solid var(--signal,#49c7a5);border-radius:30px;position:relative;}.ds-switch-thumb{position:absolute;width:20px;height:20px;left:4px;top:3px;border-radius:50%;background:var(--paper,#f3f2eb);transform:translateX(18px);transition:transform .3s cubic-bezier(.16,1,.3,1);}.ds-switch:hover{color:var(--paper,#f3f2eb);}.ds-switch:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}@media(max-width:1000px){.ds-switch{gap:9px;min-height:42px;}.ds-switch-track{width:40px;height:25px;}.ds-switch-thumb{width:17px;height:17px;left:3px;top:3px;transform:translateX(15px);}}@media(max-width:600px){.ds-switch-icon{display:none;}}@media(prefers-reduced-motion:reduce){.ds-switch-thumb{transition:none;}}:host-context([data-theme=\"light\"]) .ds-switch-thumb{transform:none;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Technical Field Manual",
+    "overview": "A precise technical sheet gives infrastructure work a calm, inspectable setting. Graphite surfaces, warm cream text, parchment and fine calibrated rules carry the terminal and grid influence. Emerald marks action and state; sparse sand detail adds warmth to technical metadata and connector geometry. Dense evidence sits within generous reading margins; typography and alignment establish the hierarchy.\n\nThe visual identity supports Linux, Cloud and Security through readable sans-serif content and restrained technical detail. Dark and light modes share the same geometry; project specimens follow the active neutral surfaces, text and rules. The owner selected Graphite + Emerald + Parchment while preserving the latest public and dashboard layouts. The real portrait remains an identity asset within this system.",
+    "keyCharacteristics": [
+      "Neutral graphite and warm parchment with emerald signals and sparse sand detail.",
+      "Fine linework and flat, clearly separated surfaces.",
+      "Catamaran display, Public Sans reading, JetBrains Mono technical detail.",
+      "Square and lightly softened controls with visible keyboard focus.",
+      "Restrained motion, persistent themes and a supplementary cursor follower."
+    ],
+    "rules": [
+      {
+        "name": "The Paired Themes Rule",
+        "body": "Use the active canvas, text, muted, panel, signal, warm and line roles together, including within project specimens and dashboard panels; keep fixed code roles paired on their own canvas.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Voice Rule",
+        "body": "Keep main content and controls in Public Sans; use JetBrains Mono for code, tags, technical metadata and footer details.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tonal Depth Rule",
+        "body": "Separate ordinary content with proximity, space and surface tone; use fine rules for meaningful boundaries and reserve soft shadows for utility overlays, revealed workflow detail and cursor response.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** use paired theme roles for public and dashboard surfaces, including neutral project specimens; retain the fixed paired code canvas.",
+      "**Do** keep reading content in Public Sans and reserve JetBrains Mono for code, tags, technical metadata and footer details.",
+      "**Do** build hierarchy with type, proximity, margins and tonal fields; keep rules for meaningful boundaries.",
+      "**Do** preserve visible keyboard focus, thin single-border field focus, readable light and dark states, and the reduced-motion and pointer accommodations.",
+      "**Do** use inline line icons or the established custom file/checklist geometry for technical illustrations."
+    ],
+    "donts": [
+      "**Don't** reintroduce fixed emerald specimen fields or the dashboard's superseded gray/lime literals in place of shared roles.",
+      "**Don't** make the homepage's split composition or section rail a requirement for other surfaces.",
+      "**Don't** turn static tags into controls or make the custom cursor the only sign that an element is interactive.",
+      "**Don't** replace readable sans-serif prose with terminal-style monospace text."
+    ]
+  }
+}

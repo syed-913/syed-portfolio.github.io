@@ -1,0 +1,72 @@
+{
+  "title": "Technical Field Manual — choose the composition",
+  "question": "The visual direction is selected. Choose the composition to build, or add a note about what to combine or revise. All three keep the same emerald identity and verified content.",
+  "options": [
+    {
+      "id": "split",
+      "label": "Profile + project",
+      "kicker": "SELECTED DIRECTION",
+      "thesis": "Your technical focus and a real project share the opening equally.",
+      "palette": [
+        "#0B1714",
+        "#078765",
+        "#F0F6F2",
+        "#9DB5A9"
+      ],
+      "materials": [
+        "technical sheet",
+        "emerald specimen",
+        "sans-serif text"
+      ],
+      "viewport": "Large identity on the left; an emerald project flow on the right; credentials underneath.",
+      "risk": "The large diagram makes the opening denser than the other options.",
+      "comp": ".impeccable/mocks/field-manual-split.png"
+    },
+    {
+      "id": "profile",
+      "label": "Profile first",
+      "thesis": "Introduce the person, then open a broad project exhibit.",
+      "palette": [
+        "#0B1714",
+        "#078765",
+        "#F0F6F2",
+        "#9DB5A9"
+      ],
+      "materials": [
+        "horizontal chapters",
+        "emerald specimen",
+        "sans-serif text"
+      ],
+      "viewport": "Identity and portrait across the top; a wide project flow below; credentials at the foot.",
+      "risk": "The project has less vertical room for technical detail.",
+      "comp": ".impeccable/mocks/field-manual-profile.png"
+    },
+    {
+      "id": "project",
+      "label": "Project first",
+      "thesis": "Lead with the work and keep your professional context alongside it.",
+      "palette": [
+        "#0B1714",
+        "#078765",
+        "#F0F6F2",
+        "#9DB5A9"
+      ],
+      "materials": [
+        "large project exhibit",
+        "compact profile column",
+        "sans-serif text"
+      ],
+      "viewport": "The project occupies the broad left field; the identity and portrait sit in a compact right column.",
+      "risk": "Recruiters encounter the project before the full personal introduction.",
+      "comp": ".impeccable/mocks/field-manual-project.png"
+    }
+  ],
+  "buildPath": {
+    "value": "comp",
+    "toggle": true
+  },
+  "canon": false,
+  "reroll": false,
+  "steer": true,
+  "followup": false
+}

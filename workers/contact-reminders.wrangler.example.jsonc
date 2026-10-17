@@ -1,0 +1,18 @@
+{
+  // Merge these settings into the EXISTING contact Worker's configuration.
+  // Replace both placeholders before deployment. This is not a second proxy.
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "replace-with-existing-contact-worker-name",
+  "main": "./contact-with-reminders.js",
+  "compatibility_date": "2026-10-15",
+  "triggers": { "crons": ["0 4 * * *"] }, // 09:00 Asia/Karachi, every day
+  "kv_namespaces": [
+    { "binding": "EDUCATION_REMINDERS", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }
+  ],
+  "vars": {
+    "FIREBASE_PROJECT_ID": "REPLACE_WITH_EXISTING_FIREBASE_PROJECT_ID",
+    "FIREBASE_API_KEY": "REPLACE_WITH_EXISTING_PUBLIC_FIREBASE_API_KEY"
+    // Optional DISCORD_USER_ID: numeric account ID, not the username.
+  }
+  // Keep the existing DISCORD_WEBHOOK_URL secret on this same Worker.
+}

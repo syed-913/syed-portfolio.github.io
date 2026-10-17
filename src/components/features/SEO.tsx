@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { siteDefaults } from '../../data/siteDefaults';
+import { plainInlineCopy } from '../../lib/inlineCopy';
 
 type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
 
@@ -63,8 +64,8 @@ export const SEO = ({
   structuredData,
 }: SEOProps) => {
   useEffect(() => {
-    const finalTitle = title ?? siteDefaults.seo.title;
-    const finalDescription = description ?? siteDefaults.seo.description;
+    const finalTitle = plainInlineCopy(title ?? siteDefaults.seo.title);
+    const finalDescription = plainInlineCopy(description ?? siteDefaults.seo.description);
     const canonicalUrl = `${ORIGIN}${canonicalPath(path)}`;
 
     document.title = finalTitle;

@@ -1,0 +1,237 @@
+{
+  "title": "Syed Ammar — portfolio direction",
+  "question": "Choose the visual direction to carry forward. Emerald, readable sans-serif content, both themes, and your verified career stage stay fixed.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Technical Field Manual",
+      "kicker": "THE ROLL",
+      "lineage": "Engineering inspection sheets and technical manuals",
+      "thesis": "Your professional profile and a real Linux project share one precise technical sheet.",
+      "palette": [
+        "#0B1714",
+        "#078765",
+        "#F0F6F2",
+        "#9DB5A9"
+      ],
+      "materials": [
+        "fine technical grid",
+        "emerald specimen field",
+        "readable sans-serif"
+      ],
+      "viewport": "Large Linux / Cloud / Security identity on the left; a real project flow and file register on the right; credentials below.",
+      "risk": "The diagram needs restraint so the human profile stays prominent.",
+      "raised": [
+        {
+          "from": "Live-code projection",
+          "raise": "One coordinated interaction rhythm and a clear selected state."
+        },
+        {
+          "from": "Meter bridge",
+          "raise": "Aligned evidence rows remain readable in one sweep."
+        },
+        {
+          "from": "Memory quilt",
+          "raise": "Every artifact keeps its evidence type and provenance adjacent."
+        },
+        {
+          "from": "Nocturnal city",
+          "raise": "A single continuous grid governs the whole viewport and both themes."
+        },
+        {
+          "from": "Cutaway town",
+          "raise": "Every important artifact is explicitly labeled."
+        },
+        {
+          "from": "Pulp trajectory",
+          "raise": "One decisive reading axis leads to a clear project action."
+        }
+      ],
+      "comp": ".impeccable/mocks/decision/field-manual.png"
+    },
+    {
+      "id": "model-pick",
+      "label": "Open Systems Atlas",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Network service maps and infrastructure registers",
+      "thesis": "Connect each technical focus to the projects and credentials that support it.",
+      "palette": [
+        "#F4F8F5",
+        "#087958",
+        "#123B2D",
+        "#B5CEC2"
+      ],
+      "materials": [
+        "horizontal identity band",
+        "service routes",
+        "numbered evidence rows"
+      ],
+      "viewport": "An emerald identity masthead opens onto three linked domains and a project register.",
+      "risk": "Network maps are familiar in infrastructure portfolios; the evidence and human portrait must give this one its character.",
+      "comp": ".impeccable/mocks/decision/systems-atlas.png"
+    },
+    {
+      "id": "challenger-medium-native-algorave-source-floor",
+      "label": "Live-code stage",
+      "verdict": "declined",
+      "lineage": "Live-coded performance projections",
+      "thesis": "Your work becomes a set of highlighted source lanes.",
+      "palette": [
+        "#0B1714",
+        "#087958",
+        "#F4F8F5"
+      ],
+      "materials": [
+        "code lanes",
+        "cycle-boundary states"
+      ],
+      "viewport": "A source buffer governs the viewport.",
+      "case": "The performance-code identity points toward software and adds reading effort.",
+      "risk": "The performance-code identity points toward software and adds reading effort.",
+      "kept": "One coordinated interaction rhythm.",
+      "hero": "https://impeccable.style/worlds/cards/medium-native-algorave-source-floor-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/medium-native-algorave-source-floor.webp"
+    },
+    {
+      "id": "challenger-signals-instruments-vu-meter-bridge",
+      "label": "Evidence meter bridge",
+      "verdict": "declined",
+      "lineage": "Recording-desk meter channels",
+      "thesis": "Your evidence is read in parallel channels.",
+      "palette": [
+        "#0B1714",
+        "#087958",
+        "#F4F8F5"
+      ],
+      "materials": [
+        "aligned channels",
+        "ballistic motion"
+      ],
+      "viewport": "Parallel channels share one aligned ruler.",
+      "case": "Audio instruments weaken role identification and flatten evidence types.",
+      "risk": "Audio instruments weaken role identification and flatten evidence types.",
+      "kept": "Evidence rows scan together.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-vu-meter-bridge-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-vu-meter-bridge.webp"
+    },
+    {
+      "id": "challenger-textiles-weave-drape-fashion-memory-quilt-atlas",
+      "label": "Provenance patchwork",
+      "verdict": "declined",
+      "lineage": "Memory quilts and specimen provenance",
+      "thesis": "Each artifact carries its own provenance block.",
+      "palette": [
+        "#0B1714",
+        "#087958",
+        "#F4F8F5"
+      ],
+      "materials": [
+        "unequal blocks",
+        "provenance seams"
+      ],
+      "viewport": "An unequal grid holds connected evidence.",
+      "case": "Domestic material and unequal blocks weaken technical identity and résumé hierarchy.",
+      "risk": "Domestic material and unequal blocks weaken technical identity and résumé hierarchy.",
+      "kept": "Provenance stays adjacent.",
+      "hero": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-memory-quilt-atlas-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-memory-quilt-atlas.webp"
+    },
+    {
+      "id": "challenger-light-shadow-caustics-rain-night-cityscape",
+      "label": "Night systems",
+      "verdict": "declined",
+      "lineage": "Urban night bands and illuminated networks",
+      "thesis": "Your domains form one continuous landscape.",
+      "palette": [
+        "#0B1714",
+        "#087958",
+        "#F4F8F5"
+      ],
+      "materials": [
+        "continuous bands",
+        "synchronized state"
+      ],
+      "viewport": "Synchronized bands link identity and evidence.",
+      "case": "Cinematic atmosphere takes space from role clarity and specific work.",
+      "risk": "Cinematic atmosphere takes space from role clarity and specific work.",
+      "kept": "One continuous theme grammar.",
+      "hero": "https://impeccable.style/worlds/cards/light-shadow-caustics-rain-night-cityscape-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/light-shadow-caustics-rain-night-cityscape.webp"
+    },
+    {
+      "id": "challenger-graphic-worlds-publishing-busytown-cross-section",
+      "label": "Systems cutaway",
+      "verdict": "declined",
+      "lineage": "Illustrated cutaway worlds",
+      "thesis": "Every project opens as a labeled compartment.",
+      "palette": [
+        "#0B1714",
+        "#087958",
+        "#F4F8F5"
+      ],
+      "materials": [
+        "open compartments",
+        "direct labels"
+      ],
+      "viewport": "A labeled cross-section reveals work in place.",
+      "case": "The playful scene and equal-scale labels make professional assessment harder.",
+      "risk": "The playful scene and equal-scale labels make professional assessment harder.",
+      "kept": "Explicit artifact labels.",
+      "hero": "https://impeccable.style/worlds/cards/graphic-worlds-publishing-busytown-cross-section-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/graphic-worlds-publishing-busytown-cross-section.webp"
+    },
+    {
+      "id": "challenger-pop-culture-shelf-pulp-rocketship-plate",
+      "label": "Technical trajectory",
+      "verdict": "declined",
+      "lineage": "Pulp magazine trajectory plates",
+      "thesis": "Work and learning follow one strong diagonal.",
+      "palette": [
+        "#0B1714",
+        "#087958",
+        "#F4F8F5"
+      ],
+      "materials": [
+        "diagonal flow",
+        "lit selection"
+      ],
+      "viewport": "A diagonal path carries the work forward.",
+      "case": "Adventure imagery does not establish demonstrated skills and puts chronology before relevance.",
+      "risk": "Adventure imagery does not establish demonstrated skills and puts chronology before relevance.",
+      "kept": "One decisive reading axis.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-pulp-rocketship-plate-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/pop-culture-shelf-pulp-rocketship-plate.webp"
+    }
+  ],
+  "reroll": {
+    "registers": [
+      "safer",
+      "bolder"
+    ]
+  },
+  "buildPath": {
+    "value": "comp",
+    "toggle": true
+  },
+  "canon": true,
+  "canonCard": {
+    "label": "Conventional technical portfolio",
+    "thesis": "A familiar profile-and-project layout, executed with precision.",
+    "palette": [
+      "#0C1814",
+      "#0F9B70",
+      "#F2F8F4",
+      "#A2B7AB"
+    ],
+    "materials": [
+      "portrait-led hero",
+      "simple project panels",
+      "fine background grid"
+    ],
+    "viewport": "Introduction and actions beside the portrait; selected projects immediately below.",
+    "risk": "The familiar structure gives the portfolio less distinctive form.",
+    "comp": ".impeccable/mocks/decision/conventional.png"
+  },
+  "steer": true,
+  "followup": true
+}
