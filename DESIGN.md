@@ -362,3 +362,13 @@ The supplementary cursor uses a 30px ring and a 3px dot. Interactive hover expan
 - **Don't** turn static tags into controls or make the custom cursor the only sign that an element is interactive.
 - **Don't** replace readable sans-serif prose with terminal-style monospace text.
 
+## Signal Routes Background
+
+The owner selected **Signal Routes (B)** on 2026-10-18 to extend the current field-manual canvas. Sparse parallel paths, 45-degree bends, hollow junctions and a few registration marks frame the existing content. The page ground remains the exact graphite/parchment role; foreground typography, layout and project specimens retain their established presentation. The selected study is background direction, not authority for its generated foreground text or proportions.
+
+`src/signal-background.css` supplies two decorative SVG alpha masks through bounded, absolute body pseudo-elements. The upper routes use `--signal` at 0.30 opacity in dark mode and 0.12 in light mode. The lower return routes use `--warm` at 0.20/0.10. Profile, article and private workspace surfaces multiply those strengths by 0.55. Keep the artwork subordinate to reading, forms and evidence; opaque panels, navigation and overlays retain their paired surfaces.
+
+The artwork is centered within 1600px, scrolls with the document and never extends its height. Desktop mask heights cap at 1100px and 640px. At 600px and below, fewer paths move to the margins, using bounded 1100px/640px masks. Both pseudo-elements ignore pointer input and sit beneath the content in the body's isolated stacking context.
+
+The background adds no runtime JavaScript, external artwork request, animation loop, fixed canvas or continuously moving layer. SVGs are embedded in CSS; the generated concept PNGs remain local review assets. Only theme-color and route-strength transitions run, over 300ms/240ms; reduced motion removes those transitions. Browsers without CSS mask support retain the plain paired canvas. The existing cursor, mobile navigation, assistant and theme persistence remain independent.
+

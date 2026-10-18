@@ -1,0 +1,79 @@
+/* Signal Routes: decorative, theme-aware geometry. No scripts or external assets.
+   Keep the masks bounded; they scroll with the document instead of repainting
+   a fixed full-screen layer. The page canvas remains the contrast foundation. */
+body {
+  --routes-top: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201600%201100%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M-20%2034H58L136%20112H260L586%20438M-32%2058H44L122%20136H246L564%20454M-30%2082H30L108%20160H210L480%20430%22%2F%3E%3Cpath%20opacity%3D%22.55%22%20d%3D%22M100-30L190%2060H302L590%20348M-18%20296L40%20354V580L98%20638H142M-30%20322L18%20370V598L76%20656H124M-16%20688L80%20784H258L420%20946H616M1620%20110L1544%20186V328L1472%20400H1430M1636%20144L1566%20214V346L1494%20418H1450%22%2F%3E%3Ccircle%20cx%3D%22136%22%20cy%3D%22112%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%22206%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%22484%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%221544%22%20cy%3D%22252%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%22784%22%20r%3D%223%22%2F%3E%3Cpath%20opacity%3D%22.6%22%20d%3D%22M20%2086v16m-8-8h16M1562%20944v16m-8-8h16%22%2F%3E%3C%2Fsvg%3E");
+  --routes-bottom: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201600%20640%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M-16%20260L118%20394H266L450%20578H696M-28%20292L106%20426H254L438%20610H684M1000%20650L1108%20542H1260L1368%20434H1496L1610%20548%22%2F%3E%3Cpath%20opacity%3D%22.5%22%20d%3D%22M1018%20672L1126%20564H1278L1386%20456H1486L1596%20566M-12%2018L52%2082V162L92%20202%22%2F%3E%3Ccircle%20cx%3D%22118%22%20cy%3D%22394%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%221368%22%20cy%3D%22434%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%2252%22%20cy%3D%22114%22%20r%3D%223%22%2F%3E%3C%2Fsvg%3E");
+  --routes-mobile-top: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20390%201100%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M230-18H270L374%2086V152M248-18H288L390%2084%22%2F%3E%3Cpath%20opacity%3D%22.55%22%20d%3D%22M-18%20314L8%20340V594L-12%20614M402%20406L376%20432V584L402%20610%22%2F%3E%3Ccircle%20cx%3D%22374%22%20cy%3D%22122%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%228%22%20cy%3D%22522%22%20r%3D%223%22%2F%3E%3C%2Fsvg%3E");
+  --routes-mobile-bottom: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20390%20640%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M-12%20426L12%20450V570L72%20630H140M402%20146L376%20172V294L402%20320%22%2F%3E%3Cpath%20opacity%3D%22.5%22%20d%3D%22M-24%20438L-2%20460V582L58%20642M414%20156L388%20182V286L414%20312%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%22520%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%22376%22%20cy%3D%22214%22%20r%3D%223%22%2F%3E%3C%2Fsvg%3E");
+  --routes-primary-opacity: 0.3;
+  --routes-secondary-opacity: 0.2;
+  position: relative;
+  isolation: isolate;
+}
+:root[data-theme="light"] body {
+  --routes-primary-opacity: 0.12;
+  --routes-secondary-opacity: 0.1;
+}
+@supports (mask-image: url("")) or (-webkit-mask-image: url("")) {
+  body::before,
+  body::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    width: min(100%, 1600px);
+    max-height: 100%;
+    margin-inline: auto;
+    z-index: -1;
+    pointer-events: none;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    transition: background-color 0.3s ease, opacity 0.24s ease;
+  }
+  body::before {
+    top: 0;
+    height: min(68.75vw, 1100px);
+    background-color: var(--signal);
+    opacity: var(--routes-primary-opacity);
+    -webkit-mask-image: var(--routes-top);
+    mask-image: var(--routes-top);
+  }
+  body::after {
+    bottom: 0;
+    height: min(40vw, 640px);
+    background-color: var(--warm);
+    opacity: var(--routes-secondary-opacity);
+    -webkit-mask-image: var(--routes-bottom);
+    mask-image: var(--routes-bottom);
+  }
+  /* Read and Operate surfaces keep the same routes at a quieter strength. */
+  body:has(.article-page, .profile-page, .admin-app, .admin-login-page)::before {
+    opacity: calc(var(--routes-primary-opacity) * 0.55);
+  }
+  body:has(.article-page, .profile-page, .admin-app, .admin-login-page)::after {
+    opacity: calc(var(--routes-secondary-opacity) * 0.55);
+  }
+  body :is(.admin-app, .admin-login-page) {
+    background-color: transparent;
+  }
+  @media (max-width: 600px) {
+    body::before {
+      height: 1100px;
+      -webkit-mask-image: var(--routes-mobile-top);
+      mask-image: var(--routes-mobile-top);
+    }
+    body::after {
+      height: 640px;
+      -webkit-mask-image: var(--routes-mobile-bottom);
+      mask-image: var(--routes-mobile-bottom);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body::before,
+    body::after {
+      transition: none;
+    }
+  }
+}
