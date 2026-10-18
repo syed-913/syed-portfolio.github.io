@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T22:48:21Z",
+  "generatedAt": "2026-10-18T16:21:33Z",
   "title": "Design System: Syed Ammar",
   "extensions": {
     "colorMeta": {
@@ -529,16 +529,6 @@
     },
     "shadows": [
       {
-        "name": "assistant-launcher",
-        "value": "0 6px 20px #0002",
-        "purpose": "Small utility lift for the assistant launcher within navigation."
-      },
-      {
-        "name": "assistant-panel",
-        "value": "0 12px 40px #0005",
-        "purpose": "Separation for the open utility overlay."
-      },
-      {
         "name": "workflow-detail",
         "value": "0 12px 32px #14181b66",
         "purpose": "Separation for revealed project detail."
@@ -547,6 +537,11 @@
         "name": "cursor-hover",
         "value": "0 4px 18px color-mix(in srgb, var(--signal) 19%, transparent)",
         "purpose": "Subtle interactive glow around the supplementary cursor ring."
+      },
+      {
+        "name": "assistant-edge-glow",
+        "value": "drop-shadow(0 0 2px var(--signal))",
+        "purpose": "Local SVG perimeter filter on the open assistant composer; its surfaces use tonal fills and borders."
       }
     ],
     "motion": [
@@ -621,24 +616,9 @@
         "purpose": "Sibling link delay, bounded by six navigation items; omitted for reduced motion."
       },
       {
-        "name": "assistant-enter",
-        "value": "0.42s cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Body-portal panel opacity and 20px translation after a 70ms first-arrival pause; visible interruptions continue from the current frame without replaying the pause."
-      },
-      {
-        "name": "assistant-exit",
-        "value": "0.14s cubic-bezier(0.4, 0, 1, 1)",
-        "purpose": "Panel opacity and 8px translation without delay; commit the final frame before cancellation and removal, then return focus."
-      },
-      {
         "name": "overlay-reduced-feedback",
         "value": "0.08s",
         "purpose": "Opacity-only menu and assistant feedback without panel translation, clip movement or stagger."
-      },
-      {
-        "name": "assistant-arrival-pause",
-        "value": "0.07s",
-        "purpose": "First-arrival settling pause only; preserved through development effect replay and omitted for reduced motion."
       },
       {
         "name": "link-color-feedback",
@@ -664,6 +644,41 @@
         "name": "traffic-point-feedback",
         "value": "0.2s ease",
         "purpose": "Point dot background and transform feedback; reduced motion removes both transition and transform. Chart values and layout coordinates do not animate."
+      },
+      {
+        "name": "assistant-launcher-feedback",
+        "value": "opacity 0.24s ease, filter 0.24s ease, transform 0.38s cubic-bezier(0.16,1,0.3,1)",
+        "purpose": "Hexagon fades, blurs by 6px and scales to 0.82 while open; hover lifts 2px. Reduced motion retains 80ms opacity only."
+      },
+      {
+        "name": "assistant-composer-spring",
+        "value": "type: spring; stiffness: 150; damping: 25; mass: 1.1",
+        "purpose": "Composer surface grows from scaleX 0.06 to 1; input and controls remain unscaled."
+      },
+      {
+        "name": "assistant-composer-content",
+        "value": "0.28s; delay: 0.14s",
+        "purpose": "Content opacity follows the opening surface; both become 80ms with no delay for reduced motion."
+      },
+      {
+        "name": "assistant-message-spring",
+        "value": "type: spring; stiffness: 240; damping: 28; mass: 1",
+        "purpose": "Question/reply arrival from 14px/10px and scale 0.97, plus position-only layout projection and pending-bubble arrival."
+      },
+      {
+        "name": "assistant-exit",
+        "value": "section opacity 0.18s; surface opacity/scaleX 0.16s; message opacity/translation 0.12s",
+        "purpose": "Bounded exit with inert, aria-hidden outgoing content; return launcher focus after completion. Reduced motion uses 80ms section/surface opacity without translation."
+      },
+      {
+        "name": "assistant-typing-dots",
+        "value": "1.25s cubic-bezier(0.45,0,0.25,1); delays: 0s, 0.14s, 0.28s",
+        "purpose": "Three 6px dots rise by 4px sequentially while pending. Pause when hidden/exiting; use static dots for reduced motion."
+      },
+      {
+        "name": "assistant-perimeter",
+        "value": "5.8s linear infinite",
+        "purpose": "A thin local SVG dash follows the open composer border; pause when hidden/exiting and use a static 5/95 dash for reduced motion."
       }
     ],
     "breakpoints": [
@@ -698,6 +713,18 @@
       {
         "name": "traffic-chart-compact",
         "value": "560px"
+      },
+      {
+        "name": "canvas-editor-layers-below",
+        "value": "1300px"
+      },
+      {
+        "name": "canvas-editor-stacked",
+        "value": "780px"
+      },
+      {
+        "name": "canvas-editor-phone",
+        "value": "520px"
       }
     ]
   },
@@ -781,6 +808,38 @@
       "description": "Signal-outlined track with the active text-colored thumb; the preview follows the inherited document theme.",
       "html": "<div class=\"ds-switch-context\"><button type=\"button\" class=\"ds-switch\" aria-label=\"Switch to light mode\"><svg class=\"ds-switch-icon\" width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2 M12 20v2 M4.93 4.93l1.42 1.42 M17.65 17.65l1.42 1.42 M2 12h2 M20 12h2 M4.93 19.07l1.42-1.42 M17.65 6.35l1.42-1.42\"/></svg><span class=\"ds-switch-track\" aria-hidden=\"true\"><span class=\"ds-switch-thumb\"></span></span><svg class=\"ds-switch-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20.9 13A9 9 0 1 1 11 3.1 7 7 0 0 0 20.9 13Z\"/></svg></button></div>",
       "css": ".ds-switch-context{background:var(--ink,#14181b);padding:24px;}.ds-switch{display:flex;align-items:center;justify-content:center;gap:12px;padding:0;border:0;color:var(--paper,#f3f2eb);background:transparent;min-height:40px;cursor:pointer;}.ds-switch-track{width:48px;height:29px;border:1px solid var(--signal,#49c7a5);border-radius:30px;position:relative;}.ds-switch-thumb{position:absolute;width:20px;height:20px;left:4px;top:3px;border-radius:50%;background:var(--paper,#f3f2eb);transform:translateX(18px);transition:transform .3s cubic-bezier(.16,1,.3,1);}.ds-switch:hover{color:var(--paper,#f3f2eb);}.ds-switch:focus-visible{outline:2px solid var(--signal,#49c7a5);outline-offset:5px;}@media(max-width:1000px){.ds-switch{gap:9px;min-height:42px;}.ds-switch-track{width:40px;height:25px;}.ds-switch-thumb{width:17px;height:17px;left:3px;top:3px;transform:translateX(15px);}}@media(max-width:600px){.ds-switch-icon{display:none;}}@media(prefers-reduced-motion:reduce){.ds-switch-thumb{transition:none;}}:host-context([data-theme=\"light\"]) .ds-switch-thumb{transform:none;}"
+    },
+    {
+      "name": "Assistant Hexagon Launcher",
+      "kind": "button",
+      "refersTo": "assistant-launcher",
+      "description": "Viewport-fixed public launcher; this preview shows its local hexagonal geometry in normal flow.",
+      "html": "<button class=\"ds-assistant-launcher\" type=\"button\" aria-label=\"Open portfolio assistant\"><svg class=\"ds-assistant-hexagon\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M30 2 54.25 16v28L30 58 5.75 44V16Z\"/></svg><svg viewBox=\"0 0 24 24\" width=\"19\" height=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z\"/></svg></button>",
+      "css": ".ds-assistant-launcher { position:relative; display:grid; place-items:center; width:60px; height:60px; padding:0; border:0; background:transparent; color:var(--signal); cursor:pointer; transition:opacity .24s ease,filter .24s ease,transform .38s cubic-bezier(.16,1,.3,1); } .ds-assistant-hexagon { position:absolute; inset:0; width:100%; height:100%; fill:var(--panel); stroke:var(--signal); stroke-width:1.2; transition:fill .24s ease; } .ds-assistant-launcher > svg:last-child { position:relative; width:23px; height:23px; } .ds-assistant-launcher:hover { transform:translateY(-2px); } .ds-assistant-launcher:hover .ds-assistant-hexagon { fill:var(--signal-soft); } .ds-assistant-launcher:focus-visible { outline:2px solid var(--signal); outline-offset:4px; } .ds-assistant-launcher:active { transform:scale(.96); } @media(prefers-reduced-motion:reduce) { .ds-assistant-launcher { transition:opacity .08s ease; transform:none; } }"
+    },
+    {
+      "name": "Assistant Composer",
+      "kind": "custom",
+      "refersTo": "assistant-composer",
+      "description": "Owner-approved 28px local corner exception: mode, 16px input and 44px send/close controls in the fixed bottom composer. Preview is in normal flow.",
+      "html": "<div class=\"ds-assistant-composer\" role=\"group\" aria-label=\"Portfolio assistant composer\"><label class=\"ds-assistant-mode\"><svg viewBox=\"0 0 24 24\" width=\"19\" height=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z\"/></svg><select aria-label=\"Assistant mode\"><option>Visitor</option><option>Recruiter</option></select></label><input class=\"ds-assistant-input\" aria-label=\"Message\" placeholder=\"Ask about projects, skills or experience…\" maxlength=\"2000\"/><button class=\"ds-assistant-send\" type=\"button\" aria-label=\"Send message\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg></button><button class=\"ds-assistant-close\" type=\"button\" aria-label=\"Close assistant\"><svg viewBox=\"0 0 24 24\" width=\"19\" height=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"m6 6 12 12M18 6 6 18\"/></svg></button></div>",
+      "css": ".ds-assistant-composer { display:flex; align-items:center; gap:6px; box-sizing:border-box; width:min(680px,100%); height:76px; padding:10px 12px; border:1px solid var(--line-strong); border-radius:28px; background:var(--panel); color:var(--paper); } .ds-assistant-composer:focus-within { border-color:var(--signal); } .ds-assistant-mode { display:flex; flex-direction:column; align-items:center; justify-content:center; width:44px; align-self:stretch; flex:none; color:var(--signal); } .ds-assistant-mode:has(option:last-child:checked) { width:58px; } .ds-assistant-mode select { width:100%; border:0; border-radius:5px; background:transparent; color:var(--muted); padding:2px 0; font:11px/1.5 \"Public Sans\",sans-serif; cursor:pointer; } .ds-assistant-mode option { background:var(--panel); color:var(--paper); } .ds-assistant-input { flex:1; width:100%; min-width:0; border:0; outline:0; padding:10px 2px; background:transparent; color:var(--paper); caret-color:var(--signal); font:16px/1.5 \"Public Sans\",sans-serif; } .ds-assistant-input::placeholder { color:var(--muted); opacity:1; } .ds-assistant-send,.ds-assistant-close { display:grid; place-items:center; width:44px; height:44px; flex:none; border:0; border-radius:16px; padding:0; cursor:pointer; transition:color .24s ease,background-color .24s ease,transform .18s ease; } .ds-assistant-send { background:var(--signal); color:var(--on-action); } .ds-assistant-send:hover { background:var(--action-hover); } .ds-assistant-close { background:transparent; color:var(--muted); } .ds-assistant-close:hover { background:var(--panel-soft); color:var(--paper); } .ds-assistant-composer button:active { transform:scale(.94); } .ds-assistant-composer :is(button,select):focus-visible { outline:2px solid var(--signal); outline-offset:3px; } @media(max-width:600px) { .ds-assistant-composer { height:72px; padding:8px 9px; gap:3px; } } @media(prefers-reduced-motion:reduce) { .ds-assistant-composer :is(button,select) { transition-duration:.08s; } }"
+    },
+    {
+      "name": "Assistant Exchange",
+      "kind": "custom",
+      "refersTo": "assistant-message",
+      "description": "Compact latest exchange with 14px question, 13px author, 16px answer and a shared final-link/History baseline; conversation layout is projected with position-only springs in the app.",
+      "html": "<div class=\"ds-assistant-exchange\"><div class=\"ds-assistant-question\">What does the User Management Console do?</div><div class=\"ds-assistant-answer\"><div class=\"ds-assistant-author\"><i></i>Portfolio guide<small>14/15 today</small></div><p>A Bash-based Linux account lifecycle project with validation, rollback and CIS-mapped checks.</p><div class=\"ds-assistant-footer\"><a href=\"/projects\">View project</a><button type=\"button\" aria-expanded=\"false\"><svg viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 11a9 9 0 1 0 2.8-6.4L3 7\"/><path d=\"M3 3v4h4M12 7v5l3 2\"/></svg>History</button></div></div></div>",
+      "css": ".ds-assistant-exchange { display:flex; flex-direction:column; gap:6px; width:min(680px,100%); color:var(--paper); font-family:\"Public Sans\",sans-serif; } .ds-assistant-question { box-sizing:border-box; align-self:flex-end; width:85%; padding:8px 14px; border:1px solid var(--line); border-radius:20px 20px 6px 20px; background:var(--panel-soft); font-size:14px; line-height:20px; overflow-wrap:anywhere; } .ds-assistant-answer { box-sizing:border-box; width:calc(100% - 16px); padding:17px 20px; border:1px solid var(--line); border-radius:20px 20px 20px 6px; background:var(--panel); font-size:16px; line-height:1.6; overflow-wrap:anywhere; } .ds-assistant-author { display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:13px; line-height:22px; } .ds-assistant-author i { width:5px; height:5px; flex:none; border-radius:50%; background:var(--warm); } .ds-assistant-author small { margin-left:auto; color:var(--muted); font-size:11px; } .ds-assistant-answer p { margin:8px 0; } .ds-assistant-footer { display:flex; justify-content:space-between; align-items:baseline; gap:16px; min-height:36px; } .ds-assistant-footer a { color:var(--signal); text-decoration:underline; text-underline-offset:3px; transition:color .24s ease; } .ds-assistant-footer a:hover { color:var(--action-hover); } .ds-assistant-footer button { display:inline-flex; align-items:center; gap:6px; min-height:32px; border:0; border-radius:4px; padding:4px 0 0 8px; background:transparent; color:var(--muted); font:12px/1.5 \"Public Sans\",sans-serif; cursor:pointer; transition:color .24s ease; } .ds-assistant-footer button:hover { color:var(--signal); } .ds-assistant-footer :is(a,button):focus-visible { outline:2px solid var(--signal); outline-offset:3px; } .ds-assistant-footer button:active { color:var(--paper); } @media(max-width:600px) { .ds-assistant-answer { width:calc(100% - 10px); padding:14px 16px; } } @media(prefers-reduced-motion:reduce) { .ds-assistant-footer :is(a,button) { transition-duration:.08s; } }"
+    },
+    {
+      "name": "Hero Canvas Stage",
+      "kind": "custom",
+      "refersTo": "hero-canvas-element-surface",
+      "description": "Theme-bound project drawing with the real fixed grid, surface/emphasis treatments and independent desktop/mobile authoring geometry. This snippet illustrates desktop elements.",
+      "html": "<div class=\"ds-hero-canvas\" role=\"figure\" aria-label=\"Project canvas example\"><button class=\"ds-hero-canvas-element\" type=\"button\" aria-expanded=\"false\"><strong>Import</strong><span>Parse CSV/JSON imports and inspect account data.</span></button><svg class=\"ds-hero-canvas-arrow\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M1 50H98M86 24L98 50 86 76\" vector-effect=\"non-scaling-stroke\"/></svg><button class=\"ds-hero-canvas-element ds-hero-canvas-emphasis\" type=\"button\" aria-expanded=\"false\"><strong>Validate</strong><span>Check for policy compliance, duplicates, and required fields.</span></button></div>",
+      "css": ".ds-hero-canvas { position:relative; width:100%; min-height:300px; color:var(--field-paper); background-color:var(--field); background-image:linear-gradient(var(--field-grid) 1px,transparent 1px),linear-gradient(90deg,var(--field-grid) 1px,transparent 1px); background-size:47px 47px; } .ds-hero-canvas-element { position:absolute; left:5%; top:15%; width:40%; height:70%; display:flex; flex-direction:column; justify-content:center; align-items:stretch; gap:12px; padding:12px; border:1px solid var(--field-line); border-radius:5px; background:var(--field-dark); color:var(--field-paper); text-align:left; font:16px/1.5 \"Public Sans\",sans-serif; overflow-wrap:anywhere; overflow:auto; cursor:pointer; transition:background-color .26s ease,border-color .26s ease,color .26s ease; } .ds-hero-canvas-emphasis { left:55%; background:var(--signal-soft); border-color:var(--signal); } .ds-hero-canvas-element:hover { background:var(--field-selected); border-color:var(--signal); } .ds-hero-canvas-element:focus-visible { outline:2px solid var(--signal); outline-offset:3px; } .ds-hero-canvas-element:active { color:var(--signal); } .ds-hero-canvas-arrow { position:absolute; left:46%; top:47%; width:8%; height:6%; overflow:visible; fill:none; stroke:var(--warm); stroke-width:1; } @media(prefers-reduced-motion:reduce) { .ds-hero-canvas-element { transition-duration:.08s; } }"
     }
   ],
   "narrative": {

@@ -1,3 +1,5 @@
+import type { HeroCanvasConfig } from './heroCanvas';
+
 export interface Project {
   id?: string;
   name: string;
@@ -209,6 +211,8 @@ export interface InterfaceCopy {
 }
 
 export interface SiteSettings {
+  /** Optional versioned project scene layout. Missing data keeps the original hero. */
+  heroCanvas?: HeroCanvasConfig;
   name: string;
   shortName: string;
   location: string;

@@ -1,6 +1,7 @@
 @import "tailwindcss" source("./");
 @import "./admin.css" layer(admin);
 @import "./signal-background.css";
+@import "./assistant-launcher.css";
 @config "../tailwind.config.js";
 
 @font-face {
@@ -1739,168 +1740,6 @@ a {
     transform: rotate(360deg);
   }
 }
-/* Assistant UI; the existing gateway and data context remain unchanged. */
-.chatbot-dock {
-  position: absolute;
-  right: calc(372 * var(--u));
-  top: calc(14 * var(--u));
-  z-index: 60;
-}
-.chatbot-launch {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  padding: 13px 17px;
-  background: var(--panel);
-  color: var(--paper);
-  font-size: 13px;
-  box-shadow: 0 6px 20px #0002;
-}
-.chatbot-launch > svg {
-  color: var(--signal);
-}
-.chatbot-panel {
-  position: fixed;
-  right: 24px;
-  top: calc(76 * var(--u) + 14px);
-  display: flex;
-  flex-direction: column;
-  width: 365px;
-  height: min(550px, calc(100dvh - 105px));
-  background: var(--ink);
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  box-shadow: 0 12px 40px #0005;
-  overflow: hidden;
-}
-.chatbot-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px;
-  border-bottom: 1px solid var(--line);
-}
-.chatbot-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.chatbot-orb {
-  color: var(--signal);
-  display: flex;
-}
-.chatbot-title strong {
-  font-size: 14px;
-  font-weight: 600;
-}
-.chatbot-title small {
-  display: block;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 3px;
-}
-.chat-icon-button {
-  background: transparent;
-  color: var(--muted);
-  border: 0;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-}
-.chatbot-modes {
-  display: flex;
-  gap: 6px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
-}
-.chatbot-modes button {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  padding: 7px 12px;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  background: transparent;
-  color: var(--muted);
-}
-.chatbot-modes button.active {
-  background: var(--signal-soft);
-  color: var(--paper);
-  border-color: var(--line);
-}
-.chatbot-messages {
-  overflow: auto;
-  flex: 1;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.chat-message {
-  padding: 12px 14px;
-  font-size: 13px;
-  line-height: 1.7;
-  border-radius: 3px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.chat-message.model {
-  background: var(--panel);
-  color: var(--paper);
-  margin-right: 16px;
-}
-.chat-message.user {
-  background: var(--signal-soft);
-  color: var(--paper);
-  margin-left: 16px;
-}
-.chatbot-form {
-  margin: 0 16px;
-  display: flex;
-  border: 1px solid var(--line-strong);
-  border-radius: 3px;
-}
-.chatbot-form input {
-  min-width: 0;
-  flex: 1;
-  font-size: 12px;
-  background: transparent;
-  border: 0;
-  color: var(--paper);
-  padding: 12px;
-}
-.chatbot-form input::placeholder {
-  color: var(--muted);
-}
-.chatbot-form button {
-  width: 42px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  background: var(--signal);
-  color: var(--on-action);
-}
-.chatbot-limit {
-  font: 9px var(--mono);
-  color: var(--muted);
-  text-align: center;
-  padding: 12px;
-}
-.typing-dots {
-  display: flex;
-  gap: 5px;
-}
-.typing-dots span {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--signal);
-  animation: skeleton 1s infinite;
-}
 /* Private workspace controls share the public theme roles. */
 .admin-app {
   background: var(--ink);
@@ -2177,10 +2016,6 @@ a {
   }
   .site-nav-wrap {
     height: 76px;
-  }
-  .chatbot-dock {
-    top: 18px;
-    right: 210px;
   }
   .site-nav {
     padding: 0 28px;
@@ -2985,27 +2820,6 @@ a {
     font-size: 9px;
     padding-top: 18px;
   }
-  .chatbot-dock {
-    right: 126px;
-    top: 14px;
-  }
-  .chatbot-launch {
-    padding: 12px;
-    border-radius: 4px;
-  }
-  .chatbot-launch > span {
-    display: none;
-  }
-  .chatbot-launch > svg {
-    width: 20px;
-    height: 20px;
-  }
-  .chatbot-panel {
-    top: 76px;
-    right: 15px;
-    width: min(360px, calc(100vw - 30px));
-    height: min(540px, calc(100dvh - 90px));
-  }
   .not-found {
     padding: 60px 20px;
   }
@@ -3132,8 +2946,6 @@ body,
 .hero-context,
 .page-intro,
 .site-footer,
-.chatbot-launch,
-.chatbot-panel,
 .admin-app,
 .admin-panel {
   transition:
@@ -3357,15 +3169,6 @@ body,
 .credential-mark {
   border-color: var(--line-strong);
 }
-.chatbot-launch {
-  width: 40px;
-  height: 40px;
-  padding: 9px;
-  gap: 0;
-}
-.chatbot-launch > span {
-  display: none;
-}
 @media (max-width: 1000px) {
   .credential-strip {
     padding-top: 0;
@@ -3528,8 +3331,6 @@ body,
 .menu-button.is-open .menu-glyph i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 .menu-button.is-open .menu-glyph i:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
 .menu-button.is-open .menu-glyph i:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-.chatbot-panel { z-index: 70; transform-origin: top right; }
-.chatbot-launch.is-active { background: var(--signal-soft); border-color: var(--signal); }
 @media (max-width: 1000px) {
   .mobile-panel { max-height: calc(100dvh - 76px); overflow-y: auto; overscroll-behavior: contain; }
   .journal-card { grid-template-columns: 115px minmax(0, 1fr); gap: 20px 28px; }
@@ -3567,8 +3368,8 @@ body,
 .text-link:is(:hover, :focus-visible) > svg { transform: translate(2px, -2px); }
 .button:is(:hover, :focus-visible) > svg, .nav-cta:is(:hover, :focus-visible) > svg { transform: translateX(3px); }
 .button:active, .nav-cta:active { transform: translateY(1px); }
-.button, .nav-cta, .chat-icon-button, .chatbot-modes button, .chatbot-form button, .contact-form button, .article-footer button { transition: background-color 0.26s ease, color 0.26s ease, border-color 0.26s ease, transform 0.2s ease; }
-.chat-icon-button:hover, .chatbot-modes button:hover, .article-footer button:not(:disabled):hover { background: var(--signal-soft); color: var(--signal); }
+.button, .nav-cta, .contact-form button, .article-footer button { transition: background-color 0.26s ease, color 0.26s ease, border-color 0.26s ease, transform 0.2s ease; }
+.article-footer button:not(:disabled):hover { background: var(--signal-soft); color: var(--signal); }
 .contact-form input, .contact-form textarea { transition: border-color 0.26s ease, background-color 0.26s ease; }
 .contact-form :is(input, textarea):hover { border-color: var(--signal); }
 .platform-directory > a { transition: background-color 0.3s ease, color 0.26s ease, border-color 0.3s ease; }
@@ -3779,8 +3580,6 @@ body,
 /* One thin form boundary changes state; focus never stacks a colored halo. */
 :is(.contact-form input, .contact-form textarea, .admin-input, .admin-login-card input) { outline: none; box-shadow: none; transition: border-color 0.2s ease, background-color 0.2s ease; }
 :is(.contact-form input, .contact-form textarea, .admin-input, .admin-login-card input):focus { outline: none; box-shadow: none; border-color: var(--signal); }
-.chatbot-form:focus-within { border-color: var(--signal); }
-.chatbot-form input:focus { outline: none; box-shadow: none; }
 .copy-code { font: 0.85em/1.5 var(--mono); color: var(--paper); background: var(--panel-soft); padding: 0.12em 0.3em; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; overflow-wrap: anywhere; }
 .page-title strong, .hero-title strong { font-weight: 800; }
 .copy-emphasis { font-synthesis: style; }
