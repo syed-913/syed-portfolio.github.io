@@ -1,112 +1,110 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { forwardRef, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import '../../assistant.css';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion, usePresence, useReducedMotion } from 'framer-motion';
-import { Bot, BriefcaseBusiness, Send, UserRound, X } from 'lucide-react';
-import { addItem, getPublicCertificates, getPublicExperience, getPublicPosts, getPublicProjects } from '../../services/db';
-import { useSiteSettings } from '../../hooks/useSiteSettings';
+import { AnimatePresence, LayoutGroup, motion, useIsPresent, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight, MessageCircle, ChevronDown, History, Send, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ASSISTANT_DAILY_LIMIT, usePortfolioAssistant, type AssistantMessage, type AssistantMode } from '../../hooks/usePortfolioAssistant';
+import { SafeMarkdown } from '../ui/SafeMarkdown';
 
+const spring = { type: 'spring' as const, stiffness: 240, damping: 28, mass: 1 };
 
-// Hold the exit's final pixels until React removes the overlay. Committing the
-// end state before cancelling WAAPI prevents its underlying opacity resurfacing.
-const AssistantPanel = ({ children, panelRef }: { children: ReactNode; panelRef: RefObject<HTMLElement | null> }) => {
-  const [present, safeToRemove] = usePresence();
+const AssistantFrame = ({ children, panelRef, reduced, paused }: { children: ReactNode; panelRef: RefObject<HTMLElement | null>; reduced: boolean; paused: boolean }) => {
+  const present = useIsPresent();
+  return <div className="assistant-position" data-paused={paused || !present || undefined} aria-hidden={!present} inert={!present}>
+    <motion.section ref={panelRef} id="portfolio-assistant" className="assistant-dock" aria-label="Portfolio assistant" tabIndex={-1} style={{ pointerEvents: present ? 'auto' : 'none' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: reduced ? 0.08 : 0.18 } }}>{children}</motion.section>
+  </div>;
+};
+
+const MessageBubble = forwardRef<HTMLDivElement, { message: AssistantMessage; reduced: boolean; remaining?: number; footer?: ReactNode; retry: () => void; retryDisabled: boolean }>(function MessageBubble({ message, reduced, remaining, footer, retry, retryDisabled }, ref) {
+  const present = useIsPresent();
+  return <motion.div ref={ref} layout={reduced ? false : 'position'} className={`assistant-message ${message.role}`} aria-hidden={!present} inert={!present} initial={reduced ? { opacity: 0 } : { opacity: 0, y: message.role === 'user' ? 14 : 10, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: reduced ? 0 : -5, transition: { duration: 0.12 } }} transition={reduced ? { duration: 0.08 } : spring} style={{ transformOrigin: message.role === 'user' ? 'bottom right' : 'bottom left', pointerEvents: present ? 'auto' : 'none' }}>
+    {message.role === 'model' && <span className="assistant-author"><i/>Portfolio guide{remaining !== undefined && <small>{remaining}/{ASSISTANT_DAILY_LIMIT} today</small>}</span>}
+    <div className="assistant-message-copy"><SafeMarkdown>{message.text}</SafeMarkdown></div>
+    {message.failedQuery && <div className="assistant-recovery"><button type="button" disabled={retryDisabled} onClick={retry}>Try again</button><Link to="/contact">Contact <ArrowUpRight size={13}/></Link></div>}
+    {footer && <div className="assistant-message-footer">{footer}</div>}
+  </motion.div>;
+});
+
+export const FloatingChatbot = ({ open, onClose, onExitComplete }: { open: boolean; onClose: (restoreFocus?: boolean) => void; onExitComplete: () => void }) => {
+  const assistant = usePortfolioAssistant(open);
   const reduce = useReducedMotion();
+  const [history, setHistory] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
+  const [barSize, setBarSize] = useState({ width: 680, height: 76 });
+  const panel = useRef<HTMLElement>(null), input = useRef<HTMLInputElement>(null), viewport = useRef<HTMLDivElement>(null), bar = useRef<HTMLFormElement>(null);
+  const lastQuestion = assistant.messages.map(message => message.role).lastIndexOf('user');
+  const visibleMessages = history ? assistant.messages : assistant.messages.length === 1 && assistant.messages[0].id === 'welcome' ? [] : assistant.messages.slice(Math.max(0, lastQuestion >= 0 ? lastQuestion : assistant.messages.length - 1));
+  const hasHistory = lastQuestion > 0;
+
   useEffect(() => {
-    const element = panelRef.current;
-    if (!element) return;
-    const current = getComputedStyle(element);
-    const reduced = reduce || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const first = element.dataset.entered !== 'true' && Number(current.opacity) < 0.001;
-    const end = { opacity: present ? '1' : '0', transform: reduced ? 'none' : present ? 'translateY(0px)' : 'translateY(8px)' };
-    const animation = element.animate([
-      { opacity: first ? '0' : current.opacity, transform: reduced ? 'none' : first ? 'translateY(20px)' : current.transform },
-      end,
-    ], { duration: reduced ? 80 : present ? 420 : 140, delay: first && present && !reduced ? 70 : 0, easing: present ? 'cubic-bezier(0.16,1,0.3,1)' : 'cubic-bezier(0.4,0,1,1)', fill: 'both' });
-    let cancelled = false;
-    animation.finished.then(() => {
-      if (cancelled) return;
-      if (present) element.dataset.entered = 'true';
-      element.style.opacity = end.opacity;
-      element.style.transform = end.transform;
-      animation.cancel();
-      if (!present) safeToRemove?.();
-    }).catch(() => undefined);
-    return () => {
-      cancelled = true;
-      const frame = getComputedStyle(element);
-      // A development effect replay at opacity zero is still a first arrival.
-      // A visible interrupted frame must continue without restarting the delay.
-      if (Number(frame.opacity) >= 0.001) element.dataset.entered = 'true';
-      element.style.opacity = frame.opacity;
-      element.style.transform = frame.transform;
-      animation.cancel();
+    const update = () => setPageVisible(document.visibilityState !== 'hidden');
+    document.addEventListener('visibilitychange', update); update();
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
+  useEffect(() => {
+    if (!open) return;
+    const key = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+    const outside = (event: MouseEvent) => {
+      if (!(event.target instanceof Element) || panel.current?.contains(event.target) || event.target.closest('.assistant-launcher, a[href]')) return;
+      onClose(false);
     };
-  }, [present, reduce, safeToRemove, panelRef]);
-  return <section ref={panelRef} id="portfolio-assistant" className="chatbot-panel" aria-label="Portfolio assistant" tabIndex={-1} style={{ opacity: 0 }}>{children}</section>;
-};
+    const timer = window.setTimeout(() => {
+      const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+      (touch ? panel.current : input.current)?.focus({ preventScroll: true });
+    }, reduce ? 0 : 180);
+    document.addEventListener('keydown', key); document.addEventListener('click', outside);
+    return () => { clearTimeout(timer); document.removeEventListener('keydown', key); document.removeEventListener('click', outside); };
+  }, [open, onClose, reduce]);
+  useEffect(() => {
+    if (!open || !bar.current) return;
+    const observer = new ResizeObserver(entries => {
+      const box = entries[0].contentRect;
+      setBarSize(previous => Math.abs(previous.width - box.width) < 1 && Math.abs(previous.height - box.height) < 1 ? previous : { width: box.width, height: box.height });
+    });
+    observer.observe(bar.current); return () => observer.disconnect();
+  }, [open]);
+  useEffect(() => {
+    if (!open || !window.visualViewport) return;
+    const visual = window.visualViewport;
+    const update = () => {
+      const position = panel.current?.parentElement;
+      position?.style.setProperty('--assistant-keyboard-gap', `${Math.max(0, window.innerHeight - visual.height - visual.offsetTop)}px`);
+      position?.style.setProperty('--assistant-viewport-height', `${visual.height}px`);
+    };
+    update(); visual.addEventListener('resize', update); visual.addEventListener('scroll', update);
+    return () => { visual.removeEventListener('resize', update); visual.removeEventListener('scroll', update); };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const frame = requestAnimationFrame(() => viewport.current?.scrollTo({ top: viewport.current.scrollHeight, behavior: reduce ? 'instant' : 'smooth' }));
+    return () => cancelAnimationFrame(frame);
+  }, [assistant.messages, assistant.typing, history, open, reduce]);
 
-type Role = 'NORMAL' | 'RECRUITER';
-type ChatMessage = { role: 'user' | 'model'; text: string };
-
-const DAILY_LIMIT = 15;
-const RATE_LIMIT_KEY = 'chatbot_usage';
-const todayKey = () => new Date().toISOString().slice(0, 10);
-const getRemaining = () => { try { const raw=localStorage.getItem(RATE_LIMIT_KEY); if(!raw)return DAILY_LIMIT; const parsed=JSON.parse(raw) as {date:string;count:number}; return parsed.date===todayKey()?Math.max(0,DAILY_LIMIT-parsed.count):DAILY_LIMIT; } catch { return DAILY_LIMIT; } };
-const recordUse = () => { const date=todayKey(); try { const raw=localStorage.getItem(RATE_LIMIT_KEY); const parsed=raw?JSON.parse(raw):null; const count=parsed?.date===date?parsed.count+1:1; localStorage.setItem(RATE_LIMIT_KEY,JSON.stringify({date,count})); } catch {} };
-
-const prompts: Record<Role, string> = {
-  NORMAL: 'You are the portfolio assistant for the person described in the authoritative portfolio data below. Help visitors understand only what is evidenced in the current portfolio data supplied below. System administration is a foundation, while infrastructure, cloud, automation, Kubernetes and reliability are valid directions when supported by the data. Never invent skills, dates, employers, projects or seniority. Clearly distinguish professional experience from labs, projects, certifications and formal education. Be warm, concise and specific.',
-  RECRUITER: 'You are the portfolio assistant for recruiters and hiring managers evaluating the person described in the authoritative portfolio data below. Use only the current portfolio data supplied below. Summarize evidence relevant to infrastructure, Linux system administration, DevOps, cloud, Kubernetes-adjacent and SRE-oriented opportunities without inflating seniority. Separate professional experience from labs, projects, certifications and formal education. If evidence is missing, say so. Encourage a direct conversation when there is a plausible role fit.',
-};
-
-export const FloatingChatbot = ({ open, onClose, onExitComplete }: { open: boolean; onClose: () => void; onExitComplete: () => void }) => {
-  const { settings } = useSiteSettings();
-  const reduce = useReducedMotion();
-  const [role, setRole] = useState<Role>('NORMAL');
-  const [messages, setMessages] = useState<ChatMessage[]>([{ role:'model', text:'Hi — I can help you find the relevant parts of this portfolio without making you hunt through every page.' }]);
-  const [input,setInput]=useState(''); const [typing,setTyping]=useState(false); const [remaining,setRemaining]=useState(getRemaining);
-  const [sessionId]=useState(()=>`sess_${Date.now()}_${Math.random().toString(36).slice(2,9)}`); const[portfolioContext,setPortfolioContext]=useState('');
-  const contextLoaded=useRef(false); const bottomRef=useRef<HTMLDivElement>(null);
-  const inputRef=useRef<HTMLInputElement>(null); const panelRef=useRef<HTMLElement>(null);
-  useEffect(()=>{
-    if(!open)return;
-    const timer=window.setTimeout(()=>{
-      const touch=window.matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0;
-      const target=touch?panelRef.current:inputRef.current;
-      target?.focus({preventScroll:true});
-    },reduce?0:100);
-    return()=>window.clearTimeout(timer);
-  },[open,reduce]);
-
-  useEffect(()=>{ const container=bottomRef.current?.parentElement;container?.scrollTo({top:container.scrollHeight,behavior:reduce?'auto':'smooth'}); },[messages,typing,open,reduce]);
-  useEffect(()=>{
-    if(!open)return;
-    const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')onClose()};
-    window.addEventListener('keydown',onKey);
-    return()=>window.removeEventListener('keydown',onKey);
-  },[open,onClose]);
-  useEffect(()=>{
-    if(!open||contextLoaded.current)return;
-    const timer=window.setTimeout(()=>{
-      contextLoaded.current=true;
-      Promise.all([getPublicProjects().catch(()=>[]),getPublicExperience().catch(()=>[]),getPublicCertificates().catch(()=>[]),getPublicPosts().catch(()=>[])])
-        .then(([projects,experience,certificates,posts])=>setPortfolioContext(JSON.stringify({profile:{name:settings.name,location:settings.location,availability:settings.availability,positioning:settings.heroBody,profile:settings.aboutBody,currentFocus:settings.currentFocus,capabilities:settings.capabilities},professionalExperience:experience.map(({role,company,duration,startDate,endDate,description,techStack})=>({role,company,duration,startDate,endDate,description,techStack})),projects:projects.map(({name,description,command,url,problem,built,decisions,outcome,learnings,stack})=>({name,description,command,url,problem,built,decisions,outcome,learnings,stack})),credentials:certificates.filter(item=>item.entryType!=='education').map(({name,issuer,date,category,credentialId})=>({name,issuer,date,category,credentialId})),education:certificates.filter(item=>item.entryType==='education').map(({name,institution,field,startDate,endDate,educationStatus,details})=>({name,institution,field,startDate,endDate,educationStatus,details})),writing:posts.slice(0,12).map(({title,date,tags,slug})=>({title,date,tags,slug}))})));
-    },260);
-    return()=>window.clearTimeout(timer);
-  },[open,settings]);
-  if(!settings.chatbotEnabled)return null;
-
-  const send=async(event?:React.FormEvent)=>{event?.preventDefault();const userMessage=input.trim();if(!userMessage||typing||remaining<=0)return;setInput('');recordUse();setRemaining(getRemaining());setMessages(p=>[...p,{role:'user',text:userMessage}]);setTyping(true);try{const proxyUrl=import.meta.env.VITE_GEMINI_PROXY_URL;if(!proxyUrl)throw new Error('AI gateway is not configured.');const recent=[...messages,{role:'user' as const,text:userMessage}].slice(-6);const response=await fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{role:'system',parts:[{text:`${prompts[role]}\n\nCURRENT PORTFOLIO DATA (authoritative):\n${portfolioContext||JSON.stringify({profile:{name:settings.name,positioning:settings.heroBody,currentFocus:settings.currentFocus}})}`}]},contents:recent.map(message=>({role:message.role,parts:[{text:message.text}]})),temperature: role === 'RECRUITER' ? 0.2 : 0.55, topP: role === 'RECRUITER' ? 0.8 : 0.92})});if(!response.ok)throw new Error(`AI gateway returned ${response.status}.`);const data=await response.json();const text=data?.candidates?.[0]?.content?.parts?.[0]?.text??'I could not generate a response.';setMessages(p=>[...p,{role:'model',text}]);addItem('chatLogs',{sessionId,timestamp:new Date().toISOString(),mode:role,userQuery:userMessage,aiResponse:text}).catch(()=>undefined)}catch(error){setMessages(p=>[...p,{role:'model',text:error instanceof Error?`The assistant is temporarily unavailable. ${error.message}`:'The assistant is temporarily unavailable.'}])}finally{setTyping(false)}};
-  const switchRole=(next:Role)=>{setRole(next);setMessages([{role:'model',text:next==='RECRUITER'?'Recruiter mode on. Ask about fit, experience, projects, education or credentials.':'Standard mode on. What would you like to know?'}])};
-
+  if (!assistant.settings.chatbotEnabled) return null;
+  const transition = reduce ? { duration: 0.08 } : spring;
   return createPortal(<AnimatePresence onExitComplete={onExitComplete}>
-      {open && <AssistantPanel key="panel" panelRef={panelRef}>
-        <header className="chatbot-header"><div className="chatbot-title"><span className="chatbot-orb"><Bot size={18}/></span><div><strong>Ask about {settings.shortName.split(' ')[0]}</strong><small>Portfolio guide</small></div></div><button className="chat-icon-button" onClick={onClose} aria-label="Close assistant"><X size={19}/></button></header>
-        <div className="chatbot-modes"><button className={role==='NORMAL'?'active':''} aria-pressed={role==='NORMAL'} onClick={()=>switchRole('NORMAL')}><UserRound size={14}/>Visitor</button><button className={role==='RECRUITER'?'active':''} aria-pressed={role==='RECRUITER'} onClick={()=>switchRole('RECRUITER')}><BriefcaseBusiness size={14}/>Recruiter</button></div>
-        <div className="chatbot-messages" aria-live="polite">{messages.map((message,index)=><motion.div initial={reduce?false:{opacity:0,y:7}} animate={{opacity:1,y:0}} transition={{duration:.25}} key={index} className={`chat-message ${message.role}`}>{message.text}</motion.div>)}{typing&&<div className="chat-message model typing-dots"><span/><span/><span/></div>}<div ref={bottomRef}/></div>
-        <form className="chatbot-form" onSubmit={send}><input ref={inputRef} value={input} onChange={e=>setInput(e.target.value)} placeholder={remaining?'Ask about experience, projects, skills…':'Daily limit reached'} disabled={!remaining} aria-label="Message"/><button type="submit" disabled={!input.trim()||typing||!remaining} aria-label="Send message"><Send size={16}/></button></form>
-        <div className="chatbot-limit">{remaining}/{DAILY_LIMIT} questions remaining today</div>
-      </AssistantPanel>}
-    </AnimatePresence>, document.body);
-
+    {open && <AssistantFrame key="position" panelRef={panel} reduced={!!reduce} paused={!pageVisible}>
+        <LayoutGroup id="portfolio-conversation">
+          <span className="sr-only" id="assistant-quota">{assistant.remaining} of {ASSISTANT_DAILY_LIMIT} questions remaining today.</span>
+          <div ref={viewport} className={`assistant-messages ${history ? 'has-history' : ''}`} id="assistant-messages" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions text">
+            <AnimatePresence initial={false} mode="popLayout">
+              {visibleMessages.map(message => <MessageBubble key={message.id} message={message} reduced={!!reduce} remaining={message.role === 'model' && message.id === assistant.messages.at(-1)?.id ? assistant.remaining : undefined} retry={() => void assistant.send(message.failedQuery)} retryDisabled={assistant.typing || !assistant.remaining} footer={hasHistory && message.role === 'model' && message.id === assistant.messages.at(-1)?.id ? <button type="button" aria-expanded={history} aria-controls="assistant-messages" onClick={() => setHistory(value => !value)}><History size={14}/>{history ? 'Latest exchange' : 'History'}</button> : undefined}/>)}
+              {assistant.typing && <motion.div key="typing" layout={reduce ? false : 'position'} className="assistant-typing" role="status" initial={{ opacity: 0, scale: reduce ? 1 : 0.86, y: reduce ? 0 : 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: reduce ? 1 : 0.9, transition: { duration: 0.1 } }} transition={transition}><span className="sr-only">Portfolio assistant is typing</span><i/><i/><i/></motion.div>}
+            </AnimatePresence>
+          </div>
+        </LayoutGroup>
+        <form ref={bar} className="assistant-composer" onSubmit={event => { event.preventDefault(); void assistant.send(); input.current?.focus({ preventScroll: true }); }}>
+          <motion.div className="assistant-composer-surface" aria-hidden="true" initial={reduce ? { opacity: 0 } : { scaleX: 0.06, opacity: 0.4 }} animate={{ scaleX: 1, opacity: 1 }} exit={{ scaleX: reduce ? 1 : 0.08, opacity: 0, transition: { duration: reduce ? 0.08 : 0.16 } }} transition={reduce ? { duration: 0.08 } : { type: 'spring', stiffness: 150, damping: 25, mass: 1.1 }}>
+            <svg className="assistant-edge" viewBox={`0 0 ${barSize.width} ${barSize.height}`} preserveAspectRatio="none"><rect x="1" y="1" width={Math.max(1, barSize.width - 2)} height={Math.max(1, barSize.height - 2)} rx="27" pathLength="100"/></svg>
+          </motion.div>
+          <motion.div className="assistant-composer-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: reduce ? 0.08 : 0.28, delay: reduce ? 0 : 0.14 }}>
+            <label className="assistant-mode"><MessageCircle size={19}/><span className="sr-only">Assistant mode</span><select value={assistant.mode} disabled={assistant.typing} onChange={event => { assistant.switchMode(event.target.value as AssistantMode); setHistory(false); }} aria-label="Assistant mode"><option value="NORMAL">Visitor</option><option value="RECRUITER">Recruiter</option></select><ChevronDown size={10}/></label>
+            <label className="assistant-prompt"><span className="sr-only">Message</span><input ref={input} value={assistant.input} onChange={event => assistant.setInput(event.target.value)} aria-label="Message" aria-describedby="assistant-quota" placeholder={assistant.remaining ? 'Ask about projects, skills or experience…' : 'Daily limit reached'} maxLength={2000} disabled={!assistant.remaining} autoComplete="off"/><span aria-hidden="true" className="assistant-short-prompt">{assistant.remaining ? 'Ask Syed…' : 'Limit reached'}</span></label>
+            <button type="submit" className="assistant-send" disabled={!assistant.input.trim() || assistant.typing || !assistant.remaining} aria-label="Send message"><Send size={18}/></button>
+            <button type="button" className="assistant-close" onClick={() => onClose()} aria-label="Close assistant"><X size={19}/></button>
+          </motion.div>
+        </form>
+    </AssistantFrame>}
+  </AnimatePresence>, document.body);
 };

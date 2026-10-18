@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { siteDefaults } from '../data/siteDefaults';
 import { scheduleAfterPaint } from '../lib/idle';
 import type { SiteSettings } from '../types/database';
@@ -24,22 +24,27 @@ export const SiteSettingsContext = createContext<SiteSettingsContextValue>({ set
 export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<SiteSettings>(readWarmSettings);
   const [loading, setLoading] = useState(true);
+  const revision = useRef(0);
+
+  useEffect(() => {
+    try { sessionStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(settings)); } catch { /* Optional storage. */ }
+  }, [settings]);
 
   useEffect(() => {
     let active = true;
     const updateCopy = (event: Event) => {
-      const next = (event as CustomEvent<SiteSettings>).detail;
-      setSettings(next);
-      try { sessionStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(next)); } catch { /* no-op */ }
+      const patch = (event as CustomEvent<Partial<SiteSettings>>).detail;
+      revision.current += 1;
+      setSettings(previous => ({ ...previous, ...patch }));
     };
     window.addEventListener('portfolio:site-copy-updated', updateCopy);
     const cancel = scheduleAfterPaint(() => {
+      const startedAtRevision = revision.current;
       import('../services/db')
         .then(({ getSiteSettings }) => getSiteSettings())
         .then((next) => {
-          if (!active) return;
+          if (!active || revision.current !== startedAtRevision) return;
           setSettings(next);
-          try { sessionStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(next)); } catch { /* no-op */ }
         })
         .catch(() => undefined)
         .finally(() => active && setLoading(false));

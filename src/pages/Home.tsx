@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -12,32 +12,10 @@ import { scheduleAfterPaint } from "../lib/idle";
 import { InlineCopy, InlineCopyLines } from "../components/ui/InlineCopy";
 import type { Certificate, Experience, Project } from "../types/database";
 
-const stages = [
-  {
-    name: "Import",
-    caption: "Parse CSV/JSON imports and inspect account data.",
-    detail:
-      "Review imported account data before it reaches system files. The console accepts bulk CSV and JSON input.",
-  },
-  {
-    name: "Validate",
-    caption: "Check for policy compliance, duplicates, and required fields.",
-    detail:
-      "Validation checks input and account policy before changes. A dry run lets you inspect the intended operations.",
-  },
-  {
-    name: "Commit",
-    caption: "Apply approved changes to the system.",
-    detail:
-      "Transactional account changes include rollback and crash recovery. The project implements Linux account lifecycle operations in Bash.",
-  },
-  {
-    name: "Audit",
-    caption: "Inspect account configuration and review change records.",
-    detail:
-      "CIS-mapped checks inspect account configuration. Transaction history and hash-chained JSONL logs record changes, with structured journald logging where available. Read the repository for implementation and test evidence.",
-  },
-];
+import { consoleWorkflow as stages } from "../data/consoleWorkflow";
+import { normalizeHeroCanvas, publicCanvasScenes } from "../lib/heroCanvas";
+const HeroProjectCanvas = lazy(() => import("../components/features/HeroProjectCanvas"));
+
 function WorkflowGlyph({ stage }: { stage: string }) {
   return (
     <span
@@ -77,6 +55,7 @@ function WorkflowGlyph({ stage }: { stage: string }) {
 }
 export default function Home() {
   const { settings } = useSiteSettings();
+  const customCanvas = useMemo(() => normalizeHeroCanvas(settings.heroCanvas), [settings.heroCanvas]);
   const [data, setData] = useState<{
     projects: Project[];
     certificates: Certificate[];
@@ -116,6 +95,7 @@ export default function Home() {
   const project =
     data.projects.find((p) => /user.management.console/i.test(p.name)) ??
     data.projects[0];
+  const hasCustomCanvas = !!customCanvas && publicCanvasScenes(customCanvas, data.projects).length > 0;
   const isConsole = !!project && /user.management.console/i.test(project.name);
   const evidence = [
     {
@@ -194,11 +174,13 @@ export default function Home() {
               {settings.availability}
             </span>
           </div>
-          <div className="project-specimen" aria-label="Featured project">
+          <div className={`project-specimen${hasCustomCanvas ? " has-custom-canvas" : ""}`} aria-label="Featured project">
             {loading ? (
               <div className="specimen-pending" role="status">
                 Loading selected project…
               </div>
+            ) : hasCustomCanvas && customCanvas ? (
+              <Suspense fallback={<div className="specimen-pending" role="status">Loading project canvas…</div>}><HeroProjectCanvas config={customCanvas} projects={data.projects}/></Suspense>
             ) : project ? (
               <>
                 <div className="specimen-heading">

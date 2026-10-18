@@ -12,6 +12,7 @@ import {
 import { publicDb as db } from '../lib/publicFirebase';
 import type { BlogPost, Certificate, Experience, Project, SiteSettings } from '../types/database';
 import { siteDefaults } from '../data/siteDefaults';
+import { normalizeHeroCanvas } from '../lib/heroCanvas';
 
 const CACHE_KEY = 'portfolio:public-data:v12';
 const DEFAULT_TTL = 5 * 60 * 1000;
@@ -19,6 +20,7 @@ const DEFAULT_TTL = 5 * 60 * 1000;
 type CacheEnvelope = Record<string, { expires: number; value: unknown }>;
 
 const memory = new Map<string, { expires: number; value: unknown }>();
+let cacheGeneration = 0;
 
 const readSessionCache = (): CacheEnvelope => {
   try {
@@ -56,10 +58,13 @@ const storeCached = <T,>(key: string, value: T, ttl = DEFAULT_TTL) => {
 const withCache = async <T,>(key: string, loader: () => Promise<T>, ttl = DEFAULT_TTL): Promise<T> => {
   const cached = readCached<T>(key);
   if (cached !== null) return cached;
-  return storeCached(key, await loader(), ttl);
+  const generation = cacheGeneration;
+  const value = await loader();
+  return generation === cacheGeneration ? storeCached(key, value, ttl) : value;
 };
 
 export const invalidatePublicCache = (prefix?: string) => {
+  cacheGeneration += 1;
   if (!prefix) memory.clear();
   else [...memory.keys()].filter((key) => key.startsWith(prefix)).forEach((key) => memory.delete(key));
 
@@ -78,6 +83,7 @@ const containsImplementationDetail = (value?: string) => /firebase|cloudflare|we
 
 const sanitizePublicSettings = (settings: SiteSettings): SiteSettings => ({
   ...settings,
+  heroCanvas: normalizeHeroCanvas(settings.heroCanvas),
   aboutBody: /(?:about\s+)?(?:~?\s*)?(?:1|one)\s+year.*professional experience/i.test(settings.aboutBody) ? siteDefaults.aboutBody : settings.aboutBody,
   contactIntro: containsImplementationDetail(settings.contactIntro) ? siteDefaults.contactIntro : settings.contactIntro,
   ui: {

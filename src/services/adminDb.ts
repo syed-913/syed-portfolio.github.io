@@ -14,6 +14,8 @@ import { adminDb as db } from '../lib/adminFirebase';
 import type { BlogPost, Certificate, ContactMessage, Experience, Project, SiteSettings } from '../types/database';
 import { siteDefaults } from '../data/siteDefaults';
 import { invalidatePublicCache as clearPublishedCache } from './db';
+import type { HeroCanvasConfig } from '../types/heroCanvas';
+import { normalizeHeroCanvas, canvasIssues } from '../lib/heroCanvas';
 
 const byOrder = <T extends { order?: number }>(items: T[]) =>
   [...items].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
@@ -86,11 +88,25 @@ export const getSiteSettings = async (): Promise<SiteSettings> => {
     seo: { ...siteDefaults.seo, ...(remote.seo ?? {}) },
     ui: { ...siteDefaults.ui, ...(remote.ui ?? {}) },
     capabilities: remote.capabilities?.length ? remote.capabilities : siteDefaults.capabilities,
+    heroCanvas: normalizeHeroCanvas(remote.heroCanvas),
   };
 };
 
 export const saveSiteSettings = async (data: SiteSettings) => {
-  await setDoc(doc(db, 'siteSettings', 'main'), data, { merge: true });
+  const copy = { ...data };
+  delete copy.heroCanvas;
+  await setDoc(doc(db, 'siteSettings', 'main'), copy, { merge: true });
   invalidatePublicCache();
-  window.dispatchEvent(new CustomEvent('portfolio:site-copy-updated', { detail: data }));
+  window.dispatchEvent(new CustomEvent('portfolio:site-copy-updated', { detail: copy }));
+};
+
+export const saveHeroCanvas = async (config: HeroCanvasConfig) => {
+  const projects = await getProjects();
+  const issues = canvasIssues(config, projects);
+  if (issues.length) throw new Error(issues[0]);
+  const canvas = normalizeHeroCanvas(config);
+  if (!canvas) throw new Error('The canvas layout is invalid. Reload and try again.');
+  await setDoc(doc(db, 'siteSettings', 'main'), { heroCanvas: canvas }, { mergeFields: ['heroCanvas'] });
+  invalidatePublicCache();
+  window.dispatchEvent(new CustomEvent('portfolio:site-copy-updated', { detail: { heroCanvas: canvas } }));
 };

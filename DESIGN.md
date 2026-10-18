@@ -176,6 +176,66 @@ components:
   theme-switch:
     textColor: "{colors.paper-dark}"
     rounded: "{rounded.switch}"
+  assistant-launcher:
+    backgroundColor: "{colors.panel-dark}"
+    textColor: "{colors.signal-dark}"
+    width: "60px"
+    height: "60px"
+  assistant-launcher-mobile:
+    width: "54px"
+    height: "54px"
+  assistant-composer:
+    backgroundColor: "{colors.panel-dark}"
+    textColor: "{colors.paper-dark}"
+    rounded: "28px"
+    padding: "10px 12px"
+    height: "76px"
+    width: "min(680px, 100%)"
+  assistant-composer-mobile:
+    padding: "8px 9px"
+    height: "72px"
+  assistant-input:
+    textColor: "{colors.paper-dark}"
+    typography: '16px/1.5 "Public Sans", sans-serif'
+  assistant-message:
+    backgroundColor: "{colors.panel-dark}"
+    textColor: "{colors.paper-dark}"
+    typography: "{typography.body}"
+    rounded: "20px 20px 20px 6px"
+    padding: "17px 20px"
+    width: "calc(100% - 16px)"
+  assistant-message-mobile:
+    padding: "14px 16px"
+    width: "calc(100% - 10px)"
+  assistant-question:
+    backgroundColor: "{colors.panel-soft-dark}"
+    textColor: "{colors.paper-dark}"
+    typography: '14px/20px "Public Sans", sans-serif'
+    rounded: "20px 20px 6px 20px"
+    padding: "8px 14px"
+    width: "85%"
+  assistant-author:
+    textColor: "{colors.paper-dark}"
+    typography: '13px/22px "Public Sans", sans-serif'
+  assistant-typing:
+    backgroundColor: "{colors.panel-dark}"
+    rounded: "19px 19px 19px 6px"
+    padding: "12px 16px"
+    width: "66px"
+    height: "39px"
+  assistant-send:
+    backgroundColor: "{colors.signal-dark}"
+    textColor: "{colors.on-action-dark}"
+    rounded: "16px"
+    width: "44px"
+    height: "44px"
+  hero-canvas-element:
+    backgroundColor: "transparent"
+    textColor: "{colors.paper-dark}"
+    rounded: "{rounded.panel}"
+    padding: "12px"
+  hero-canvas-element-surface:
+    backgroundColor: "{colors.ink-dark}"
 ---
 
 # Design System: Syed Ammar
@@ -270,8 +330,7 @@ Depth comes primarily from tonal fields, one-pixel rules and alignment. Public e
 
 ### Shadow Vocabulary
 
-- **Assistant launcher:** `0 6px 20px #0002`, a small utility lift within navigation.
-- **Assistant panel:** `0 12px 40px #0005`, separation for the open utility overlay.
+- **Assistant perimeter:** `filter: drop-shadow(0 0 2px var(--signal))`, a thin local signal on the open composer’s SVG edge; its surfaces use tonal separation and borders.
 - **Workflow detail:** `0 12px 32px #14181b66`, separation for a revealed project detail.
 - **Cursor hover:** `0 4px 18px color-mix(in srgb, var(--signal) 19%, transparent)`, a subtle theme-aware interactive signal.
 
@@ -279,7 +338,7 @@ Depth comes primarily from tonal fields, one-pixel rules and alignment. Public e
 
 ## Shapes
 
-The dominant silhouette is rectangular. Project stages, case containers and ruled evidence rows are square; tags use the tiny `tag` radius, controls use `control`, utility affordances use `utility`, and assistant/private panels use `panel`. These are light edge treatments rather than broad rounded cards.
+The dominant silhouette is rectangular. Project stages, case containers and ruled evidence rows are square; tags use the tiny `tag` radius, controls use `control`, utility affordances use `utility`, and private panels use `panel`. These are light edge treatments rather than broad rounded cards. The assistant has an owner-approved local exception: its composer, messages, typing bubble and send control use the component tokens above. Keep this curvature local; it does not replace the global radius scale.
 
 One-pixel borders carry most structure. The field manual's custom file/checklist illustrations use thin outlines and folded document geometry. Status dots, cursor rings and the theme switch retain their circular or pill geometry because their form communicates state or motion.
 
@@ -311,7 +370,7 @@ Fields use a transparent background, paper text, a strong one-pixel line, the co
 
 ### Navigation
 
-Navigation is sticky, opaque and separated by a bottom rule. Desktop links use Public Sans and a one-pixel emerald underline that grows from the left on hover or active state. At 1000px the links move into an outlined menu control and ruled mobile panel; mobile links mark the active route with signal text. The header is 76px at this breakpoint and 68px up to 600px. Theme and assistant controls stay within the navigation area.
+Navigation is sticky, opaque and separated by a bottom rule. Desktop links use Public Sans and a one-pixel emerald underline that grows from the left on hover or active state. At 1000px the links move into an outlined menu control and ruled mobile panel; mobile links mark the active route with signal text. The header is 76px at this breakpoint and 68px up to 600px. The theme control stays within the navigation area. The assistant uses a separate viewport-fixed launcher and body portal described below.
 
 The mobile panel reveals through a vertical clip over 260ms and closes in 140ms. Links enter with a 20ms sibling stagger, bounded by the six navigation items, and the three-line trigger morphs into a close glyph. Reduced motion uses an 80ms opacity transition without the clip movement or stagger. Keyboard focus, Escape, background scroll lock and closing on the desktop breakpoint remain part of the interaction. The menu and assistant close one another; the protected dashboard remains available directly at `/dashboard` outside public navigation.
 
@@ -327,7 +386,27 @@ Headline formatting is parsed before splitting authored lines. Home and the Head
 
 ### Assistant
 
-The assistant launcher stays mounted in the header while its panel renders in a body portal above navigation. Its first arrival has a 70ms settling pause followed by 420ms of natural deceleration with 20px of vertical movement. Exit takes 140ms with an 8px movement and no delay. Reduced motion uses 80ms opacity feedback without translation or delay. Entrance uses `cubic-bezier(0.16, 1, 0.3, 1)` and exit uses `cubic-bezier(0.4, 0, 1, 1)`. Visible interruptions continue from the current computed frame without replaying the pause; a development effect replay at zero opacity still counts as the first arrival. The final frame is committed before cancellation and removal. Return focus after exit, and focus the panel on touch devices to avoid opening the virtual keyboard automatically.
+A hexagonal line button opens a compact, stacked conversation above a bottom-centered composer. The launcher and open assistant render in body portals at layer 80. The launcher rests 24px from the bottom-right on desktop, with safe-area accommodation; at 600px and below it uses a 20px offset and the mobile component size. Opening fades and blurs the launcher out while the composer surface expands from its center. The composer is capped at 680px with 20px side gutters, rests 24px above the desktop viewport bottom or 20px on mobile, and adjusts above the visual keyboard. Page scrolling preserves that anchor and remains available.
+
+The approved C composition keeps only the latest question and reply visible by default. Questions use 85% of the width and align right on the soft panel; replies align left on the panel. Exchanges have a 6px gap and 12px separation from the composer. Public Sans body text retains the existing body role, with the smaller local question and author tokens supplying hierarchy. A quiet daily count sits beside the reply author. When earlier messages exist, History expands the scrollable conversation upward and Latest exchange restores the compact view. A final standalone reply link shares the footer baseline with History; other reply formats reserve footer space without clipping their content. The message viewport caps its height and scrolls locally.
+
+The chat-bubble mode control sits before the input and remains available before the first question. Its Visitor slot is 44px wide and Recruiter slot 58px. The input uses its local sans-serif component type, has a 2000-character limit, and shows a complete short prompt on phones. Send and close retain 44px targets. The enclosing composer surface receives a single signal border on focus-within; buttons and links retain visible signal focus outlines. Safe Markdown supports readable headings, lists, code and tables with local scrolling. Same-app root-relative Markdown destinations use React Router links, preserving the conversation through public route changes; safe HTTP(S) destinations open separately with opener protection. Raw HTML, images, form inputs and executable URL schemes are excluded.
+
+The composer surface uses a damped spring (stiffness 150, damping 25, mass 1.1) from a narrow horizontal scale; its content fades in over 280ms after 140ms. Input and controls remain unscaled. Sent questions settle upward from 14px and received replies from 10px, both starting at 0.97 scale with a shared spring (stiffness 240, damping 28, mass 1). Position-only layout projection keeps exchanges continuous as content arrives. Pending requests show three 6px dots rising sequentially on a 1.25s cycle, with 140ms and 280ms delays. The thin SVG perimeter loops over 5.8s while open. Nonessential loops pause when the document is hidden or the assistant exits; there is no custom background JavaScript frame loop. Reduced motion uses brief opacity feedback, static dots and a static perimeter.
+
+Escape or the close control completes the exit and returns focus to the launcher. Opening focuses the input for a fine pointer and the panel on touch to avoid opening the keyboard immediately. Clicking outside closes without taking focus from the clicked target; links are excluded so visitors can keep browsing with the conversation open. Navigation and assistant overlays still close one another. Visitor/Recruiter modes, the existing gateway request and chat-log paths, the 15-question local daily limit, retry and contact recovery remain available; mode changes reset the exchange. The component surface brief owns the selected composition and review evidence.
+
+### Hero Canvas
+
+Hero canvas is a separate sidebar section in the existing private dashboard. Its scene selector, shape/text/Markdown toolbar, layer list, live grid and inspector extend the incumbent shell. At wide widths the layer rail, workbench and inspector use a 166px / flexible / 248px layout with 16px gaps; at 1300px the layers move below, and at 780px the workbench, layers and inspector stack. At 520px the scene actions wrap and the inspector becomes one column. The Hero canvas topbar omits the shell’s repeated workspace eyebrow locally.
+
+The drawing retains the existing theme-aware field roles and a fixed fine grid: 47px on desktop and 30px in the mobile arrangement. Boxes use the panel radius; rectangles stay square, ellipses use a 50% radius, and diamonds/lines/arrows retain vector geometry. Outline, surface, emphasis and quiet treatments choose from the established roles; the editor provides no custom palette or arbitrary CSS. Sans-serif content supports four local scale choices and readable overflow. Selection uses a dashed signal outline and a corner resize handle; visible keyboard focus remains separate from selection.
+
+Scenes preserve independent desktop and mobile position, size and rotation. The logical desktop stage is 900 × 560; mobile uses a 360px width and an authored height of 360–1600px. Drag, resize, percentage fields, arrow-key nudging, optional grid snap, layers, duplication, visibility and position locking support authoring. Undo/redo keeps up to 40 prior changes. Mobile stacking is an explicit editing action, not an automatic overwrite of desktop geometry.
+
+Publicly, one eligible project scene appears at a time with manual tabs and no carousel timer. At 600px and below the tabs become vertical with complete wrapping titles, and the separate mobile geometry is shown. Arrow keys, Home and End select scenes; mobile also supports Up/Down. Linked elements open safe destinations, while elements with details reveal contained Markdown. Scene and Markdown root-relative actions use the app router. A valid linked element takes precedence over its details; editing never follows those links.
+
+Publishing is deliberate: local edits and browser drafts do not change the homepage until the owner uses Publish canvas (or Save layout when custom display is off). Optional versioned scene data belongs to the existing site settings document; missing, disabled or unusable configurations retain the original Console hero. The existing dashboard authentication boundary remains in place. Limits, fallback, save isolation and the owner workflow are recorded in [the Hero Canvas guide](docs/hero-canvas.md).
 
 ### Specimen Stage
 
