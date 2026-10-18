@@ -43,3 +43,11 @@ Use verified PRODUCT.md content. Separate lab training, projects, certifications
 ## Approved palette refinement — 2026-10-16
 
 The selected Graphite proposal in `.impeccable/proposals/color-directions.html` is color authority. Its miniature composition does not replace the current layout. Scope, exact role values and verification boundaries are in `.impeccable/review/palette/brief.md`. Existing fonts, copy, timing, portrait and page structures remain.
+
+## Background extension — 2026-10-18
+
+The owner selected **B — Signal Routes** from `.impeccable/review/background-compositions/b-signal-routes.png`, following a background-only comparison against the actual homepage in both themes. The study governs sparse angular paths, hollow junctions and edge framing. It does not replace the existing foreground composition, copy or typography. Preserve the Graphite / Emerald / Parchment palette and current layouts across all routes.
+
+Implementation is scoped to `src/signal-background.css` and its import in `src/index.css`. Two bounded SVG masks are embedded in CSS, with no new script logic or external assets. Mobile uses fewer paths; Profile, articles and private workspace use quieter opacity. No background animation loop is introduced. The owner initially requested no commit or push, then explicitly authorized committing and pushing `codex/background-compositions` on 2026-10-18, reserving the deployment review for themselves.
+
+The production build and the first full desktop/mobile theme batch passed. The finish review returned `disposition: ship`, with no material fixes. Local 4× CPU-throttled comparison retained foreground geometry, ten local resource requests and zero idle animation-frame calls; median FCP changed from 360ms to 368ms and p95 interaction frame interval from 16.7ms to 16.8ms. CSS adds 1243 gzip bytes. JavaScript runtime code is identical after normalizing expected Vite hash references. Evidence is recorded under `.impeccable/review/background-compositions/implementation/`.

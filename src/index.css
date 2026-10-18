@@ -1,5 +1,6 @@
 @import "tailwindcss" source("./");
 @import "./admin.css" layer(admin);
+@import "./signal-background.css";
 @config "../tailwind.config.js";
 
 @font-face {
