@@ -657,8 +657,8 @@
       },
       {
         "name": "assistant-composer-content",
-        "value": "0.28s; delay: 0.14s",
-        "purpose": "Content opacity follows the opening surface; both become 80ms with no delay for reduced motion."
+        "value": "opacity 0.16s ease after surface spring completion; opacity 0.08s ease on exit",
+        "purpose": "Actual surface animation completion reveals unscaled input and controls; they remain inert and aria-hidden until ready and become inert immediately on exit. Reduced motion skips the spring wait."
       },
       {
         "name": "assistant-message-spring",
@@ -667,8 +667,8 @@
       },
       {
         "name": "assistant-exit",
-        "value": "section opacity 0.18s; surface opacity/scaleX 0.16s; message opacity/translation 0.12s",
-        "purpose": "Bounded exit with inert, aria-hidden outgoing content; return launcher focus after completion. Reduced motion uses 80ms section/surface opacity without translation."
+        "value": "content opacity 0.08s; section opacity 0.18s after 0.12s; surface opacity/scaleX 0.16s after 0.12s; message opacity/translation 0.12s",
+        "purpose": "Controls finish fading before the surface contracts; outgoing content is immediately inert and aria-hidden. Return launcher focus after completion. Reduced motion uses 80ms section/surface opacity with no exit delay or surface scaling."
       },
       {
         "name": "assistant-typing-dots",

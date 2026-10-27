@@ -16,6 +16,7 @@ import { siteDefaults } from '../data/siteDefaults';
 import { invalidatePublicCache as clearPublishedCache } from './db';
 import type { HeroCanvasConfig } from '../types/heroCanvas';
 import { normalizeHeroCanvas, canvasIssues } from '../lib/heroCanvas';
+import { announceSettingsSave } from '../lib/settingsSync';
 
 const byOrder = <T extends { order?: number }>(items: T[]) =>
   [...items].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
@@ -97,7 +98,7 @@ export const saveSiteSettings = async (data: SiteSettings) => {
   delete copy.heroCanvas;
   await setDoc(doc(db, 'siteSettings', 'main'), copy, { merge: true });
   invalidatePublicCache();
-  window.dispatchEvent(new CustomEvent('portfolio:site-copy-updated', { detail: copy }));
+  announceSettingsSave(copy);
 };
 
 export const saveHeroCanvas = async (config: HeroCanvasConfig) => {
@@ -108,5 +109,5 @@ export const saveHeroCanvas = async (config: HeroCanvasConfig) => {
   if (!canvas) throw new Error('The canvas layout is invalid. Reload and try again.');
   await setDoc(doc(db, 'siteSettings', 'main'), { heroCanvas: canvas }, { mergeFields: ['heroCanvas'] });
   invalidatePublicCache();
-  window.dispatchEvent(new CustomEvent('portfolio:site-copy-updated', { detail: { heroCanvas: canvas } }));
+  announceSettingsSave({ heroCanvas: canvas });
 };
