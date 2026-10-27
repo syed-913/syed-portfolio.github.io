@@ -49,8 +49,8 @@ function AppRoutes() {
               <Route path="/writing" element={<Deferred><Blog /></Deferred>} />
               <Route path="/writing/:slug" element={<Deferred><BlogPost /></Deferred>} />
 
-              <Route path="/achievements" element={<Navigate to="/credentials" replace />} />
-              <Route path="/journals" element={<Navigate to="/writing" replace />} />
+              <Route path="/achievements" element={<Navigate to="/credentials/" replace />} />
+              <Route path="/journals" element={<Navigate to="/writing/" replace />} />
               <Route path="/journal/:slug" element={<LegacyJournalRedirect />} />
 
               <Route path="/contact" element={<Deferred><Contact /></Deferred>} />
@@ -66,7 +66,7 @@ function AppRoutes() {
 const LegacyJournalRedirect = () => {
   const location = useLocation();
   const slug = location.pathname.split('/').filter(Boolean).pop() ?? '';
-  return <Navigate to={`/writing/${slug}`} replace />;
+  return <Navigate to={`/writing/${slug}/`} replace />;
 };
 
 export default function App() {

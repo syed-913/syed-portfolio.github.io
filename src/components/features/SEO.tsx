@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { siteDefaults } from '../../data/siteDefaults';
 import { plainInlineCopy } from '../../lib/inlineCopy';
+import { canonicalPath, SITE_ORIGIN } from '../../lib/siteUrl';
 
 type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
 
@@ -13,14 +14,6 @@ type SEOProps = {
   publishedTime?: string;
   modifiedTime?: string;
   structuredData?: StructuredData;
-};
-
-const ORIGIN = 'https://syedammar.engineer';
-
-const canonicalPath = (path?: string) => {
-  const source = path ?? window.location.pathname ?? '/';
-  if (!source || source === '/') return '/';
-  return `/${source.replace(/^\/+|\/+$/g, '')}/`;
 };
 
 const upsertMeta = (selector: string, attribute: 'name' | 'property', key: string, content: string) => {
@@ -66,7 +59,7 @@ export const SEO = ({
   useEffect(() => {
     const finalTitle = plainInlineCopy(title ?? siteDefaults.seo.title);
     const finalDescription = plainInlineCopy(description ?? siteDefaults.seo.description);
-    const canonicalUrl = `${ORIGIN}${canonicalPath(path)}`;
+    const canonicalUrl = `${SITE_ORIGIN}${canonicalPath(path ?? window.location.pathname)}`;
 
     document.title = finalTitle;
     upsertMeta('meta[name="description"]', 'name', 'description', finalDescription);

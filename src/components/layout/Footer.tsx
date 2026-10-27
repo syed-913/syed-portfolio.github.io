@@ -10,8 +10,8 @@ export const Footer = () => {
         <span>Linux / Cloud / Security</span>
       </Link>
       <nav className="footer-links" aria-label="Footer navigation">
-        <Link to="/about">Profile</Link>
-        <Link to="/contact">Contact</Link>
+        <Link to="/about/">Profile</Link>
+        <Link to="/contact/">Contact</Link>
         <a href={settings.socials.github} target="_blank" rel="noreferrer">
           GitHub
           <ArrowUpRight size={14} />

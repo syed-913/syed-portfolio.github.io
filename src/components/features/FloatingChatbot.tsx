@@ -21,7 +21,7 @@ const MessageBubble = forwardRef<HTMLDivElement, { message: AssistantMessage; re
   return <motion.div ref={ref} layout={reduced ? false : 'position'} className={`assistant-message ${message.role}`} aria-hidden={!present} inert={!present} initial={reduced ? { opacity: 0 } : { opacity: 0, y: message.role === 'user' ? 14 : 10, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: reduced ? 0 : -5, transition: { duration: 0.12 } }} transition={reduced ? { duration: 0.08 } : spring} style={{ transformOrigin: message.role === 'user' ? 'bottom right' : 'bottom left', pointerEvents: present ? 'auto' : 'none' }}>
     {message.role === 'model' && <span className="assistant-author"><i/>Portfolio guide{remaining !== undefined && <small>{remaining}/{ASSISTANT_DAILY_LIMIT} today</small>}</span>}
     <div className="assistant-message-copy"><SafeMarkdown>{message.text}</SafeMarkdown></div>
-    {message.failedQuery && <div className="assistant-recovery"><button type="button" disabled={retryDisabled} onClick={retry}>Try again</button><Link to="/contact">Contact <ArrowUpRight size={13}/></Link></div>}
+    {message.failedQuery && <div className="assistant-recovery"><button type="button" disabled={retryDisabled} onClick={retry}>Try again</button><Link to="/contact/">Contact <ArrowUpRight size={13}/></Link></div>}
     {footer && <div className="assistant-message-footer">{footer}</div>}
   </motion.div>;
 });

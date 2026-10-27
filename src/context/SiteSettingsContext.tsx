@@ -3,6 +3,7 @@ import { siteDefaults } from '../data/siteDefaults';
 import { scheduleAfterPaint } from '../lib/idle';
 import type { SiteSettings } from '../types/database';
 import { SETTINGS_REVISION_KEY } from '../lib/settingsSync';
+import { readPublicSnapshot } from '../lib/publicSnapshot';
 
 export interface SiteSettingsContextValue {
   settings: SiteSettings;
@@ -14,9 +15,9 @@ const SETTINGS_CACHE_KEY = 'portfolio:site-settings-render:v12';
 const readWarmSettings = (): SiteSettings => {
   try {
     const cached = sessionStorage.getItem(SETTINGS_CACHE_KEY);
-    return cached ? ({ ...siteDefaults, ...JSON.parse(cached) } as SiteSettings) : siteDefaults;
+    return cached ? ({ ...siteDefaults, ...JSON.parse(cached) } as SiteSettings) : readPublicSnapshot()?.settings ?? siteDefaults;
   } catch {
-    return siteDefaults;
+    return readPublicSnapshot()?.settings ?? siteDefaults;
   }
 };
 

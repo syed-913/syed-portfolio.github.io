@@ -31,13 +31,13 @@ const readableDate = (value: string) => {
 
 export default function Blog() {
   const { settings } = useSiteSettings();
-  const { items: posts, loading, error, retry } = usePublicData(getPublicPosts);
+  const { items: posts, loading, error, retry } = usePublicData(getPublicPosts, 'posts');
   return <div className="writing-index">
     <SEO title={`Writing — ${settings.shortName}`} description={settings.writingIntro} path="/writing" />
     <PageIntro title={settings.writingTitle} intro={settings.writingIntro} />
     <section className="content-section journal-grid" aria-label="Published articles">
       {loading ? <DataLoading label="Loading field notes…" variant="list" /> : error ? <DataError retry={retry} /> : posts.map(post => <article key={post.id ?? post.slug}>
-        <Link to={`/writing/${post.slug}`} className="journal-card" aria-labelledby={`note-${post.slug}`}>
+        <Link to={`/writing/${post.slug}/`} className="journal-card" aria-labelledby={`note-${post.slug}`}>
           <div className="journal-meta"><time dateTime={post.date}>{readableDate(post.date)}</time><span>{displayReadTime(post)}</span></div>
           <div className="journal-copy">
             <h2 id={`note-${post.slug}`}>{post.title}</h2>

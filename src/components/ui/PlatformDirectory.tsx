@@ -45,7 +45,7 @@ export const PlatformDirectory = () => {
           <ArrowUpRight size={22} />
         </a>
       ))}
-      <Link className="platform-link" to="/writing">
+      <Link className="platform-link" to="/writing/">
         <BookOpen size={23} strokeWidth={1.5} />
         <div>
           <h3>Field notes</h3>

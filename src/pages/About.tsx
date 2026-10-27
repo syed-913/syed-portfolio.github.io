@@ -23,11 +23,11 @@ const profileSections = [
 ];
 export default function About() {
   const { settings } = useSiteSettings();
-  const experience = usePublicData(getPublicExperience);
-  const projects = usePublicData(getPublicProjects);
-  const learning = usePublicData(getPublicCertificates);
+  const experience = usePublicData(getPublicExperience, 'experience');
+  const projects = usePublicData(getPublicProjects, 'projects');
+  const learning = usePublicData(getPublicCertificates, 'certificates');
   const activeSection = useActiveSection(profileSections.map(section => section.id));
-  const [contentsOpen, setContentsOpen] = useState(() => window.matchMedia("(min-width: 1101px)").matches);
+  const [contentsOpen, setContentsOpen] = useState(() => typeof window === 'undefined' || window.matchMedia("(min-width: 1101px)").matches);
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1101px)");
     const update = () => setContentsOpen(media.matches);
@@ -57,7 +57,7 @@ export default function About() {
             <i className="status-dot" />
             {settings.availability}
           </span>
-          <Link className="text-link" to="/contact">
+          <Link className="text-link" to="/contact/">
             Get in touch
             <ArrowUpRight size={18} />
           </Link>
@@ -118,7 +118,7 @@ export default function About() {
             ))
           )}
           <p className="context-note"><InlineCopy>{settings.aboutNote}</InlineCopy></p>
-          <Link className="text-link profile-section-link" to="/experience">Explore experience & training<ArrowUpRight size={17} /></Link>
+          <Link className="text-link profile-section-link" to="/experience/">Explore experience & training<ArrowUpRight size={17} /></Link>
         </div>
       </section>
       <section className="resume-section" id="profile-projects">
@@ -153,7 +153,7 @@ export default function About() {
                 </div>
                 <Link
                   className="text-link"
-                  to={`/projects#${item.id ?? item.name}`}
+                  to={`/projects/#${item.id ?? item.name}`}
                 >
                   Read case study
                   <ArrowUpRight size={17} />
@@ -190,7 +190,7 @@ export default function About() {
               </article>
             ))
           )}
-          <Link className="text-link" to="/credentials">
+          <Link className="text-link" to="/credentials/">
             View credentials
             <ArrowUpRight size={17} />
           </Link>

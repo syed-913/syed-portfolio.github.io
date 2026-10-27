@@ -8,10 +8,11 @@ import { DataEmpty, DataError, DataLoading } from "../components/ui/DataState";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 import { usePublicData } from "../hooks/usePublicData";
 import { getPublicProjects } from "../services/db";
+import { SafeProjectHtml } from "../components/ui/SafeProjectHtml";
 
 export default function Projects() {
   const { settings } = useSiteSettings();
-  const { items, loading, error, retry } = usePublicData(getPublicProjects);
+  const { items, loading, error, retry } = usePublicData(getPublicProjects, 'projects');
   const { hash } = useLocation();
   const [selection, setSelection] = useState<{
     hash: string;
@@ -162,9 +163,7 @@ export default function Projects() {
                       {project.output && (
                         <section className="project-detail">
                           <h3>Technical trace</h3>
-                          <div
-                            dangerouslySetInnerHTML={{ __html: project.output }}
-                          />
+                          <SafeProjectHtml html={project.output} />
                         </section>
                       )}
                     </div></div>

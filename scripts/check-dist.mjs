@@ -27,12 +27,28 @@ for (const route of routes) {
   try { html = await fs.readFile(file, 'utf8'); } catch { errors.push(`Direct-entry route shell is missing: ${route}`); continue; }
   if (!html.includes(`${origin}${route}`)) errors.push(`Canonical metadata is missing for ${route}`);
   if (route === '/dashboard/' && !/<meta[^>]+name=["']robots["'][^>]+content=["']noindex/i.test(html)) errors.push('Dashboard must be noindex before JavaScript loads.');
+  if (!html.includes('Content-Security-Policy') || /script-src[^;"\n]*'unsafe-inline'/.test(html)) errors.push(`Script policy is missing or allows arbitrary inline code: ${route}`);
+  if (route === '/dashboard/' && html.includes('id="portfolio-public-data"')) errors.push('Dashboard must not embed the public content snapshot.');
 }
 for (const url of urls) {
   const parsed = new URL(url);
   if (parsed.origin !== origin || /^\/(?:dashboard|journal|journals|achievements|resume)(?:\/|$)/.test(parsed.pathname)) errors.push('Sitemap contains a non-canonical or private route.');
   if (!await exists(path.join(parsed.pathname, 'index.html'))) errors.push(`Sitemap route has no static shell: ${parsed.pathname}`);
+  else {
+    const html = await fs.readFile(path.join(root, parsed.pathname, 'index.html'), 'utf8');
+    const canonicals = [...html.matchAll(/<link[^>]*rel="canonical"[^>]*href="([^"]+)"/g)].map(match => match[1]);
+    if (canonicals.length !== 1 || canonicals[0] !== url) errors.push(`Sitemap and page canonical disagree: ${parsed.pathname}`);
+    if (!/<h1\b/.test(html) || /<div id="root"><\/div>/.test(html)) errors.push(`Public page has no rendered content: ${parsed.pathname}`);
+    if (/http-equiv="refresh"|name="robots"[^>]*content="noindex/i.test(html)) errors.push(`A sitemap page redirects or is noindex: ${parsed.pathname}`);
+    try {
+      const data = JSON.parse(html.match(/<script id="portfolio-public-data"[^>]*>([\s\S]*?)<\/script>/)?.[1] || 'null');
+      if (!data?.settings || !['posts', 'projects', 'certificates', 'experience'].every(key => Array.isArray(data[key]) && data[key].every(item => item.visible === true))) errors.push(`Invalid public snapshot: ${parsed.pathname}`);
+      if (data?.certificates?.some(item => 'mediaFileId' in item || 'storagePath' in item)) errors.push(`Private credential-management field in snapshot: ${parsed.pathname}`);
+    } catch { errors.push(`Public snapshot JSON is malformed: ${parsed.pathname}`); }
+  }
 }
+const notFound = await fs.readFile(path.join(root, '404.html'), 'utf8');
+if (!/name="robots"[^>]*content="noindex/.test(notFound) || /http-equiv="refresh"|location\.replace|sessionStorage\.redirect|rel="canonical"/i.test(notFound)) errors.push('Missing pages must remain noindex 404s without redirecting or canonicalizing to the homepage.');
 for (const route of routes.filter(route => route !== '/dashboard/')) if (!urls.includes(`${origin}${route}`)) errors.push(`Public route missing from sitemap: ${route}`);
 
 for (const file of files) {

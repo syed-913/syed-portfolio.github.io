@@ -15,7 +15,7 @@ export const ChatbotLauncher = () => {
     window.addEventListener('portfolio:overlay-open', otherOverlay);
     return () => window.removeEventListener('portfolio:overlay-open', otherOverlay);
   }, [close]);
-  if (!settings.chatbotEnabled) return null;
+  if (!settings.chatbotEnabled || typeof document === 'undefined') return null;
   return <>
     {createPortal(<button ref={trigger} className="assistant-launcher" data-open={open} aria-expanded={open} aria-controls="portfolio-assistant" aria-label="Ask about me — open portfolio assistant" aria-hidden={open} tabIndex={open ? -1 : 0} disabled={open} type="button" onClick={() => {
       restoreFocus.current = false;

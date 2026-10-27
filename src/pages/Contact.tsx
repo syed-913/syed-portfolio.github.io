@@ -97,6 +97,7 @@ const Contact = () => {
               <span>Name</span>
               <input
                 required
+                maxLength={120}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Your name"
@@ -106,6 +107,7 @@ const Contact = () => {
               <span>Email</span>
               <input
                 type="email"
+                maxLength={254}
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -117,6 +119,7 @@ const Contact = () => {
             <span>Subject</span>
             <input
               required
+              maxLength={200}
               value={form.subject}
               onChange={(e) => setForm({ ...form, subject: e.target.value })}
               placeholder="Role, project, question…"
@@ -126,6 +129,7 @@ const Contact = () => {
             <span>Message</span>
             <textarea
               required
+              maxLength={1024}
               rows={7}
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}

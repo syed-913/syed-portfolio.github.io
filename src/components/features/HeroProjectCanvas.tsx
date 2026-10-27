@@ -24,7 +24,7 @@ export default function HeroProjectCanvas({ config, projects }: { config: HeroCa
   const scene = scenes.find(item => item.id === selectedId) ?? scenes[0];
   if (!scene) return null;
   const currentProject = projects.find(project => project.id === scene.projectId);
-  const href = safeLink(scene.href) ?? (currentProject?.id ? `/projects#${currentProject.id}` : '/projects');
+  const href = safeLink(scene.href) ?? (currentProject?.id ? `/projects/#${currentProject.id}` : '/projects/');
   const select = (index: number) => { setSelectedId(scenes[index].id); setInspected(null); };
   const keyDown = (event: KeyboardEvent, index: number) => {
     let next: number;

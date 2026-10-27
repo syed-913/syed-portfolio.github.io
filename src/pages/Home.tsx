@@ -14,6 +14,7 @@ import type { Certificate, Experience, Project } from "../types/database";
 
 import { consoleWorkflow as stages } from "../data/consoleWorkflow";
 import { normalizeHeroCanvas, publicCanvasScenes } from "../lib/heroCanvas";
+import { usePublicSnapshot } from "../context/PublicSnapshotContext";
 const HeroProjectCanvas = lazy(() => import("../components/features/HeroProjectCanvas"));
 
 function WorkflowGlyph({ stage }: { stage: string }) {
@@ -55,13 +56,14 @@ function WorkflowGlyph({ stage }: { stage: string }) {
 }
 export default function Home() {
   const { settings } = useSiteSettings();
+  const snapshot = usePublicSnapshot();
   const customCanvas = useMemo(() => normalizeHeroCanvas(settings.heroCanvas), [settings.heroCanvas]);
   const [data, setData] = useState<{
     projects: Project[];
     certificates: Certificate[];
     experience: Experience[];
-  }>({ projects: [], certificates: [], experience: [] });
-  const [loading, setLoading] = useState(true);
+  }>(() => snapshot ?? { projects: [], certificates: [], experience: [] });
+  const [loading, setLoading] = useState(!snapshot);
   const [error, setError] = useState(false);
   const [stage, setStage] = useState<number | null>(null);
   useEffect(() => {
@@ -144,11 +146,11 @@ export default function Home() {
           </h1>
           <p className="hero-introduction"><InlineCopy>{settings.heroBody}</InlineCopy></p>
           <div className="hero-actions">
-            <Link className="button button-primary" to="/projects">
+            <Link className="button button-primary" to="/projects/">
               {settings.ui.homePrimaryCta}
               <ArrowUpRight size={21} />
             </Link>
-            <Link className="button button-ghost" to="/experience">
+            <Link className="button button-ghost" to="/experience/">
               {settings.ui.homeSecondaryCta}
             </Link>
           </div>
@@ -285,7 +287,7 @@ export default function Home() {
                 )}
                 <Link
                   className="specimen-cta"
-                  to={`/projects#${project.id ?? "selected"}`}
+                  to={`/projects/#${project.id ?? "selected"}`}
                 >
                   Explore the case study
                   <ArrowUpRight size={24} />
@@ -329,7 +331,7 @@ export default function Home() {
             .map((e) => (
               <Link
                 key={e.mark}
-                to="/credentials"
+                to="/credentials/"
                 className="credential-signal"
               >
                 <span className="credential-mark">{e.mark}</span>
@@ -349,7 +351,7 @@ export default function Home() {
             ))}
           {(loading ||
             data.experience.some((e) => /al.?nafi/i.test(e.company))) && (
-            <Link to="/experience" className="credential-signal">
+            <Link to="/experience/" className="credential-signal">
               <span className="credential-mark">
                 <FlaskConical size={37} strokeWidth={1.3} />
               </span>

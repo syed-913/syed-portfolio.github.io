@@ -162,10 +162,10 @@ components:
     rounded: "{rounded.tag}"
     padding: "7px 10px"
   case-container:
-    backgroundColor: "{colors.panel-dark}"
+    backgroundColor: "transparent"
     textColor: "{colors.muted-dark}"
     rounded: "{rounded.square}"
-    padding: "36px"
+    padding: "36px 0 0"
   specimen-stage:
     backgroundColor: "{colors.ink-dark}"
     textColor: "{colors.paper-dark}"
@@ -326,7 +326,7 @@ Profile follows one reading column beside a 160px contents rail with a 56px gap.
 
 ## Elevation & Depth
 
-Depth comes primarily from tonal fields, one-pixel rules and alignment. Public evidence rows stay flat; case details use a quiet panel fill. The project grid is a fine translucent line pattern, not a separate raised layer. Utility overlays use soft shadows, and the pointer gains a restrained glow on interactive elements.
+Depth comes primarily from tonal fields, one-pixel rules and alignment. Public evidence rows stay flat; project evidence inherits its enclosing panel tone. Expanded case details use transparent grid disclosure with 36px of top spacing, reducing to 28px on mobile. The project grid is a fine translucent line pattern, not a separate raised layer. Utility overlays use soft shadows, and the pointer gains a restrained glow on interactive elements.
 
 ### Shadow Vocabulary
 
@@ -336,9 +336,19 @@ Depth comes primarily from tonal fields, one-pixel rules and alignment. Public e
 
 **The Tonal Depth Rule.** Separate ordinary content with proximity, space and surface tone; use fine rules for meaningful boundaries and reserve soft shadows for utility overlays, revealed workflow detail and cursor response.
 
+### Signal Routes Background
+
+The owner selected **Signal Routes (B)** on 2026-10-18 to extend the current field-manual canvas. Sparse parallel paths, 45-degree bends, hollow junctions and a few registration marks frame the existing content. The page ground remains the exact graphite/parchment role; foreground typography, layout and project specimens retain their established presentation. The selected study is background direction, not authority for its generated foreground text or proportions.
+
+`src/signal-background.css` supplies two decorative SVG alpha masks through bounded, absolute body pseudo-elements. The upper routes use `--signal` at 0.30 opacity in dark mode and 0.12 in light mode. The lower return routes use `--warm` at 0.20/0.10. Profile, article and private workspace surfaces multiply those strengths by 0.55. Keep the artwork subordinate to reading, forms and evidence; opaque panels, navigation and overlays retain their paired surfaces.
+
+The artwork is centered within 1600px, scrolls with the document and never extends its height. Desktop mask heights cap at 1100px and 640px. At 600px and below, fewer paths move to the margins, using bounded 1100px/640px masks. Both pseudo-elements ignore pointer input and sit beneath the content in the body's isolated stacking context.
+
+The background adds no runtime JavaScript, external artwork request, animation loop, fixed canvas or continuously moving layer. SVGs are embedded in CSS; the generated concept PNGs remain local review assets. Only theme-color and route-strength transitions run, over 300ms/240ms; reduced motion removes those transitions. Browsers without CSS mask support retain the plain paired canvas. The existing cursor, mobile navigation, assistant and theme persistence remain independent.
+
 ## Shapes
 
-The dominant silhouette is rectangular. Project stages, case containers and ruled evidence rows are square; tags use the tiny `tag` radius, controls use `control`, utility affordances use `utility`, and private panels use `panel`. These are light edge treatments rather than broad rounded cards. The assistant has an owner-approved local exception: its composer, messages, typing bubble and send control use the component tokens above. Keep this curvature local; it does not replace the global radius scale.
+The dominant silhouette is rectangular. Project stages, case containers and ruled evidence rows are square; tags use the tiny `tag` radius, public controls use `control`, utility affordances use `utility`, and authored canvas boxes use `panel`. Private workspace and login components retain their established local corner treatments. These are light edge treatments rather than broad rounded cards. The assistant has an owner-approved local exception: its composer, messages, typing bubble and send control use the component tokens above. Keep this curvature local; it does not replace the global radius scale.
 
 One-pixel borders carry most structure. The field manual's custom file/checklist illustrations use thin outlines and folded document geometry. Status dots, cursor rings and the theme switch retain their circular or pill geometry because their form communicates state or motion.
 
@@ -348,7 +358,7 @@ One-pixel borders carry most structure. The field manual's custom file/checklist
 
 Filled actions are compact and clear: Public Sans, the control radius, a 48px minimum height, 24px horizontal padding and a 10px icon gap. Primary fill follows the active action hover role. Outlined actions start transparent with a strong line and paper text; hover adds the soft signal fill and signal border. Disabled buttons use 0.6 opacity and the waiting cursor.
 
-The navigation action is a compact filled rectangle, scaled to the desktop sheet. The square specimen action uses the same action, hover and foreground roles, with an action-colored border against its neutral project field. Links and buttons inherit the two-pixel signal focus outline with a five-pixel offset. Text fields change their existing one-pixel border to signal on focus, without a second outline or colored halo.
+Action fills, label colors and border colors transition over 260ms in the current cascade; the 200ms transform response moves a pressed action down by one pixel. The navigation action is a compact filled rectangle, scaled to the desktop sheet. The square specimen action uses the same action, hover and foreground roles, with an action-colored border against its neutral project field. Links and buttons inherit the two-pixel signal focus outline with a five-pixel offset. Text fields change their existing one-pixel border to signal on focus, without a second outline or colored halo.
 
 The public professional profile provides no résumé print, download or export action. The owner's actual résumé remains private; public content and navigation use Profile.
 
@@ -360,7 +370,7 @@ Tags are factual metadata with a soft signal fill, subdued text, a one-pixel lin
 
 Public records use fine rules and flat tonal surfaces. Outlined credential cards and project panels retain their current geometry in the approved palette. Credential cards use 32px insets, reducing to 24px on mobile; the issuer mark and year sit above the title, issuer and direct verification action. Native details disclosure keeps credential IDs available. Education retains its own qualification, institution, field, dates and status in a separate outlined record. Active education with valid dates adds an accessible five-pixel elapsed-time bar, date endpoints, percentage and a clear distinction between timeline progress and confirmed completion. Missing dates show an honest text status. The native bar updates over time and when the page becomes visible, without animating layout properties.
 
-Project panels use 36px desktop insets and 24px/20px mobile insets. A command surface provides the published command and a Copy command control; it is a code sample, never an execution control. The case-study toggle animates disclosure over 420ms with natural deceleration, retains hash-link access and makes collapsed content inert. The writing index aligns date and tags, title and a short source excerpt, and the Read note action across three desktop columns; mobile stacks this information in reading order. Excerpts end at a sentence or word boundary and retain the published article's meaning.
+Project panels use 36px desktop insets and 24px/20px mobile insets. A command surface provides the published command and a Copy command control; it is a code sample, never an execution control. The case-study toggle animates disclosure over 420ms with natural deceleration, retains hash-link access and makes collapsed content inert. Its transparent inner region has 36px top spacing, two columns with 48px/32px gaps, 20px semibold section titles and 16px/1.75 copy. On mobile the top spacing and grid gaps become 28px; case prose reduces to 14px while retaining the 1.75 line height. The writing index aligns date and tags, title and a short source excerpt, and the Read note action across three desktop columns; mobile stacks this information in reading order. Excerpts end at a sentence or word boundary and retain the published article's meaning.
 
 Article code frames keep the fixed graphite background and cream code foreground in both themes, with a language label and copy confirmation. Long code and tables scroll locally. Reading presentation removes a repeated leading page title, normalizes skipped heading levels and supplies stable section anchors while preserving the stored Markdown. Previous/next reading links retain the article titles and emphasize that text on interaction. Large writing and platform links fade their title color without filling or outlining the entire row; supporting text keeps its normal reading color.
 
@@ -440,14 +450,3 @@ The supplementary cursor uses a 30px ring and a 3px dot. Interactive hover expan
 - **Don't** make the homepage's split composition or section rail a requirement for other surfaces.
 - **Don't** turn static tags into controls or make the custom cursor the only sign that an element is interactive.
 - **Don't** replace readable sans-serif prose with terminal-style monospace text.
-
-## Signal Routes Background
-
-The owner selected **Signal Routes (B)** on 2026-10-18 to extend the current field-manual canvas. Sparse parallel paths, 45-degree bends, hollow junctions and a few registration marks frame the existing content. The page ground remains the exact graphite/parchment role; foreground typography, layout and project specimens retain their established presentation. The selected study is background direction, not authority for its generated foreground text or proportions.
-
-`src/signal-background.css` supplies two decorative SVG alpha masks through bounded, absolute body pseudo-elements. The upper routes use `--signal` at 0.30 opacity in dark mode and 0.12 in light mode. The lower return routes use `--warm` at 0.20/0.10. Profile, article and private workspace surfaces multiply those strengths by 0.55. Keep the artwork subordinate to reading, forms and evidence; opaque panels, navigation and overlays retain their paired surfaces.
-
-The artwork is centered within 1600px, scrolls with the document and never extends its height. Desktop mask heights cap at 1100px and 640px. At 600px and below, fewer paths move to the margins, using bounded 1100px/640px masks. Both pseudo-elements ignore pointer input and sit beneath the content in the body's isolated stacking context.
-
-The background adds no runtime JavaScript, external artwork request, animation loop, fixed canvas or continuously moving layer. SVGs are embedded in CSS; the generated concept PNGs remain local review assets. Only theme-color and route-strength transitions run, over 300ms/240ms; reduced motion removes those transitions. Browsers without CSS mask support retain the plain paired canvas. The existing cursor, mobile navigation, assistant and theme persistence remain independent.
-

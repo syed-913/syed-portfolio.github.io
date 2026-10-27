@@ -9,7 +9,7 @@ import { getPublicExperience } from "../services/db";
 import { displayExperienceDuration } from "../lib/experience";
 export default function Experience() {
   const { settings } = useSiteSettings();
-  const { items, loading, error, retry } = usePublicData(getPublicExperience);
+  const { items, loading, error, retry } = usePublicData(getPublicExperience, 'experience');
   return (
     <>
       <SEO
@@ -67,7 +67,7 @@ export default function Experience() {
       </section>
       <section className="content-section next-route">
         <h2>See the work behind the learning.</h2>
-        <Link className="text-link" to="/projects">
+        <Link className="text-link" to="/projects/">
           Explore projects
           <ArrowRight size={18} />
         </Link>

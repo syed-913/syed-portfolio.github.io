@@ -4,9 +4,9 @@ This release targets the existing GitHub Pages site at **https://syedammar.engin
 
 ## What a push does
 
-`.github/workflows/deploy.yml` runs on a push to `main` or manual dispatch. It uses Node 22 from `.nvmrc`, installs the lockfile with `npm ci`, validates the production configuration, runs tests, type-checks and builds the site. The build generates static route shells and a sitemap, removes source-only image provenance sidecars from `dist`, and checks that required routes, assets and indexing metadata are present. Only a successful build can upload and deploy the Pages artifact.
+`.github/workflows/deploy.yml` runs on a push to `main` or manual dispatch. It uses Node 22 from `.nvmrc`, installs the lockfile with `npm ci`, validates the production configuration, runs tests, type-checks and builds the site. The build renders the existing public React pages with visible content and generates a sitemap, removes source-only image provenance sidecars from `dist`, and checks that required routes, assets and indexing metadata are present. Only a successful build can upload and deploy the Pages artifact.
 
-The workflow does not run Wrangler, Firebase deployment commands, database migrations or ImageKit administration. It does not switch a Worker entry point or activate a reminder schedule. No deployment dependency or package version was upgraded for this preparation; the root lockfile metadata records the Node requirement.
+The workflow does not run Wrangler, Firebase deployment commands, database migrations or ImageKit administration. It does not switch a Worker entry point or activate a reminder schedule. The security pass updates compatible dependency versions and adds a shared HTML sanitizer; the lockfile remains the installation source of truth. No Worker deployment step was added.
 
 Pull requests to `main` run `.github/workflows/check.yml`: tests and TypeScript checks without production secrets or deployment permissions. The production build uses the existing secrets only on the deployment workflow.
 
@@ -53,7 +53,7 @@ git status --short
 
 The project requires Node 22.18 or newer. Use the Node 22 line recorded in `.nvmrc` for parity with Actions. An ignored `.env.local` or `.env.production.local` can provide the existing public settings locally; `.env.example` lists the names. Process environment variables take precedence, matching CI.
 
-`release:check` always enables strict SEO generation. It must be able to read public settings and visible writing from Firestore. An absent optional `siteSettings/main` document uses the current source defaults. A failed public read stops the release instead of silently publishing an incomplete sitemap. A normal `npm run build` allows a local static fallback when public data is unavailable, so use `release:check` for the final gate.
+`release:check` always enables strict SEO generation. It must be able to read public settings and visible writing, projects, credentials and experience from Firestore. An absent optional `siteSettings/main` document uses the current source defaults. A failed public read stops the release instead of silently publishing an incomplete sitemap. A normal `npm run build` allows a local static fallback when public data is unavailable, so use `release:check` for the final gate.
 
 The output directory is `dist`. Do not publish the source tree, `node_modules`, `.env` files, `.impeccable` design evidence, tests or Worker source as the website. Generated image provenance JSON files remain in source beside their assets, but the build excludes them from the deployed artifact. Local review images, screenshots, mocks and test reports are ignored by Git.
 
@@ -77,9 +77,9 @@ Review the staged file list before committing. Local environment files, `dist`, 
 
 ## Routing and content updates
 
-The build writes real `index.html` shells for the public pages, the private dashboard, each currently visible article and supported legacy paths. The dashboard shell has `noindex,nofollow,noarchive,nosnippet` and is absent from the sitemap. Authentication and existing Firestore/Worker authorization remain the security boundaries.
+The build writes rendered `index.html` pages for public routes and visible articles, a noindex shell for the private dashboard, and explicit redirects for supported legacy paths. The dashboard shell has `noindex,nofollow,noarchive,nosnippet` and is absent from the sitemap. Authentication and existing Firestore/Worker authorization remain the security boundaries.
 
-The existing `404.html` redirect preserves the requested URL, query and hash for React to handle paths without a generated file. Articles added after a deployment still render through that fallback. Run the Pages workflow manually after publishing or renaming an article to refresh its static shell and sitemap; the current workflow has no automatic daily refresh.
+The generated `404.html` keeps the original URL and real HTTP 404 status; it no longer redirects through the homepage. React can still handle the requested path. Run the Pages workflow manually after publishing, renaming, hiding or deleting an article so its static content, status and sitemap are current before requesting indexing. The current workflow has no automatic daily refresh. Read [the Search Console guide](SEARCH-CONSOLE.md) for canonical URLs, expected redirects and indexing steps.
 
 Tabs left open across a deployment can request a removed lazy-loaded chunk. The client handles Vite's preload error by refreshing at most once per minute when online and session storage is available. It uses `location.reload()` so the path, query and hash are retained. Offline failures and blocked storage do not cause reload loops. GitHub Pages controls its own HTTP caching; no unsupported `_headers` file or service worker was introduced.
 
@@ -87,7 +87,7 @@ Tabs left open across a deployment can request a removed lazy-loaded chunk. The 
 
 Existing Firebase web initialization, Firebase Auth login, Firestore collections and authorization rules, media upload authentication, ImageKit integration, contact payload and Gemini proxy contract are retained. Public site-copy formatting and education timeline fields are additive and have fallbacks for existing records. No existing live record was rewritten or seeded by release preparation. Saving Site copy for the first time requires the owner's existing rules to permit the authorized administrator to write `siteSettings/main`; release preparation does not loosen those rules.
 
-`cloudflare-worker.js` remains the original contact Worker. `cloudflare_worker.js` remains the chatbot Worker. The optional reminder extension lives at `workers/contact-with-reminders.js`; it reuses the contact fetch handler and adds the scheduled handler only when the owner explicitly configures and deploys that entry point. The example Wrangler configuration is not an automatic deployment configuration. See [education reminders](../workers/README-education-reminders.md) for KV, bindings and activation. Existing contact service must retain its name, route, webhook secret and bindings. No reminder infrastructure is needed to release the portfolio.
+`cloudflare-worker.js` is the existing contact Worker entry. `cloudflare_worker.js` is the existing chatbot entry. Their hardened source preserves the frontend contracts and requires a separate update to the same Cloudflare services; merging the Pages release does not activate those Worker changes. See [the security review](SECURITY-REVIEW.md) for the exact activation steps and remaining account-level limits. The optional reminder extension lives at `workers/contact-with-reminders.js`; it reuses the contact fetch handler and adds the scheduled handler only when the owner explicitly configures and deploys that entry point. The example Wrangler configuration is not an automatic deployment configuration. See [education reminders](../workers/README-education-reminders.md) for KV, bindings and activation. Existing contact service must retain its name, route, webhook secret and bindings. No reminder infrastructure is needed to release the portfolio.
 
 ## Checks after the first deployment
 

@@ -1,11 +1,22 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createServer } from 'vite';
 import { siteDefaults as defaults } from '../src/data/siteDefaults.ts';
 import { plainInlineCopy } from '../src/lib/inlineCopy.ts';
+import { canonicalPath, SITE_ORIGIN } from '../src/lib/siteUrl.ts';
+import { safeLink } from '../src/lib/safeLink.ts';
+import { normalizeHeroCanvas, publicCanvasScenes } from '../src/lib/heroCanvas.ts';
+import { secureHtml } from './html-security.mjs';
+import createDOMPurify from 'dompurify';
+import { JSDOM } from 'jsdom';
+import { richTextPolicy } from '../src/lib/richTextPolicy.ts';
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, 'dist');
 const { origin: ORIGIN } = JSON.parse(await fs.readFile(new URL('../deployment.config.json', import.meta.url), 'utf8'));
+
+if (ORIGIN !== SITE_ORIGIN) throw new Error('[seo] Deployment and browser canonical origins must match.');
 
 const implementationDetail = /firebase|cloudflare|webhook|discord webhook|backend|database collection|private dashboard/i;
 
@@ -74,13 +85,16 @@ const fetchSiteSettings = async () => {
     const settings = {
       ...defaults,
       ...remote,
-      socials: { ...defaults.socials, ...(remote.socials || {}) },
+      socials: Object.fromEntries([...Object.keys(defaults.socials), 'medium'].map(key => [key, safeLink(remote.socials?.[key] ?? defaults.socials[key]) || ''])),
       seo: { ...defaults.seo, ...(remote.seo || {}) },
+      ui: Object.fromEntries(Object.keys(defaults.ui).map(key => [key, typeof remote.ui?.[key] === 'string' ? remote.ui[key] : defaults.ui[key]])),
+      heroCanvas: normalizeHeroCanvas(remote.heroCanvas),
       capabilities: Array.isArray(remote.capabilities) && remote.capabilities.length ? remote.capabilities : defaults.capabilities,
     };
     if (implementationDetail.test(settings.contactIntro || '')) settings.contactIntro = defaults.contactIntro;
     if (/(?:about\s+)?(?:~?\s*)?(?:1|one)\s+year.*professional experience/i.test(settings.aboutBody || '')) settings.aboutBody = defaults.aboutBody;
-    return settings;
+    // Settings are public, but do not serialize unexpected administrative fields.
+    return Object.fromEntries([...Object.keys(defaults), 'heroCanvas'].map(key => [key, settings[key]]));
   } catch (error) {
     if (process.env.SEO_STRICT === '1') throw new Error(`[seo] Public site settings read failed (${error.message}).`);
     console.warn(`[seo] Site settings could not be read; using local defaults (${error.message}).`);
@@ -88,10 +102,17 @@ const fetchSiteSettings = async () => {
   }
 };
 
-const fetchVisiblePosts = async () => {
+const publicFields = {
+  posts: ['title', 'slug', 'date', 'tags', 'content', 'readTime', 'upvotes', 'order', 'visible'],
+  projects: ['name', 'repoPath', 'command', 'description', 'problem', 'built', 'decisions', 'outcome', 'learnings', 'stack', 'url', 'output', 'order', 'visible'],
+  certificates: ['name', 'entryType', 'issuer', 'date', 'imageUrl', 'credentialUrl', 'image', 'url', 'credentialId', 'category', 'institution', 'field', 'startDate', 'endDate', 'endDatePrecision', 'educationStatus', 'details', 'order', 'visible'],
+  experience: ['role', 'company', 'duration', 'startDate', 'endDate', 'description', 'techStack', 'order', 'visible'],
+};
+
+const fetchVisibleRecords = async (collectionId) => {
   if (!projectId || !apiKey) {
     if (process.env.SEO_STRICT === '1') throw new Error('[seo] Firebase configuration is required for release route generation.');
-    console.warn('[seo] Firebase variables are unavailable; generating static-route SEO only.');
+    console.warn(`[seo] Firebase variables are unavailable; ${collectionId} uses an empty public snapshot.`);
     return [];
   }
   try {
@@ -101,7 +122,7 @@ const fetchVisiblePosts = async () => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         structuredQuery: {
-          from: [{ collectionId: 'posts' }],
+          from: [{ collectionId }],
           where: {
             fieldFilter: {
               field: { fieldPath: 'visible' },
@@ -110,13 +131,7 @@ const fetchVisiblePosts = async () => {
             },
           },
           select: {
-            fields: [
-              { fieldPath: 'title' },
-              { fieldPath: 'slug' },
-              { fieldPath: 'date' },
-              { fieldPath: 'tags' },
-              { fieldPath: 'content' },
-            ],
+            fields: publicFields[collectionId].map(fieldPath => ({ fieldPath })),
           },
           limit: 500,
         },
@@ -126,21 +141,21 @@ const fetchVisiblePosts = async () => {
       .filter((row) => row.document?.fields)
       .map((row) => ({
         ...decodeFields(row.document.fields),
+        id: row.document.name?.split('/').pop(),
+        visible: true,
         updateTime: row.document.updateTime,
         createTime: row.document.createTime,
       }))
-      .filter((post) => typeof post.slug === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug) && typeof post.title === 'string');
+      .filter(item => collectionId !== 'posts' || typeof item.slug === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.slug) && typeof item.title === 'string')
+      .sort((a, b) => collectionId === 'posts' ? String(b.date ?? '').localeCompare(String(a.date ?? '')) : (a.order ?? 999) - (b.order ?? 999));
   } catch (error) {
-    if (process.env.SEO_STRICT === '1') throw new Error(`[seo] Public writing read failed (${error.message}).`);
-    console.warn(`[seo] Visible writing entries could not be read; sitemap will contain static routes only (${error.message}).`);
+    const label = collectionId === 'posts' ? 'writing' : collectionId;
+    if (process.env.SEO_STRICT === '1') throw new Error(`[seo] Public ${label} read failed (${error.message}).`);
+    console.warn(`[seo] Visible ${label} could not be read; using an empty public snapshot (${error.message}).`);
     return [];
   }
 };
 
-const canonicalPath = (route = '/') => {
-  if (!route || route === '/') return '/';
-  return `/${route.replace(/^\/+|\/+$/g, '')}/`;
-};
 const canonicalUrl = (route = '/') => `${ORIGIN}${canonicalPath(route)}`;
 const htmlEscape = (value = '') => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const xmlEscape = (value = '') => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
@@ -169,27 +184,27 @@ const upsertMeta = (html, keyType, key, content) => {
   const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const regex = new RegExp(`<meta\\s+[^>]*${attr}=["']${escapedKey}["'][^>]*>`, 'i');
   const tag = `<meta ${attr}="${htmlEscape(key)}" content="${htmlEscape(content)}" />`;
-  if (regex.test(html)) return html.replace(regex, tag);
-  return html.replace('</head>', `  ${tag}\n</head>`);
+  if (regex.test(html)) return html.replace(regex, () => tag);
+  return html.replace('</head>', () => `  ${tag}\n</head>`);
 };
 
 const upsertCanonical = (html, url) => {
   const tag = `<link rel="canonical" href="${htmlEscape(url)}" />`;
   const regex = /<link\s+[^>]*rel=["']canonical["'][^>]*>/i;
-  if (regex.test(html)) return html.replace(regex, tag);
-  return html.replace('</head>', `  ${tag}\n</head>`);
+  if (regex.test(html)) return html.replace(regex, () => tag);
+  return html.replace('</head>', () => `  ${tag}\n</head>`);
 };
 
 const upsertTitle = (html, title) => {
   const tag = `<title>${String(title).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>`;
-  return /<title>[\s\S]*?<\/title>/i.test(html) ? html.replace(/<title>[\s\S]*?<\/title>/i, tag) : html.replace('</head>', `  ${tag}\n</head>`);
+  return /<title>[\s\S]*?<\/title>/i.test(html) ? html.replace(/<title>[\s\S]*?<\/title>/i, () => tag) : html.replace('</head>', () => `  ${tag}\n</head>`);
 };
 
 const upsertJsonLd = (html, id, data) => {
   const tag = `<script id="${id}" type="application/ld+json">\n${jsonForHtml(data)}\n  </script>`;
   const regex = new RegExp(`<script\\s+id=["']${id}["'][^>]*>[\\s\\S]*?<\\/script>`, 'i');
-  if (regex.test(html)) return html.replace(regex, tag);
-  return html.replace('</head>', `  ${tag}\n</head>`);
+  if (regex.test(html)) return html.replace(regex, () => tag);
+  return html.replace('</head>', () => `  ${tag}\n</head>`);
 };
 
 const removeJsonLd = (html, id) => {
@@ -271,9 +286,7 @@ const articleSchemaFor = (post, description) => {
     inLanguage: 'en',
   };
   const published = isoDate(post.date || post.createTime);
-  const modified = isoDate(post.updateTime);
   if (published) schema.datePublished = published;
-  if (modified) schema.dateModified = modified;
   if (Array.isArray(post.tags) && post.tags.length) schema.keywords = post.tags.join(', ');
   return schema;
 };
@@ -282,24 +295,25 @@ const ensureDir = (dir) => fs.mkdir(dir, { recursive: true });
 const writeRoute = async (route, html) => {
   const clean = route.replace(/^\/+|\/+$/g, '');
   if (!clean) {
-    await fs.writeFile(path.join(DIST, 'index.html'), html);
+    await fs.writeFile(path.join(DIST, 'index.html'), secureHtml(html));
     return;
   }
   const dir = path.join(DIST, clean);
   await ensureDir(dir);
-  await fs.writeFile(path.join(dir, 'index.html'), html);
+  await fs.writeFile(path.join(dir, 'index.html'), secureHtml(html));
 };
 
 const redirectHtml = (fromRoute, toRoute) => {
   const target = canonicalUrl(toRoute);
-  return `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1" />\n<meta name="robots" content="noindex,follow" />\n<link rel="canonical" href="${htmlEscape(target)}" />\n<meta http-equiv="refresh" content="0; url=${htmlEscape(target)}" />\n<title>Redirecting…</title>\n<script>location.replace(${JSON.stringify(target)});</script>\n</head>\n<body><p>This page moved to <a href="${htmlEscape(target)}">${htmlEscape(target)}</a>.</p></body>\n</html>\n`;
+  return `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1" />\n<link rel="canonical" href="${htmlEscape(target)}" />\n<meta http-equiv="refresh" content="0; url=${htmlEscape(target)}" />\n<title>Redirecting…</title>\n</head>\n<body><p>This page moved to <a href="${htmlEscape(target)}">${htmlEscape(target)}</a>.</p></body>\n</html>\n`;
 };
 
 const buildSitemap = (posts) => {
   const staticRoutes = ['/', '/about', '/projects', '/experience', '/credentials', '/writing', '/contact'];
   const urls = staticRoutes.map((route) => ({ loc: canonicalUrl(route) }));
   for (const post of posts) {
-    urls.push({ loc: canonicalUrl(`/writing/${post.slug}`), lastmod: isoDate(post.updateTime)?.slice(0, 10) });
+    // Upvotes change Firestore updateTime without changing the article content.
+    urls.push({ loc: canonicalUrl(`/writing/${post.slug}`) });
   }
   const body = urls.map(({ loc, lastmod }) => `  <url>\n    <loc>${xmlEscape(loc)}</loc>${lastmod ? `\n    <lastmod>${xmlEscape(lastmod)}</lastmod>` : ''}\n  </url>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
@@ -323,8 +337,33 @@ const validateGenerated = async (posts) => {
 
 await fs.access(path.join(DIST, 'index.html'));
 const baseHtml = await fs.readFile(path.join(DIST, 'index.html'), 'utf8');
-const [settings, posts] = await Promise.all([fetchSiteSettings(), fetchVisiblePosts()]);
+const [settings, posts, projects, certificates, experience] = await Promise.all([
+  fetchSiteSettings(), fetchVisibleRecords('posts'), fetchVisibleRecords('projects'), fetchVisibleRecords('certificates'), fetchVisibleRecords('experience'),
+]);
 const siteSchema = siteSchemaFor(settings);
+const publicScenes = publicCanvasScenes(settings.heroCanvas, projects);
+settings.heroCanvas = publicScenes.length ? { ...settings.heroCanvas, scenes: publicScenes } : undefined;
+const dom = new JSDOM('');
+const purifier = createDOMPurify(dom.window);
+const sanitizeHtml = html => purifier.sanitize(html, richTextPolicy);
+for (const project of projects) if (project.output) project.output = sanitizeHtml(project.output);
+const snapshot = { settings, posts, projects, certificates, experience };
+const server = await createServer({
+  root: fileURLToPath(new URL('..', import.meta.url)),
+  mode: 'production',
+  ssr: { noExternal: ['react-syntax-highlighter'] },
+  server: { middlewareMode: true, hmr: false, watch: null },
+  appType: 'custom',
+  logLevel: 'error',
+});
+try {
+const { renderPublicPage } = await server.ssrLoadModule('/src/prerender.tsx');
+const renderHtml = async (html, route, includeData = true) => {
+  const content = await renderPublicPage(canonicalPath(route), snapshot, sanitizeHtml);
+  html = html.replace(/<div id="root"><\/div>/, () => `<div id="root">${content}</div>`);
+  if (includeData) html = html.replace('</body>', () => `<script id="portfolio-public-data" type="application/json">${jsonForHtml(snapshot)}</script>\n</body>`);
+  return html;
+};
 
 const staticPages = [
   { route: '/', title: settings.seo?.title || defaults.seo.title, description: settings.seo?.description || defaults.seo.description },
@@ -338,7 +377,7 @@ const staticPages = [
 
 for (const page of staticPages) {
   const html = pageHtml(baseHtml, { ...page, siteSchema });
-  await writeRoute(page.route, html);
+  await writeRoute(page.route, await renderHtml(html, page.route));
 }
 
 const dashboardHtml = pageHtml(baseHtml, {
@@ -361,11 +400,14 @@ for (const post of posts) {
     routeSchema: articleSchemaFor(post, description),
   });
   const published = isoDate(post.date || post.createTime);
-  const modified = isoDate(post.updateTime);
   if (published) html = upsertMeta(html, 'property', 'article:published_time', published);
-  if (modified) html = upsertMeta(html, 'property', 'article:modified_time', modified);
-  await writeRoute(`/writing/${post.slug}`, html);
+  await writeRoute(`/writing/${post.slug}`, await renderHtml(html, `/writing/${post.slug}`));
 }
+
+// GitHub Pages preserves a real HTTP 404 while the normal app renders at the original URL.
+const notFound = pageHtml(baseHtml, { route: '/404', title: 'Page not found — Syed Ammar', description: 'Page not found.', robots: 'noindex,follow', siteSchema });
+const notFoundHtml = (await renderHtml(notFound, '/404', false)).replace(/<link\s+[^>]*rel=["']canonical["'][^>]*>/i, '');
+await fs.writeFile(path.join(DIST, '404.html'), secureHtml(notFoundHtml));
 
 await writeRoute('/achievements', redirectHtml('/achievements', '/credentials'));
 await writeRoute('/journals', redirectHtml('/journals', '/writing'));
@@ -375,5 +417,6 @@ await fs.writeFile(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSi
 await fs.writeFile(path.join(DIST, 'sitemap.xml'), buildSitemap(posts));
 await validateGenerated(posts);
 
-console.log(`[seo] Generated ${staticPages.length} canonical route shells, ${posts.length} writing route shell(s), sitemap.xml, robots.txt and structured data.`);
-console.log('[seo] Dashboard is noindex and excluded from the sitemap; legacy routes are noindex redirects.');
+console.log(`[seo] Rendered ${staticPages.length} public pages and ${posts.length} writing page(s) with crawlable content, canonical metadata, sitemap.xml and structured data.`);
+console.log('[seo] Dashboard stays noindex; missing URLs stay 404; only legacy aliases redirect to canonical pages.');
+} finally { await server.close(); dom.window.close(); }

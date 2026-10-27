@@ -26,7 +26,7 @@ const educationPeriod = (entry: Certificate) => {
 
 export default function Achievements() {
   const { settings } = useSiteSettings();
-  const { items, loading, error, retry } = usePublicData(getPublicCertificates);
+  const { items, loading, error, retry } = usePublicData(getPublicCertificates, 'certificates');
   const { certificates, education } = useMemo(() => ({
     certificates: items.filter(item => learningEntryType(item) === "certificate"),
     education: items.filter(item => learningEntryType(item) === "education"),
