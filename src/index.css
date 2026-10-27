@@ -658,28 +658,31 @@ a {
 .system-file {
   display: flex;
   align-items: flex-start;
-  gap: calc(22 * var(--u));
+  gap: calc(10 * var(--u));
   border: 1px solid var(--field-line);
   border-radius: 2px;
-  padding: calc(12 * var(--u)) calc(20 * var(--u));
+  padding: calc(10 * var(--u)) calc(12 * var(--u));
   height: calc(89 * var(--u));
   font-size: calc(15 * var(--u));
   line-height: 1.4;
 }
 .system-file > svg {
   flex-shrink: 0;
-  width: calc(35 * var(--u));
+  width: calc(30 * var(--u));
   height: calc(35 * var(--u));
-  margin-top: 5px;
+  margin-top: calc(2 * var(--u));
 }
+.system-file > div { flex: 1; min-width: 0; }
 .system-file strong {
   font-weight: 500;
   display: block;
+  white-space: nowrap;
 }
 .system-file span {
   display: block;
   color: var(--field-muted);
   margin-top: 3px;
+  line-height: 1.35;
 }
 .specimen-cta {
   position: absolute;

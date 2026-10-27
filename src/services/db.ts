@@ -13,68 +13,11 @@ import { publicDb as db } from '../lib/publicFirebase';
 import type { BlogPost, Certificate, Experience, Project, SiteSettings } from '../types/database';
 import { siteDefaults } from '../data/siteDefaults';
 import { normalizeHeroCanvas } from '../lib/heroCanvas';
+import { PublicReadCache } from '../lib/publicReadCache';
 
-const CACHE_KEY = 'portfolio:public-data:v12';
-const DEFAULT_TTL = 5 * 60 * 1000;
-
-type CacheEnvelope = Record<string, { expires: number; value: unknown }>;
-
-const memory = new Map<string, { expires: number; value: unknown }>();
-let cacheGeneration = 0;
-
-const readSessionCache = (): CacheEnvelope => {
-  try {
-    return JSON.parse(sessionStorage.getItem(CACHE_KEY) || '{}') as CacheEnvelope;
-  } catch {
-    return {};
-  }
-};
-
-const writeSessionCache = (next: CacheEnvelope) => {
-  try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(next)); } catch { /* storage can be unavailable */ }
-};
-
-const readCached = <T,>(key: string): T | null => {
-  const now = Date.now();
-  const local = memory.get(key);
-  if (local && local.expires > now) return local.value as T;
-
-  const session = readSessionCache();
-  const hit = session[key];
-  if (!hit || hit.expires <= now) return null;
-  memory.set(key, hit);
-  return hit.value as T;
-};
-
-const storeCached = <T,>(key: string, value: T, ttl = DEFAULT_TTL) => {
-  const entry = { expires: Date.now() + ttl, value };
-  memory.set(key, entry);
-  const session = readSessionCache();
-  session[key] = entry;
-  writeSessionCache(session);
-  return value;
-};
-
-const withCache = async <T,>(key: string, loader: () => Promise<T>, ttl = DEFAULT_TTL): Promise<T> => {
-  const cached = readCached<T>(key);
-  if (cached !== null) return cached;
-  const generation = cacheGeneration;
-  const value = await loader();
-  return generation === cacheGeneration ? storeCached(key, value, ttl) : value;
-};
-
-export const invalidatePublicCache = (prefix?: string) => {
-  cacheGeneration += 1;
-  if (!prefix) memory.clear();
-  else [...memory.keys()].filter((key) => key.startsWith(prefix)).forEach((key) => memory.delete(key));
-
-  const session = readSessionCache();
-  if (!prefix) writeSessionCache({});
-  else {
-    Object.keys(session).filter((key) => key.startsWith(prefix)).forEach((key) => delete session[key]);
-    writeSessionCache(session);
-  }
-};
+const publicCache = new PublicReadCache();
+const withCache = <T,>(key: string, loader: () => Promise<T>, ttl?: number) => publicCache.get(key, loader, ttl);
+export const invalidatePublicCache = (prefix?: string) => publicCache.invalidate(prefix);
 
 const byOrder = <T extends { order?: number }>(items: T[]) =>
   [...items].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
@@ -120,7 +63,7 @@ export const getPublicPosts = () => withCache<BlogPost[]>('posts', async () => {
 });
 
 export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
-  const cachedPosts = readCached<BlogPost[]>('posts');
+  const cachedPosts = publicCache.read<BlogPost[]>('posts');
   const cachedPost = cachedPosts?.find((item) => item.slug === slug);
   if (cachedPost) return cachedPost;
 
@@ -142,21 +85,24 @@ export const incrementUpvote = async (slug: string): Promise<void> => {
 export const addItem = async (collectionName: string, data: Record<string, unknown>) =>
   addDoc(collection(db, collectionName), data);
 
-export const getSiteSettings = () => withCache<SiteSettings>('settings', async () => {
+export const getSiteSettings = async ({ strict = false }: { strict?: boolean } = {}): Promise<SiteSettings> => {
   try {
-    const snapshot = await getDoc(doc(db, 'siteSettings', 'main'));
-    if (!snapshot.exists()) return siteDefaults;
-    const remote = snapshot.data() as Partial<SiteSettings>;
-    return sanitizePublicSettings({
-      ...siteDefaults,
-      ...remote,
-      socials: { ...siteDefaults.socials, ...(remote.socials ?? {}) },
-      seo: { ...siteDefaults.seo, ...(remote.seo ?? {}) },
-      ui: { ...siteDefaults.ui, ...(remote.ui ?? {}) },
-      capabilities: remote.capabilities?.length ? remote.capabilities : siteDefaults.capabilities,
-    });
+    return await withCache<SiteSettings>('settings', async () => {
+      const snapshot = await getDoc(doc(db, 'siteSettings', 'main'));
+      if (!snapshot.exists()) return siteDefaults;
+      const remote = snapshot.data() as Partial<SiteSettings>;
+      return sanitizePublicSettings({
+        ...siteDefaults,
+        ...remote,
+        socials: { ...siteDefaults.socials, ...(remote.socials ?? {}) },
+        seo: { ...siteDefaults.seo, ...(remote.seo ?? {}) },
+        ui: { ...siteDefaults.ui, ...(remote.ui ?? {}) },
+        capabilities: remote.capabilities?.length ? remote.capabilities : siteDefaults.capabilities,
+      });
+    }, 10 * 60 * 1000);
   } catch (error) {
+    if (strict) throw error;
     console.warn('Using local portfolio copy because siteSettings could not be read.', error);
     return siteDefaults;
   }
-}, 10 * 60 * 1000);
+};

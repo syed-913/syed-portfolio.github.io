@@ -12,7 +12,7 @@ const spring = { type: 'spring' as const, stiffness: 240, damping: 28, mass: 1 }
 const AssistantFrame = ({ children, panelRef, reduced, paused }: { children: ReactNode; panelRef: RefObject<HTMLElement | null>; reduced: boolean; paused: boolean }) => {
   const present = useIsPresent();
   return <div className="assistant-position" data-paused={paused || !present || undefined} aria-hidden={!present} inert={!present}>
-    <motion.section ref={panelRef} id="portfolio-assistant" className="assistant-dock" aria-label="Portfolio assistant" tabIndex={-1} style={{ pointerEvents: present ? 'auto' : 'none' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: reduced ? 0.08 : 0.18 } }}>{children}</motion.section>
+    <motion.section ref={panelRef} id="portfolio-assistant" className="assistant-dock" aria-label="Portfolio assistant" tabIndex={-1} style={{ pointerEvents: present ? 'auto' : 'none' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: reduced ? 0.08 : 0.18, delay: reduced ? 0 : 0.12 } }}>{children}</motion.section>
   </div>;
 };
 
@@ -25,6 +25,40 @@ const MessageBubble = forwardRef<HTMLDivElement, { message: AssistantMessage; re
     {footer && <div className="assistant-message-footer">{footer}</div>}
   </motion.div>;
 });
+
+
+const AssistantComposer = ({ assistant, reduce, inputRef, panelRef, barRef, barSize, onClose, onModeChange }: {
+  assistant: ReturnType<typeof usePortfolioAssistant>;
+  reduce: boolean;
+  inputRef: RefObject<HTMLInputElement | null>;
+  panelRef: RefObject<HTMLElement | null>;
+  barRef: RefObject<HTMLFormElement | null>;
+  barSize: { width: number; height: number };
+  onClose: (restoreFocus?: boolean) => void;
+  onModeChange: (mode: AssistantMode) => void;
+}) => {
+  const present = useIsPresent();
+  const [settled, setSettled] = useState(false);
+  const interactive = present && (settled || reduce);
+  useEffect(() => {
+    if (!interactive) return;
+    const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+    (touch ? panelRef.current : inputRef.current)?.focus({ preventScroll: true });
+  }, [interactive, inputRef, panelRef]);
+  return (
+        <form ref={barRef} className="assistant-composer" aria-busy={!interactive} onSubmit={event => { event.preventDefault(); if (!interactive) return; void assistant.send(); inputRef.current?.focus({ preventScroll: true }); }}>
+          <motion.div onAnimationStart={() => setSettled(false)} onAnimationComplete={() => { if (present) setSettled(true); }} className="assistant-composer-surface" aria-hidden="true" initial={reduce ? { opacity: 0 } : { scaleX: 0.06, opacity: 0.4 }} animate={{ scaleX: 1, opacity: 1 }} exit={{ scaleX: reduce ? 1 : 0.08, opacity: 0, transition: { duration: reduce ? 0.08 : 0.16, delay: reduce ? 0 : 0.12 } }} transition={reduce ? { duration: 0.08 } : { type: 'spring', stiffness: 150, damping: 25, mass: 1.1 }}>
+            <svg className="assistant-edge" viewBox={`0 0 ${barSize.width} ${barSize.height}`} preserveAspectRatio="none"><rect x="1" y="1" width={Math.max(1, barSize.width - 2)} height={Math.max(1, barSize.height - 2)} rx="27" pathLength="100"/></svg>
+          </motion.div>
+          <div className="assistant-composer-content" data-ready={interactive} aria-hidden={!interactive} inert={!interactive}>
+            <label className="assistant-mode"><MessageCircle size={19}/><span className="sr-only">Assistant mode</span><select value={assistant.mode} disabled={assistant.typing} onChange={event => onModeChange(event.target.value as AssistantMode)} aria-label="Assistant mode"><option value="NORMAL">Visitor</option><option value="RECRUITER">Recruiter</option></select><ChevronDown size={10}/></label>
+            <label className="assistant-prompt"><span className="sr-only">Message</span><input ref={inputRef} value={assistant.input} onChange={event => assistant.setInput(event.target.value)} aria-label="Message" aria-describedby="assistant-quota" placeholder={assistant.remaining ? 'Ask about projects, skills or experience…' : 'Daily limit reached'} maxLength={2000} disabled={!assistant.remaining} autoComplete="off"/><span aria-hidden="true" className="assistant-short-prompt">{assistant.remaining ? 'Ask Syed…' : 'Limit reached'}</span></label>
+            <button type="submit" className="assistant-send" disabled={!assistant.input.trim() || assistant.typing || !assistant.remaining} aria-label="Send message"><Send size={18}/></button>
+            <button type="button" className="assistant-close" onClick={() => onClose()} aria-label="Close assistant"><X size={19}/></button>
+          </div>
+        </form>
+  );
+};
 
 export const FloatingChatbot = ({ open, onClose, onExitComplete }: { open: boolean; onClose: (restoreFocus?: boolean) => void; onExitComplete: () => void }) => {
   const assistant = usePortfolioAssistant(open);
@@ -49,12 +83,8 @@ export const FloatingChatbot = ({ open, onClose, onExitComplete }: { open: boole
       if (!(event.target instanceof Element) || panel.current?.contains(event.target) || event.target.closest('.assistant-launcher, a[href]')) return;
       onClose(false);
     };
-    const timer = window.setTimeout(() => {
-      const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
-      (touch ? panel.current : input.current)?.focus({ preventScroll: true });
-    }, reduce ? 0 : 180);
     document.addEventListener('keydown', key); document.addEventListener('click', outside);
-    return () => { clearTimeout(timer); document.removeEventListener('keydown', key); document.removeEventListener('click', outside); };
+    return () => { document.removeEventListener('keydown', key); document.removeEventListener('click', outside); };
   }, [open, onClose, reduce]);
   useEffect(() => {
     if (!open || !bar.current) return;
@@ -94,17 +124,7 @@ export const FloatingChatbot = ({ open, onClose, onExitComplete }: { open: boole
             </AnimatePresence>
           </div>
         </LayoutGroup>
-        <form ref={bar} className="assistant-composer" onSubmit={event => { event.preventDefault(); void assistant.send(); input.current?.focus({ preventScroll: true }); }}>
-          <motion.div className="assistant-composer-surface" aria-hidden="true" initial={reduce ? { opacity: 0 } : { scaleX: 0.06, opacity: 0.4 }} animate={{ scaleX: 1, opacity: 1 }} exit={{ scaleX: reduce ? 1 : 0.08, opacity: 0, transition: { duration: reduce ? 0.08 : 0.16 } }} transition={reduce ? { duration: 0.08 } : { type: 'spring', stiffness: 150, damping: 25, mass: 1.1 }}>
-            <svg className="assistant-edge" viewBox={`0 0 ${barSize.width} ${barSize.height}`} preserveAspectRatio="none"><rect x="1" y="1" width={Math.max(1, barSize.width - 2)} height={Math.max(1, barSize.height - 2)} rx="27" pathLength="100"/></svg>
-          </motion.div>
-          <motion.div className="assistant-composer-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: reduce ? 0.08 : 0.28, delay: reduce ? 0 : 0.14 }}>
-            <label className="assistant-mode"><MessageCircle size={19}/><span className="sr-only">Assistant mode</span><select value={assistant.mode} disabled={assistant.typing} onChange={event => { assistant.switchMode(event.target.value as AssistantMode); setHistory(false); }} aria-label="Assistant mode"><option value="NORMAL">Visitor</option><option value="RECRUITER">Recruiter</option></select><ChevronDown size={10}/></label>
-            <label className="assistant-prompt"><span className="sr-only">Message</span><input ref={input} value={assistant.input} onChange={event => assistant.setInput(event.target.value)} aria-label="Message" aria-describedby="assistant-quota" placeholder={assistant.remaining ? 'Ask about projects, skills or experience…' : 'Daily limit reached'} maxLength={2000} disabled={!assistant.remaining} autoComplete="off"/><span aria-hidden="true" className="assistant-short-prompt">{assistant.remaining ? 'Ask Syed…' : 'Limit reached'}</span></label>
-            <button type="submit" className="assistant-send" disabled={!assistant.input.trim() || assistant.typing || !assistant.remaining} aria-label="Send message"><Send size={18}/></button>
-            <button type="button" className="assistant-close" onClick={() => onClose()} aria-label="Close assistant"><X size={19}/></button>
-          </motion.div>
-        </form>
+        <AssistantComposer assistant={assistant} reduce={!!reduce} inputRef={input} panelRef={panel} barRef={bar} barSize={barSize} onClose={onClose} onModeChange={mode => { assistant.switchMode(mode); setHistory(false); }}/>
     </AssistantFrame>}
   </AnimatePresence>, document.body);
 };

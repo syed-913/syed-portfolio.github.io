@@ -147,15 +147,17 @@ export const HeroCanvasEditor = ({ initialConfig, projects, onSave }: { initialC
   };
   const publish = async () => {
     if (saving || issues.length) return;
-    const snapshot = config; setSaving(true); setSaveError(false); setStatus('Saving canvas…');
+    const snapshot = { ...config, enabled: saved.enabled && !config.enabled ? false : true }; setSaving(true); setSaveError(false); setStatus('Saving canvas…');
     try {
-      await onSave(snapshot); setSaved(snapshot); setStatus(snapshot.enabled ? 'Canvas published. Your project scenes are live.' : 'Layout saved. The original home canvas remains active.'); setDraft(undefined);
+      await onSave(snapshot); setSaved(snapshot);
+      setHistory(previous => ({ ...previous, present: previous.present === config ? snapshot : { ...previous.present, enabled: snapshot.enabled } }));
+      setStatus(snapshot.enabled ? 'Canvas published. Your project scenes are live.' : 'Original canvas restored. Your edited scenes are kept here.'); setDraft(undefined);
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* Optional storage. */ }
     } catch (error) { setSaveError(true); setStatus(error instanceof Error ? error.message : 'Could not save. Please try again.'); }
     finally { setSaving(false); }
   };
 
-  return <AdminSection title="Hero canvas" description="Compose the project drawing on your home page. The grid and Graphite / Emerald / Parchment palette stay in place." action={<button className="canvas-editor-button is-primary" type="button" disabled={saving || !dirty || issues.length > 0} onClick={() => void publish()}><Save size={15}/>{saving ? 'Saving…' : config.enabled ? 'Publish canvas' : 'Save layout'}</button>}>
+  return <AdminSection title="Hero canvas" description="Compose the project drawing on your home page. Publish canvas saves and displays these scenes. The grid and palette stay in place." action={<button className="canvas-editor-button is-primary" type="button" disabled={saving || (!dirty && saved.enabled) || issues.length > 0} onClick={() => void publish()}><Save size={15}/>{saving ? 'Saving…' : saved.enabled && !config.enabled ? 'Use original canvas' : 'Publish canvas'}</button>}>
     <div className="canvas-editor" onKeyDown={event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z' && !(event.target instanceof HTMLElement && event.target.closest('input,textarea,select'))) { event.preventDefault(); if (event.shiftKey) redo(); else undo(); } }}>
       <div className="canvas-editor-publish"><label><input type="checkbox" checked={config.enabled} onChange={event => apply(previous => ({ ...previous, enabled: event.target.checked }))}/>Show custom canvas on home</label><span>{dirty ? 'Unpublished changes · draft kept in this browser' : config.enabled ? 'Published canvas' : 'Original canvas active'}</span></div>
       {draft && <div className="canvas-draft-notice"><p>A local canvas draft is available.</p><button type="button" onClick={() => { apply(() => draft); setSceneId(draft.defaultSceneId); setSelectedId(''); setDraft(undefined); }}>Restore draft</button><button type="button" onClick={() => { setDraft(undefined); try { localStorage.removeItem(DRAFT_KEY); } catch { /* Optional storage. */ } }}>Discard draft</button></div>}
