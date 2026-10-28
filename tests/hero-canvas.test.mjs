@@ -33,7 +33,8 @@ test('authored shape data cannot become script, CSS or an executable link', () =
 });
 test('URL validation rejects ambiguous navigation while preserving real project destinations', () => {
   for(const url of ['javascript:alert(1)','data:text/html,x','//evil.example','/\\evil.example','https://user:password@example.com','https://example.com\n/path','ftp://example.com']) assert.equal(safeLink(url),undefined,url);
-  for(const url of ['/projects#console','#work','https://github.com/syed-913/User_Management_Console']) assert.equal(safeLink(url),url);
+  for(const url of ['/projects/#console','#work','https://github.com/syed-913/User_Management_Console']) assert.equal(safeLink(url),url);
+  assert.equal(safeLink('/projects#console'), '/projects/#console');
 });
 test('desktop and mobile layouts remain independent and bounded after normalization', () => {
   const config = initialHeroCanvas([project]);

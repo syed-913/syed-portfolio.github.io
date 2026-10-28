@@ -10,10 +10,6 @@
       name="description"
       content="Portfolio of Syed Ammar Hussain: Linux automation, cloud foundations, security, compliance learning, certifications and lab-based experience."
     />
-    <meta
-      name="keywords"
-      content="Syed Ammar, Linux System Administrator, DevOps, Cloud Engineer, AWS, Kubernetes, SRE, Terraform, Ansible, Karachi, infrastructure"
-    />
     <link rel="canonical" href="https://syedammar.engineer/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/profile-avatar.webp" />
@@ -76,22 +72,6 @@
             "content",
             theme === "dark" ? "#14181b" : "#f4f1e9",
           );
-      })();
-    </script>
-
-    <script>
-      (function () {
-        var redirect = sessionStorage.getItem("redirect");
-        if (!redirect) return;
-        sessionStorage.removeItem("redirect");
-        try {
-          var target = new URL(redirect);
-          history.replaceState(
-            null,
-            "",
-            target.pathname + target.search + target.hash,
-          );
-        } catch (_) {}
       })();
     </script>
 

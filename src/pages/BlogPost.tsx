@@ -13,6 +13,7 @@ import { useSiteSettings } from '../hooks/useSiteSettings';
 import { displayReadTime } from '../lib/writing';
 import { prepareArticle, remarkArticleHeadings } from '../lib/article';
 import { useActiveSection } from '../hooks/useActiveSection';
+import { usePublicSnapshot } from '../context/PublicSnapshotContext';
 
 const BlogPost = () => {
   const { slug = '' } = useParams();
@@ -21,17 +22,20 @@ const BlogPost = () => {
 
 const ArticleReader = ({ slug }: { slug: string }) => {
   const { settings } = useSiteSettings();
+  const snapshot = usePublicSnapshot();
+  const initialPost = snapshot?.posts.find(item => item.slug === slug) ?? null;
+  const initialIndex = snapshot?.posts.findIndex(item => item.slug === slug) ?? -1;
   const reduce = useReducedMotion();
   const articleRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: articleRef, offset: ['start start', 'end end'] });
   const readingProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 26, mass: 0.28 });
-  const [post, setPost] = useState<BlogPostType | null>(null);
-  const [previousPost, setPreviousPost] = useState<BlogPostType | null>(null);
-  const [nextPost, setNextPost] = useState<BlogPostType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [post, setPost] = useState<BlogPostType | null>(initialPost);
+  const [previousPost, setPreviousPost] = useState<BlogPostType | null>(initialIndex >= 0 ? snapshot?.posts[initialIndex + 1] ?? null : null);
+  const [nextPost, setNextPost] = useState<BlogPostType | null>(initialIndex > 0 ? snapshot?.posts[initialIndex - 1] ?? null : null);
+  const [loading, setLoading] = useState(!initialPost);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [upvotes, setUpvotes] = useState(0);
+  const [upvotes, setUpvotes] = useState(initialPost?.upvotes ?? 0);
   const [voted, setVoted] = useState(false);
   const [pulse, setPulse] = useState(0);
   const prepared = useMemo(() => prepareArticle(post?.content ?? '', post?.title ?? ''), [post?.content, post?.title]);
@@ -59,14 +63,17 @@ const ArticleReader = ({ slug }: { slug: string }) => {
     setVoted(true);
     setPulse((value) => value + 1);
     setUpvotes((value) => value + 1);
-    const stored = JSON.parse(localStorage.getItem('upvoted_posts') || '[]') as string[];
-    localStorage.setItem('upvoted_posts', JSON.stringify([...stored, slug]));
+    try {
+      const value: unknown = JSON.parse(localStorage.getItem('upvoted_posts') || '[]');
+      const stored = Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
+      localStorage.setItem('upvoted_posts', JSON.stringify([...stored, slug]));
+    } catch { /* A denied or malformed local cache must not break the vote. */ }
     incrementUpvote(slug).catch(() => undefined);
   };
 
   if (loading) return <div className="article-loading"><DataLoading label="Opening field note…" variant="article" /></div>;
   if (error) return <div className="article-loading"><DataError retry={() => { setLoading(true); setError(false); setAttempt(value => value + 1); }} /></div>;
-  if (!post) return <div className="article-loading"><h1>Note not found.</h1><Link to="/writing">Back to writing</Link></div>;
+  if (!post) return <div className="article-loading"><SEO title="Note not found" description="This field note is unavailable." noIndex /><h1>Note not found.</h1><Link to="/writing/">Back to writing</Link></div>;
 
   const articleDescription = post.content.replace(/[#*_`>-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155);
   const parsedDate = post.date ? new Date(post.date) : null;
@@ -93,7 +100,7 @@ const ArticleReader = ({ slug }: { slug: string }) => {
       <SEO title={`${post.title} — ${settings.shortName}`} description={articleDescription} path={`/writing/${post.slug}`} type="article" publishedTime={publishedTime} structuredData={articleStructuredData} />
       <motion.div className="article-reading-progress" aria-hidden="true" style={{ scaleX: reduce ? scrollYProgress : readingProgress }} />
       <article ref={articleRef} className="article-page">
-        <Link to="/writing" className="article-back"><ArrowLeft size={16} /> All field notes</Link>
+        <Link to="/writing/" className="article-back"><ArrowLeft size={16} /> All field notes</Link>
         <div className="article-layout">
           {!!sectionLinks.length && <aside className="article-aside"><nav className="article-toc" aria-label="Article sections"><strong>In this note</strong>{sectionLinks}</nav></aside>}
         <div className="article-canvas">
@@ -146,14 +153,14 @@ const ArticleReader = ({ slug }: { slug: string }) => {
           {(previousPost || nextPost) && (
             <nav className="article-neighbors" aria-label="More field notes">
               {previousPost ? (
-                <Link to={`/writing/${previousPost.slug}`} className="article-neighbor article-neighbor-previous">
+                <Link to={`/writing/${previousPost.slug}/`} className="article-neighbor article-neighbor-previous">
                   <span><ArrowLeft size={15} /> {settings.ui.writingPrevious}</span>
                   <strong>{previousPost.title}</strong>
                   <small>{displayReadTime(previousPost)}</small>
                 </Link>
               ) : <span />}
               {nextPost && (
-                <Link to={`/writing/${nextPost.slug}`} className="article-neighbor article-neighbor-next">
+                <Link to={`/writing/${nextPost.slug}/`} className="article-neighbor article-neighbor-next">
                   <span>{settings.ui.writingNext} <ArrowRight size={15} /></span>
                   <strong>{nextPost.title}</strong>
                   <small>{displayReadTime(nextPost)}</small>

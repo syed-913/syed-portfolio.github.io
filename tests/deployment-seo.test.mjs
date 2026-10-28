@@ -13,14 +13,14 @@ async function generate(t, { strict = false, failPosts = false } = {}) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'portfolio-seo-test-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   await fs.mkdir(path.join(directory, 'dist'));
-  await fs.writeFile(path.join(directory, 'dist/index.html'), '<!doctype html><html><head><title>Base</title><script type="module" src="/assets/app.js"></script></head><body><div id="root"></div></body></html>');
+  await fs.writeFile(path.join(directory, 'dist/index.html'), '<!doctype html><html><head><meta charset="UTF-8" /><title>Base</title><script type="module" src="/assets/app.js"></script></head><body><div id="root"></div></body></html>');
   const title = 'A title </script><script>alert("fixture")</script> & evidence';
   const posts = [
     { document: { ...document({ title, slug: 'safe-article', content: 'A **public** article.', date: '2026-10-17' }), updateTime: '2026-10-17T00:00:00Z' } },
     { document: document({ title: 'Unsafe path', slug: '../../dashboard' }) },
   ];
   const hook = path.join(directory, 'transport.mjs');
-  await fs.writeFile(hook, `globalThis.fetch=async(url,options={})=>{if(String(url).includes(':runQuery')){const query=JSON.parse(options.body).structuredQuery;if(query.where.fieldFilter.field.fieldPath!=='visible'||query.where.fieldFilter.value.booleanValue!==true)throw new Error('Public visibility filter is required');return new Response(JSON.stringify(${failPosts ? '{error:"unavailable"}' : JSON.stringify(posts)}),{status:${failPosts ? 503 : 200}})}return new Response('{}',{status:404})};`);
+  await fs.writeFile(hook, `globalThis.fetch=async(url,options={})=>{if(String(url).includes(':runQuery')){const query=JSON.parse(options.body).structuredQuery;if(query.where.fieldFilter.field.fieldPath!=='visible'||query.where.fieldFilter.value.booleanValue!==true)throw new Error('Public visibility filter is required');if(query.select.fields.some(field=>/mediaFileId|password|email|private/i.test(field.fieldPath)))throw new Error('A private field entered the public build');return new Response(JSON.stringify(query.from[0].collectionId==='posts'?${failPosts ? '{error:"unavailable"}' : JSON.stringify(posts)}:[]),{status:${failPosts ? 503 : 200}})}return new Response('{}',{status:404})};`);
   const result = spawnSync(process.execPath, ['--experimental-strip-types', '--import', hook, generator], {
     cwd: directory,
     encoding: 'utf8',
@@ -46,8 +46,22 @@ test('production route generation keeps direct pages, noindex dashboard and safe
   assert.equal(JSON.parse(json).headline, title);
   assert.doesNotMatch(json, /<\/script>/);
   assert.match(article, /&lt;\/script&gt;/);
+  assert.match(article, /<h1[^>]*>A title/);
+  assert.match(article, /A <strong>public<\/strong> article/);
+  assert.match(article, /id="portfolio-public-data"/);
+  assert.match(article, /Content-Security-Policy/);
+  assert.doesNotMatch(article, /script-src[^";]*'unsafe-inline'/);
   const home = await fs.readFile(path.join(directory, 'dist/index.html'), 'utf8');
   assert.match(home, /Linux.*Cloud.*Security/);
+  assert.doesNotMatch(home, /<div id="root"><\/div>/);
+  assert.match(home, /href="\/about\/"/);
+  const notFound = await fs.readFile(path.join(directory, 'dist/404.html'), 'utf8');
+  assert.match(notFound, /Page not found/);
+  assert.match(notFound, /content="noindex,follow"/);
+  assert.doesNotMatch(notFound, /location\.replace|sessionStorage\.redirect|http-equiv="refresh"|rel="canonical"/);
+  const alias = await fs.readFile(path.join(directory, 'dist/journals/index.html'), 'utf8');
+  assert.match(alias, /http-equiv="refresh" content="0; url=https:\/\/syedammar.engineer\/writing\/"/);
+  assert.doesNotMatch(alias, /noindex/);
 });
 
 test('release SEO fails closed on backend read failure; optional local builds retain static routes', async t => {

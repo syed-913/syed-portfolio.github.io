@@ -14,12 +14,12 @@ export const Navbar = () => {
   const panel = useRef<HTMLElement>(null);
   const { settings } = useSiteSettings();
   const links = [
-    { to: "/about", label: settings.ui.navProfile },
-    { to: "/projects", label: settings.ui.navWork },
-    { to: "/experience", label: settings.ui.navExperience },
-    { to: "/credentials", label: settings.ui.navCredentials },
-    { to: "/writing", label: settings.ui.navWriting },
-    { to: "/contact", label: settings.ui.navConnect },
+    { to: "/about/", label: settings.ui.navProfile },
+    { to: "/projects/", label: settings.ui.navWork },
+    { to: "/experience/", label: settings.ui.navExperience },
+    { to: "/credentials/", label: settings.ui.navCredentials },
+    { to: "/writing/", label: settings.ui.navWriting },
+    { to: "/contact/", label: settings.ui.navConnect },
   ];
   const closeMenu = () => { setOpen(false); trigger.current?.focus({ preventScroll: true }); };
   const toggleMenu = () => {
@@ -56,7 +56,7 @@ export const Navbar = () => {
       <Link to="/" className="brand" onClick={() => setOpen(false)}>{settings.shortName}</Link>
       <div className="desktop-nav">
         <div className="nav-links">{links.slice(0, -1).map(link => <NavLink key={link.to} to={link.to} className={({ isActive }) => `nav-link ${isActive ? "is-active" : ""}`}>{link.label}</NavLink>)}</div>
-        <ThemeToggle /><Link to="/contact" className="nav-cta">{settings.ui.navConnect}<ArrowRight size={17} /></Link>
+        <ThemeToggle /><Link to="/contact/" className="nav-cta">{settings.ui.navConnect}<ArrowRight size={17} /></Link>
       </div>
       <div className="nav-controls">
         <ThemeToggle />
